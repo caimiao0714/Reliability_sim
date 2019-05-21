@@ -1,0 +1,16 @@
+---
+title: "Bayesian estimation for NHPP using rstan"
+author: "Miao Cai <miao.cai@slu.edu>"
+date: "`r Sys.Date()`"
+output:
+  pdf_document: 
+    number_sections: true
+header-include:
+  - \usepackage{soul}
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
