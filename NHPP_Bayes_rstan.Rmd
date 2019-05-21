@@ -11,6 +11,92 @@ header-include:
 
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r}
+pacman::p_load(rstan, tidyverse)
+source("functions/NHPP_functions.R")
+```
+
+
+```{r}
+plpstan2 = '
+functions{
+  real nhpp_log(vector t, real beta, real theta, real tau){
+    vector[num_elements(t)] loglik_part;
+    real loglikelihood;
+    for (i in 1:num_elements(t)){
+      loglik_part[i] = log(beta) - beta*log(theta) + (beta - 1)*log(t[i]);
+    }
+    loglikelihood = sum(loglik_part) - (tau/theta)^beta;
+    return loglikelihood;
+  }
+}
+data {
+  int<lower=0> N; //total # of obs
+  int<lower=0> K; //total # of groups
+  vector<lower=0>[K] tau;//truncated time
+  vector<lower=0>[N] event_time; //failure time
+  int s[K]; //group sizes
+}
+parameters{
+  real<lower=0> beta;
+  real<lower=0> theta;
+}
+model{
+  int position;
+  position = 1;
+  for (k in 1:K){
+    segment(event_time, position, s[k]) ~ nhpp(beta, theta, tau[k]);
+    position = position + s[k];
+  }
+//PRIORS
+  beta ~ gamma(1, 1);
+  theta ~ gamma(1, 0.01);
+}
+'
+```
+
+
+```{r eval=TRUE}
+set.seed(123)
+nhpp_5 = sim_mul_plp1(5)
+datstan1 = list(
+    N = nrow(nhpp_5$event_dat),
+    K = nrow(nhpp_5$start_end_dat),
+    tau = nhpp_5$start_end_dat$end_time,
+    event_time = nhpp_5$event_dat$event_time,
+    s = nhpp_5$shift_length
+)
+
+fitplp <- stan(
+  model_code=plpstan2, model_name="NHPP2", data=datstan1, 
+  iter=1000,warmup = 500, chains=1, seed = 123, refresh = 0
+)
+
+knitr::kable(as.data.frame(summary(fitplp)$c_summary[,c("mean", "sd", "2.5%", "50%", "97.5%"),1]), digits = 3)
+```
+
+```{r results='asis'}
+set.seed(123)
+
+for (i in c(5, 10, 50, 100, 500, 1000)) {
+  nhpp_5 = sim_mul_plp1(i, beta = 2, theta = 5)
+  datstan1 = list(
+    N = nrow(nhpp_5$event_dat),
+    K = nrow(nhpp_5$start_end_dat),
+    tau = nhpp_5$start_end_dat$end_time,
+    event_time = nhpp_5$event_dat$event_time,
+    s = nhpp_5$shift_length
+)
+  
+  fitplp <- stan(
+  model_code=plpstan2, model_name="NHPP2", data=datstan1, 
+  iter=1000,warmup = 500, chains=1, seed = 123, refresh = 0
+)
+  param_est = as.data.frame(summary(fitplp)$c_summary[,c("mean", "sd", "2.5%", "50%", "97.5%"),1])
+  print(knitr::kable(param_est, caption = paste0("Parameter estimates when N = ", i), digits = 3))
+}
 ```
 

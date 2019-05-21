@@ -20,7 +20,8 @@ sim_mul_plp1 = function(n_shift = 20,
   for (i in 1:n_shift) {
     t_list[[i]] = sim_plp1(mean_n, beta, theta)
     len_list[[i]] = length(t_list[[i]])
-    end_time1[[i]] = max(t_list[[i]])
+    end_time1[[i]] = ifelse(length(t_list[[i]]) == 0, 0,
+                            max(t_list[[i]]))
   }
 
   event_dat = data.frame(
@@ -33,6 +34,9 @@ sim_mul_plp1 = function(n_shift = 20,
     start_time = rep(0, n_shift),
     end_time = Reduce(c, end_time1)#to be changed
   )
+  start_end_dat$end_time[start_end_dat$end_time == 0] =
+    mean(start_end_dat$end_time) # deal with no events
+
   return(list(event_dat = event_dat,
               start_end_dat = start_end_dat,
               shift_length = unlist(len_list)))
