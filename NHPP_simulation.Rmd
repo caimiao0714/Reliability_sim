@@ -1,5 +1,5 @@
 ---
-title: "Simulate NHPP using R"
+title: "Simulate Power Law Process using `R`"
 author: "Miao Cai^[Department of Epidemiology and Biostatistics, College for Public Health and Social Justice, Saint Louis University. Email: [miao.cai@slu.edu](miao.cai@slu.edu)]"
 date: "`r Sys.Date()`"
 output:
@@ -7,14 +7,17 @@ output:
     number_sections: true
 header-include:
   - \usepackage{soul}
+  - \usepackage{float}
+  - \usepackage{setspace}\doublespacing
 bibliography: refs/bib.bib
 link-citations: true
 linkcolor: blue
 ---
 
+\clearpage
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r setup, echo=FALSE}
+knitr::opts_chunk$set(echo = FALSE, fig.pos = "Hb")
 ```
 
 # A few concepts
@@ -49,14 +52,18 @@ Therefore, the mean function $\Lambda(t)$ is the integral of the intensity funct
 
 $$\Lambda(t) = \int_0^t \lambda(t)dt = \int_0^t \frac{\beta}{\theta}\bigg(\frac{t}{\theta}\bigg)^{\beta-1} = \bigg(\frac{t}{\theta}\bigg)^{\beta}$$
 
+\clearpage
 
-# Inverse algorithm to simulate NHPP
+# Simulate PLP using the inverse algorithm
+
+## Theory of the inverse algorithm
 
 The algorithm used in this tutorial is the review provided by @pasupathy2010generating. He mentioned that the earliest inversion technique was devised by @cinlar2013introduction, which was based on a property of NHPP with a continuous expectation function $\Lambda(t)$.
 
-```{theorem, cinlarthm, name="Cinlar's inversion algorithm"}
+```{theorem, label="cinlarthm", name="Cinlar's inversion algorithm", echo=TRUE}
 Let $\Lambda(t)$ be a positive-valued, continuous, nondecreasing function. Then the random variables $T_1, T_2, \cdots$ are event times corresponding to a NHPP with expectation function $\Lambda(t)$ if and only if $\Lambda(T_1), \Lambda(T_2) \cdots$ are the event times corresponding to a HPP with rate one.
 ```
+
 
 Theorem \@ref(thm:cinlarthm) can be used to generate failures from a NHPP: First generate event times from a HPP with rate one, then invert $\Lambda()$ to get the event times. Here are the steps/algorithms provided by @pasupathy2010generating to generate NHPP failure times.
 
@@ -79,17 +86,24 @@ $$
 
 Therefore, the inverse of $s = \Lambda(t)$ is $t = \theta \cdot s^{1/\beta}$
 
+## Failure and time truncated cases
 
+The above algorithm can be tuned into either *failure truncated case* or *time truncated case*.
+
+- **failure truncated case**: Let $N$ denote the number of failures and we can set the number of iterations in the algorithm as $N$.
+
+- **time truncated case**: Let $\tau$ denote the truncation time. We can iterate the algorithm for $m$ times until the next $s$ is greater than $\tau$.
+
+\clearpage
 
 # Simulation using `R`
-
-We don't have to use a loop to iteratively sample as this algorithm does. Instead, we can use a vectorized form in `R` to simulate event times using this algorithm.
-
 ## The most straightforward way of simulation - a loop
 
 In this simulation, we randomly set parameters $\beta = 2, \theta = 10$.
 
-```{r}
+### failure truncation
+
+```{r echo=TRUE}
 set.seed(123)
 s = 0; N = 6; t = rep(NA_real_, N) #initialization
 beta = 2; theta = 10 # random parameters
@@ -103,9 +117,9 @@ for (i in 1:N) {
 t
 ```
 
-An arrow plot of these failures would be:
+An arrow plot of these failures is shown in Figure \@ref(fig:f1).
 
-```{r echo=FALSE}
+```{r f1, echo=FALSE, fig.height=2, fig.cap="Arrow plot of simulated failures in a failure trucated case"}
 pacman::p_load(tidyverse)
 shift_id= rep(1, length(t))
 dat = data.frame(shift_id, t)
@@ -129,10 +143,68 @@ dat %>%
 
 Since $\beta = 2 > 1$, the reliability of this system is deteriorating. The failures become more and more intense/frequent at the right side of the plot.
 
+
+### Time truncation
+
+In this time truncation case, I still set $\beta = 2$, $\theta = 10$. The truncation time is set as 30 here. 
+
+```{r echo=TRUE}
+set.seed(123)
+sim_plp_tau = function(tau = 30,
+                       beta = 2,
+                       theta = 10){
+  # initialization
+   s = 0; t = 0
+  while (max(t) <= tau) {
+    u <- runif(1)
+    s <- s - log(u)
+    t_new <- theta*s^(1/beta)
+    t <- c(t, t_new)
+  }
+  t = t[c(-1, -length(t))] 
+  
+  return(t)
+}
+
+t = sim_plp_tau()
+t
+```
+
+An arrow plot of these simulated failures is shown in \@ref(fig:fig2).
+
+```{r fig2, fig.cap="Arrow plot of simulated failures in a time trucated case", fig.height=2}
+set.seed(123)
+tau0 = 30
+t = sim_plp_tau(tau = tau0)
+
+shift_id= rep(1, length(t))
+dat = data.frame(shift_id, t)
+dat_lim = data.frame(shift_id = shift_id[1], 
+                     start_time = 0, end_time = tau0)
+
+dat %>% 
+    ggplot(aes(x = t, y = shift_id)) + 
+    geom_point(alpha = 1, shape = 4, color = 'red', 
+               size = 4) + 
+    xlab('Time to event') + 
+    scale_y_continuous("shift ID", 
+                       labels = as.character(dat_lim$shift_id), 
+                       breaks = dat_lim$shift_id)+
+    geom_segment(data = dat_lim, 
+                 aes(x = start_time, xend = end_time, 
+                     y = shift_id, yend = shift_id),
+                 arrow = arrow(length = unit(0.2, "cm")),
+                 lineend = 'butt') + theme_classic()
+```
+
+
+
 ## A more efficient way of simulation - vectorized function
 
-```{r}
-sim_plp1 = function(mean_n, beta, theta){
+We don't have to use a loop to iteratively sample as this algorithm does. Instead, we can use a vectorized form in `R` to simulate event times using this algorithm. This is only available for the failure truncated case since the number of iterations is known.
+
+```{r echo=TRUE}
+sim_plp_n = function(mean_n, beta, theta){
   N = rpois(1, mean_n)
   u = runif(N, 0, 1)
   n_logu = -log(u)
@@ -142,11 +214,13 @@ sim_plp1 = function(mean_n, beta, theta){
 }
 
 set.seed(666)
-t1 = sim_plp1(mean_n = 6, beta = 2, theta = 10)
+t1 = sim_plp_n(mean_n = 6, beta = 2, theta = 10)
 t1
 ```
 
-```{r echo=FALSE}
+An arrow plot of these failures is shown in Figure \@ref(fig:fig3).
+
+```{r fig3, echo=FALSE, fig.cap="Arrow plot of simulated failures in a failure trucated case (vectorized form)", fig.height=2}
 shift_id= rep(1, length(t1))
 dat = data.frame(shift_id, t1)
 dat_lim = data.frame(shift_id = shift_id[1], 
@@ -167,11 +241,17 @@ dat %>%
                  lineend = 'butt') + theme_classic()
 ```
 
+\clearpage
+
 ## Simulating multiple simulations
 
+In this multiple shifts simulation, we still keep $\beta = 2, \theta = 10$.
+
+### Failure truncated case
+
 ```{r echo=FALSE}
-sim_mul_plp1 = function(n_shift = 20, 
-    shift_len_mean = 6, shift_len_sd = 1.5, 
+sim_mul_plp_n = function(n_shift = 20, 
+    shift_len_mean = 20, shift_len_sd = 5, 
     theta = 10, beta = 2, mean_n = 5){
   #end_time = rnorm(n_shift, shift_len_mean, shift_len_sd)#to be deleted
   t_list = list()
@@ -179,7 +259,7 @@ sim_mul_plp1 = function(n_shift = 20,
   end_time1 = list()
 
   for (i in 1:n_shift) {
-    t_list[[i]] = sim_plp1(mean_n, beta, theta)
+    t_list[[i]] = sim_plp_n(mean_n, beta, theta)
     len_list[[i]] = length(t_list[[i]])
     end_time1[[i]] = ifelse(length(t_list[[i]]) == 0, 0, 
                                    max(t_list[[i]]))
@@ -203,7 +283,38 @@ sim_mul_plp1 = function(n_shift = 20,
               shift_length = unlist(len_list)))
 }
 
+sim_mul_plp_tau = function(n_shift = 20, 
+    shift_len_mean = 20, shift_len_sd = 5, 
+    theta = 10, beta = 2, mean_n = 5){
+  tau_vector = rnorm(n_shift, shift_len_mean, shift_len_sd)#difference1
+  
+  t_list = list()
+  len_list = list()
+  end_time1 = list()
+  
 
+  for (i in 1:n_shift) {
+    t_list[[i]] = sim_plp_tau(tau_vector[i], beta, theta)
+    len_list[[i]] = length(t_list[[i]])
+    end_time1[[i]] = ifelse(length(t_list[[i]]) == 0, 0, 
+                                   max(t_list[[i]]))
+  }
+  
+  event_dat = data.frame(
+    shift_id = rep(1:n_shift, unlist(len_list)),
+    event_time = Reduce(c, t_list)
+  )
+  
+  start_end_dat = data.frame(
+    shift_id = 1:n_shift,
+    start_time = rep(0, n_shift),
+    end_time = tau_vector #difference2
+  )
+
+  return(list(event_dat = event_dat, 
+              start_end_dat = start_end_dat, 
+              shift_length = unlist(len_list)))
+}
 
 plot_events = function(event_dat, start_end_dat, cross_size = 2){
   p = event_dat %>% 
@@ -225,16 +336,32 @@ plot_events = function(event_dat, start_end_dat, cross_size = 2){
 
 
 ```{r}
-df = sim_mul_plp1()
+df = sim_mul_plp_n(n_shift = 20)
 str(df)
 ```
 
-The plot for these simulated multiple shifts is:
+A plot for these simulated multiple shifts is shown in Figure \@ref(fig:mulfig1).
 
-```{r echo=FALSE}
+```{r mulfig1, echo=FALSE, fig.cap="Arrow plot of simulated failures in multiple failure trucated cases"}
 plot_events(df$event_dat, df$start_end_dat)
 ```
 
+\clearpage
+
+### Time truncated case
+
+```{r}
+df2 = sim_mul_plp_tau(n_shift = 20, 
+                      shift_len_mean = 20, 
+                      shift_len_sd = 1.5)
+str(df2)
+```
+
+An arrow plot of these simulated multiple shifts is shown in Figure \@ref(fig:mulfig2).
+
+```{r mulfig2, echo=FALSE, fig.cap="Arrow plot of simulated failures in **multiple** time trucated cases"}
+plot_events(df2$event_dat, df2$start_end_dat)
+```
 
 
 \newpage

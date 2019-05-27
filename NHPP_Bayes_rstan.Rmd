@@ -1,5 +1,5 @@
 ---
-title: "Bayesian estimation for NHPP using rstan"
+title: "Bayesian estimation for NHPP using `rstan`"
 author: "Miao Cai <miao.cai@slu.edu>"
 date: "`r Sys.Date()`"
 output:
@@ -11,7 +11,7 @@ header-include:
 
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = FALSE, cache=TRUE)
 ```
 
 ```{r}
@@ -59,7 +59,7 @@ model{
 ```
 
 
-```{r eval=TRUE}
+```{r eval=FALSE}
 set.seed(123)
 nhpp_5 = sim_mul_plp1(5)
 datstan1 = list(
@@ -77,6 +77,12 @@ fitplp <- stan(
 
 knitr::kable(as.data.frame(summary(fitplp)$c_summary[,c("mean", "sd", "2.5%", "50%", "97.5%"),1]), digits = 3)
 ```
+
+# One estimation result each at $N = 5, 10, 50, 500, 1000$
+
+I set the theoretical values as: $\beta = 2, \theta = 5$
+
+Then I ran one simulation per each number of shifts. I tried the number of shifts (N) as $5, 10, 50, 500, 1000$.
 
 ```{r results='asis'}
 set.seed(123)
@@ -97,6 +103,124 @@ for (i in c(5, 10, 50, 100, 500, 1000)) {
 )
   param_est = as.data.frame(summary(fitplp)$c_summary[,c("mean", "sd", "2.5%", "50%", "97.5%"),1])
   print(knitr::kable(param_est, caption = paste0("Parameter estimates when N = ", i), digits = 3))
+}
+```
+
+The parameter estimates at different sample sizes seem to be quite well: **the points estimates are getting closer to true parameter values as the number of shifts increases**.
+
+However, this is only one simluation for each sample size, which may be subject to sampling error (but at least the estimates seem reasonably well). In the following section, I need to __scale up the simulation to see if we get consistently good results as we perform repeated simulations__.
+
+# 30 simulations and estimations per each $N = 5, 10, 50, 100, 500$
+
+I simulated NHPP for 30 times and accordingly performed 30 Bayesian estimation for $\beta = 2$ and $\theta = 5$ at each sample size ($N = 5, 10, 50, 100, 500$).
+
+```{r eval=FALSE}
+set.seed(123)
+sim = 30
+N = c(5, 10, 50, 100, 250, 500)
+
+sim30 = data.frame(matrix(0, nrow = sim*length(N)*2, ncol = 7))
+names(sim30) = c("sample_size", "parameter", "mean", "sd", "2.5%", "50%", "97.5%")
+sim30$sample_size = rep(N, each = sim*2)
+sim30$parameter = rep(c("beta", "theta"), sim*length(N))
+sim30[,c("mean", "sd", "2.5%", "50%", "97.5%")] = NA
+
+for (n in seq_along(N)) {
+  for (i in 1:sim) {
+    nhpp_5 <- sim_mul_plp1(N[n], beta = 2, theta = 5, mean_n = 6)
+    datstan1 <- list(
+      N = nrow(nhpp_5$event_dat),
+      K = nrow(nhpp_5$start_end_dat),
+      tau = nhpp_5$start_end_dat$end_time,
+      event_time = nhpp_5$event_dat$event_time,
+      s = nhpp_5$shift_length
+    )
+    tryCatch({fitplp <- stan(
+      model_code=plpstan2, model_name="NHPP2", data=datstan1, 
+      iter=1000,warmup = 500, chains=1, seed = 123, init = 1,#, refresh = 0
+    )}, error=function(e){})
+    
+    sim30[c(2*(n-1)*sim + 2*i-1, 2*(n-1)*sim + 2*i),
+          3:7] = summary(fitplp)$c_summary[1:2,c("mean", "sd", "2.5%", "50%", "97.5%"),1]
+  }
+}
+
+readr::write_csv(sim30, paste0("fit", sim, ".csv"))
+```
+
+```{r}
+sim30 = rio::import("fit/sim30.csv")
+pacman::p_load(dplyr)
+df = sim30 %>% 
+  group_by(parameter, sample_size) %>% 
+  summarise(mean_posterior_mean = mean(mean), 
+            sd_posterior_mean = sd(mean),
+            mean_posterior_sd = mean(sd)) %>% 
+  ungroup()
+df_beta = df %>% 
+  filter(parameter == "beta") %>% 
+  select(-parameter)
+df_theta = df %>% 
+  filter(parameter == "theta") %>% 
+  select(-parameter)
+var_names = c("sample size", "mean of the posterior means", "s.d. of the posterior means", "mean of the posterior s.e.")
+```
+
+```{r}
+knitr::kable(df_beta, digits = 3, escape = FALSE, 
+             caption = "Summary results for parameter $\\beta$",
+             col.names = var_names)
+```
+
+```{r}
+knitr::kable(df_theta, digits = 3, escape = FALSE, 
+             caption = "Summary results for parameter $\\theta$",
+             col.names = var_names)
+```
+
+It seems that Bayesian estimates of $\beta$ and $\theta$ are getting closer to true parameter values as the number of shifts increase:
+
+- The bias was getting smaller: $|\hat{\beta} - \beta|$ is getting closer to 0 as $N$ increases (the 2nd column),
+
+- The standard error of posterior mean was getting smaller, as we can tell from the 3rd column.
+
+\newpage
+
+# Appendix - stan code {-} 
+
+```{stan output.var="nhpp", echo=TRUE}
+functions{
+  real nhpp_log(vector t, real beta, real theta, real tau){
+    vector[num_elements(t)] loglik_part;
+    real loglikelihood;
+    for (i in 1:num_elements(t)){
+      loglik_part[i] = log(beta) - beta*log(theta) + (beta - 1)*log(t[i]);
+    }
+    loglikelihood = sum(loglik_part) - (tau/theta)^beta;
+    return loglikelihood;
+  }
+}
+data {
+  int<lower=0> N; //total # of obs
+  int<lower=0> K; //total # of groups
+  vector<lower=0>[K] tau;//truncated time
+  vector<lower=0>[N] event_time; //failure time
+  int s[K]; //group sizes
+}
+parameters{
+  real<lower=0> beta;
+  real<lower=0> theta;
+}
+model{
+  int position;
+  position = 1;
+  for (k in 1:K){
+    segment(event_time, position, s[k]) ~ nhpp(beta, theta, tau[k]);
+    position = position + s[k];
+  }
+//PRIORS
+  beta ~ gamma(1, 1);
+  theta ~ gamma(1, 0.01);
 }
 ```
 
