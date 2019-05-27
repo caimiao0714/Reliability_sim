@@ -1,0 +1,19 @@
+\contentsline {section}{\numberline {1}Theories of inference for the Power Law Process}{2}{section.1}
+\contentsline {subsection}{\numberline {1.1}Concepts}{2}{subsection.1.1}
+\contentsline {subsection}{\numberline {1.2}The inference for the first two events}{2}{subsection.1.2}
+\contentsline {subsection}{\numberline {1.3}Failure truncated case}{3}{subsection.1.3}
+\contentsline {subsection}{\numberline {1.4}Time Truncated Case}{4}{subsection.1.4}
+\contentsline {subsection}{\numberline {1.5}Bayesian inference}{4}{subsection.1.5}
+\contentsline {section}{\numberline {2}Bayesian estimation in simulated multiple shifts from one driver}{5}{section.2}
+\contentsline {subsection}{\numberline {2.1}Parameter setup and priors}{5}{subsection.2.1}
+\contentsline {subsection}{\numberline {2.2}Time truncated case}{5}{subsection.2.2}
+\contentsline {subsubsection}{\numberline {2.2.1}One estimation result each at \(N = 5, 10, 50, 500, 1000\)}{5}{subsubsection.2.2.1}
+\contentsline {subsubsection}{\numberline {2.2.2}30 simulations and estimations per each \(N = 5, 10, 50, 100, 500\)}{5}{subsubsection.2.2.2}
+\contentsline {subsection}{\numberline {2.3}Failure truncated case}{5}{subsection.2.3}
+\contentsline {subsubsection}{\numberline {2.3.1}One estimation result each at \(N = 5, 10, 50, 500, 1000\)}{5}{subsubsection.2.3.1}
+\contentsline {subsubsection}{\numberline {2.3.2}30 simulations and estimations per each \(N = 5, 10, 50, 100, 500\)}{6}{subsubsection.2.3.2}
+\contentsline {section}{\numberline {3}Hierarchical Bayesian model for PLP}{9}{section.3}
+\contentsline {subsection}{\numberline {3.1}Time truncated case}{9}{subsection.3.1}
+\contentsline {section}{Appendix - stan code}{10}{section*.2}
+\contentsline {subsection}{\numberline {3.2}Time truncated case}{10}{subsection.3.2}
+\contentsline {subsection}{\numberline {3.3}Failure truncated case}{10}{subsection.3.3}

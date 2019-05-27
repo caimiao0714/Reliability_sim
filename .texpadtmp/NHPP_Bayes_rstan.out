@@ -1,0 +1,15 @@
+\BOOKMARK [1][-]{section.1}{Theories\040of\040inference\040for\040the\040Power\040Law\040Process}{}% 1
+\BOOKMARK [2][-]{subsection.1.1}{Concepts}{section.1}% 2
+\BOOKMARK [2][-]{subsection.1.2}{The\040inference\040for\040the\040first\040two\040events}{section.1}% 3
+\BOOKMARK [2][-]{subsection.1.3}{Failure\040truncated\040case}{section.1}% 4
+\BOOKMARK [2][-]{subsection.1.4}{Time\040Truncated\040Case}{section.1}% 5
+\BOOKMARK [2][-]{subsection.1.5}{Bayesian\040inference}{section.1}% 6
+\BOOKMARK [1][-]{section.2}{Bayesian\040estimation\040in\040simulated\040multiple\040shifts\040from\040one\040driver}{}% 7
+\BOOKMARK [2][-]{subsection.2.1}{Parameter\040setup\040and\040priors}{section.2}% 8
+\BOOKMARK [2][-]{subsection.2.2}{Time\040truncated\040case}{section.2}% 9
+\BOOKMARK [2][-]{subsection.2.3}{Failure\040truncated\040case}{section.2}% 10
+\BOOKMARK [1][-]{section.3}{Hierarchical\040Bayesian\040model\040for\040PLP}{}% 11
+\BOOKMARK [2][-]{subsection.3.1}{Time\040truncated\040case}{section.3}% 12
+\BOOKMARK [1][-]{section*.2}{Appendix\040-\040stan\040code}{}% 13
+\BOOKMARK [2][-]{subsection.3.2}{Time\040truncated\040case}{section*.2}% 14
+\BOOKMARK [2][-]{subsection.3.3}{Failure\040truncated\040case}{section*.2}% 15

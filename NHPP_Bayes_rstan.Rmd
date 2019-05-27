@@ -3,15 +3,19 @@ title: "Bayesian estimation for NHPP using `rstan`"
 author: "Miao Cai <miao.cai@slu.edu>"
 date: "`r Sys.Date()`"
 output:
-  pdf_document: 
+  bookdown::pdf_document2: 
     number_sections: true
-header-include:
+    toc: true
+header-includes:
   - \usepackage{soul}
+  - \usepackage{float}
+  - \usepackage[table]{xcolor}
+  - \usepackage{setspace}\doublespacing
 ---
 
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, cache=TRUE)
+knitr::opts_chunk$set(echo = FALSE, cache=TRUE, eval=TRUE)
 ```
 
 ```{r}
@@ -19,9 +23,162 @@ pacman::p_load(rstan, tidyverse)
 source("functions/NHPP_functions.R")
 ```
 
+\clearpage
+
+# Theories of inference for the Power Law Process 
+## Concepts
+
+**Intensity function** The intensity function of a point process is:
+
+$$\lambda(t) = \lim_{\Delta t \rightarrow 0} \frac{P(N(t, t + \Delta t) \geq 1)}{\Delta t}$$
+
+**Nonhomogeneous Poisson Process** The Nonhomogeneous Poisson Process (NHPP) is a Poisson process whose intensity function is non-constant.
+
+When the intensity function of a NHPP has the form $\lambda(t) = (\beta / \theta)(t/\theta)^{\beta - 1}$, where $\beta > 0$ and $\theta > 0$, the process is called **power law process** (PLP).
+
+1. **Failure truncation**: When testing stops after a predetermined number of failures, the data are said to be failure truncated.
+2. **Time truncation**: Data are said to be time truncated when testing stops at a predetermined time $t$.
+
+**Conditional probability**
+\begin{align*}
+P(A \cap B) & = P(A)P(B|A) \\
+P(A \cap B \cap C) & = P(A)P(B|A)P(C|A \cap B)
+\end{align*}
+
+## The inference for the first two events
+
+**The first event**
+
+The cumulative density function (cdf) of time to the first event is $F(t_1)$: $F_1(t_1) = P(T_1 \leq t_1) = 1 - S(t_1)$.
+
+The survival function for the first event $S_1(t_1)$ is:
+\begin{align*}
+S_1(t_1) & = P(T_1 > t_1) \\
+ & = P(N(0, t_1) = 0) \quad N \text{is the number of events}\\
+ & = e^{-\int_{0}^{t_1}\lambda_{u}du}(e^{-\int_{0}^{t_1}\lambda_{u}du})^0/0!\\
+ & = e^{-\int_{0}^{t_1}\lambda_{u}du}
+\end{align*}
+
+The probability density function (pdf) of time to the first event can be calculated by taking the first order derivative of the cdf $F_1(t_1)$:
+\begin{align*}
+f_1(t_1) & = \frac{d}{dt_1}F_1(t_1)\\
+& = \frac{d}{dt_1}[1 - S_1(t_1)] \\
+& = - \frac{d}{dt_1}S_1(t_1)\\
+& = - \frac{d}{dt_1}e^{-\int_{0}^{t_1}\lambda (u)du}\\
+& = -(-\lambda_{t_1})e^{-\int_{0}^{t_1}\lambda (u)du}\\
+& = \lambda (t_1)e^{-\int_{0}^{t_1}\lambda (u)du}
+\end{align*}
+
+If this NHPP is a PLL, we plug in the intensity function $\lambda(t) = (\beta / \theta)(t/\theta)^{\beta - 1}$, then we have:
+
+$$f_1(t_1) = \frac{\beta}{\theta}(\frac{t_1}{\theta})^{\beta - 1}e^{-(\frac{t_1}{\theta})^\beta}, \quad t_1 > 0$$
+
+This pdf is identical with the pdf of Weibull distribution, so we have:
+$$T_1 \sim \text{Weibull}(\beta, \theta)$$
+
+
+**The second event**
+
+The Survival function of the second event given the first event occurred at $t_2$ is:
+
+\begin{align*}
+S_2(t_2 | t_1) & = P(T_2 > t_2 | T_1 = t)\\
+& = P(N(t_1, t_2) = 0|T_1 = t_1) \\
+& = e^{-\int_{t_1}^{t_2}\lambda_{u}du}[\int_{t_1}^{t_2}\lambda_{u}du]^0/0!\\
+& = e^{-\int_{t_1}^{t_2}\lambda_{u}du}
+\end{align*}
+
+The we can derive the pdf of $t_2$ conditioned on $t_1$
+\begin{equation}\label{t2}
+\begin{aligned}
+f(t_2|t_1) & = - \frac{d}{dt_2}S_2(t_2)\\
+& = - \frac{d}{dt_2}e^{-\int_{t_1}^{t_2}\lambda(u)du}\\
+& = \lambda(t_2)e^{-\int_{t_1}^{t_2}\lambda(u)du}\\
+& = \frac{\beta}{\theta}(\frac{t_2}{\theta})^{\beta - 1}e^{-[(\frac{t_2}{\theta})^\beta - (\frac{t_1}{\theta})^\beta]}\\
+& = \frac{\frac{\beta}{\theta}(\frac{t_2}{\theta})^{\beta - 1}e^{-(t_2/\theta)^\beta }}{e^{- (t_1/\theta)^\beta}}, \quad t_2 > t_1
+\end{aligned}
+\end{equation}
+
+## Failure truncated case
+
+In the failure truncated case, we know the total number of events $n$ before the experiment starts. We can get the joint likelihood function for $t_1 < t_2 < \cdots < t_n$ in the failure truncated case based on Equation \@ref(t2).
+\begin{equation}\label{pdfn}
+\begin{aligned}
+f(t_1, t_2, \cdots, t_n) & = f(t_1)f(t_2|t_1)f(t_3|t_1, t_2) \cdots f(t_n|t_1, t_2, \dots, t_{n - 1}) \\
+& = \lambda (t_1)e^{-\int_{0}^{t_1} \dot \lambda (u)du}\lambda (t_2)e^{-\int_{t_1}^{t_2} \dot \lambda (u)du}\cdots\lambda (t_n)e^{-\int_{t_{n-1}}^{t_n}\lambda (u)du}\\
+& = \Big(\prod_{i=1}^n\lambda(t_i)\Big)e^{-\int_0^t\lambda(u)du}\\
+& = \Big(\prod_{i=1}^n\frac{\beta}{\theta}(\frac{t_i}{\theta})^{\beta - 1}\Big)e^{-(t_n/\theta)^\beta}, \quad t_1 < t_2 < \cdots < t_n
+\end{aligned}
+\end{equation}
+
+The log-likelihood function in the failure truncated case is therefore:
+$$\log \ell = n\log\beta - n\beta\log\theta + (\beta - 1)\bigg(\sum_{i=1}^n\log t_i\bigg) - \Big(\frac{t_n}{\theta}\Big)^\beta$$
+
+
+## Time Truncated Case
+
+We assume that the truncated time is $\tau$. The derivation of $f(t_1, t_2, \cdots, t_n|n)$ is messy in math, we directly give the conclusion here:
+
+$$f(t_1, t_2, \cdots, t_n|n) = n!\prod_{i=1}^n\frac{\lambda(t_i)}{\Lambda(\tau)}$$
+
+Therefore, the joint likelihood function for $f(n, t_1, t_2, \cdots, t_n)$ is:
+\begin{equation}\label{pdftau}
+\begin{aligned}
+f(n, t_1, t_2, \cdots, t_n) & = f(n)f(t_1, t_2, \cdots, t_n|n)\\
+& = \frac{e^{-\int_0^\tau \lambda(u)du}[\int_0^\tau \lambda(u)du]^n}{n!}n!\frac{\prod_{i=1}^n\lambda(t_i)}{[\Lambda(\tau)]^n}\\
+& = \Big(\prod_{i=1}^n\lambda(t_i) \Big)e^{-\int_0^\tau \lambda(u)du}\\
+& = \Big(\prod_{i=1}^n\frac{\beta}{\theta}(\frac{t_i}{\theta})^{\beta - 1} \Big)e^{-(\tau/\theta)^\beta},\\ 
+n & = 0, 1, 2, \cdots, \quad  0 < t_1 < t_2 < \cdots < t_n
+\end{aligned}
+\end{equation}
+
+The log likelihood function $l$ is then:
+\begin{equation}\label{logtau}
+\begin{aligned}
+l & = \log \Bigg(\Big(\prod_{i=1}^n\frac{\beta}{\theta}(\frac{t_i}{\theta})^{\beta - 1}\Big)e^{-(\tau/\theta)^\beta}\Bigg)\\
+& = \sum_{i=1}^n\log\Big(\frac{\beta}{\theta}(\frac{t_i}{\theta})^{\beta - 1}\Big) - (\frac{\tau}{\theta})^\beta\\
+& = n\log\beta - n\beta\log\theta + (\beta - 1)\bigg(\sum_{i=1}^n\log t_i\bigg) - \Big(\frac{\tau}{\theta}\Big)^\beta
+\end{aligned}
+\end{equation}
+
+## Bayesian inference
+
+After having the joint likelihood function in both the failure and time truncated case, it is straightforward to conduct Bayesian inference according to the Bayes theorem:
+
+```{theorem, label="bayes", name="The Bayes Theorem",echo=TRUE}
+$$P(\theta | D) = \frac{P(\theta)\times P(D|\theta)}{P(D)}$$
+Where $\theta$ is the parameter to be estimated, $D$ is the observed data, $P(\theta)$ is the prior belief about the parameter $\theta$, $P(D|\theta)$ is the likelihood function, and $P(D)$ is the normalizing constant to make the posterior density function integrates to 1.
+```
+
+The \@ref(thm:bayes) can be written in a proportional format:
+$$P(\theta | D) \propto P(\theta)\times P(D|\theta)$$
+which means that the posterior density of a parameter is proportional to the product of the prior and the likelihood function, which is the key of Bayesian inference.
+
+
+
+# Bayesian estimation in simulated multiple shifts from one driver
+## Parameter setup and priors
+
+- parameters: $\beta = 2, \theta = 10$
+
+- Priors: 
+$$
+\begin{array}{llll}
+\beta & \sim \text{Gamma}(1, 1), & E(\beta) = \alpha/\beta = 1, &V(\beta) = \alpha/\beta^2 = 1\\
+\theta & \sim \text{Gamma}(1, 0.01), & E(\beta) = \alpha/\beta = 100, &V(\beta) = \alpha/\beta^2 = 10000
+\end{array}
+$$
+
+In `Stan`, the parameterization of a Gamma distribution is:
+
+$$ 
+\operatorname{Gamma}(y | \alpha, \beta)=\frac{\beta^{\alpha}}{\Gamma(\alpha)} y^{\alpha-1} \exp (-\beta y)
+$$
+In this parameterization, the mean of a Gamma distribution is $\alpha/\beta$ and the variance is $\alpha/\beta^2$.
+
 
 ```{r}
-plpstan2 = '
+plptau = '
 functions{
   real nhpp_log(vector t, real beta, real theta, real tau){
     vector[num_elements(t)] loglik_part;
@@ -56,12 +213,69 @@ model{
   theta ~ gamma(1, 0.01);
 }
 '
+
+plpn = '
+functions{
+  real nhpp_log(vector t, real beta, real theta, real tn){
+    vector[num_elements(t)] loglik_part;
+    real loglikelihood;
+    for (i in 1:num_elements(t)){
+      loglik_part[i] = log(beta) - beta*log(theta) + (beta - 1)*log(t[i]);
+    }
+    loglikelihood = sum(loglik_part) - (tn/theta)^beta;
+    return loglikelihood;
+  }
+}
+data {
+  int<lower=0> N; //total # of obs
+  int<lower=0> K; //total # of groups
+  vector<lower=0>[K] tn;//truncated time
+  vector<lower=0>[N] event_time; //failure time
+  int s[K]; //group sizes
+}
+parameters{
+  real<lower=0> beta;
+  real<lower=0> theta;
+}
+model{
+  int position;
+  position = 1;
+  for (k in 1:K){
+    segment(event_time, position, s[k]) ~ nhpp(beta, theta, tn[k]);
+    position = position + s[k];
+  }
+//PRIORS
+  beta ~ gamma(1, 1);
+  theta ~ gamma(1, 0.01);
+}
+'
 ```
 
 
-```{r eval=FALSE}
+```{r failuretruncate, eval=FALSE}
 set.seed(123)
-nhpp_5 = sim_mul_plp1(5)
+nhpp_5 = sim_mul_plp_n(n_shift = 50)
+datstan1 = list(
+    N = nrow(nhpp_5$event_dat),
+    K = nrow(nhpp_5$start_end_dat),
+    tn = nhpp_5$start_end_dat$end_time,
+    event_time = nhpp_5$event_dat$event_time,
+    s = nhpp_5$shift_length
+)
+
+fitplp <- stan(
+  model_code=plpn, model_name="NHPP2", data=datstan1, 
+  iter=1000,warmup = 500, chains=1, seed = 123, refresh = 0
+)
+
+knitr::kable(as.data.frame(summary(fitplp)$c_summary[,c("mean", "sd", "2.5%", "50%", "97.5%"),1]), "latex", booktabs = T, digits = 3) %>%
+          kableExtra::kable_styling(latex_options = c("striped", "hold_position"))
+```
+
+
+```{r timetruncate, eval=FALSE}
+set.seed(123)
+nhpp_5 = sim_mul_plp_tau(n_shift = 50)
 datstan1 = list(
     N = nrow(nhpp_5$event_dat),
     K = nrow(nhpp_5$start_end_dat),
@@ -71,24 +285,25 @@ datstan1 = list(
 )
 
 fitplp <- stan(
-  model_code=plpstan2, model_name="NHPP2", data=datstan1, 
+  model_code=plptau, model_name="NHPP2", data=datstan1, 
   iter=1000,warmup = 500, chains=1, seed = 123, refresh = 0
 )
 
-knitr::kable(as.data.frame(summary(fitplp)$c_summary[,c("mean", "sd", "2.5%", "50%", "97.5%"),1]), digits = 3)
+knitr::kable(as.data.frame(summary(fitplp)$c_summary[,c("mean", "sd", "2.5%", "50%", "97.5%"),1]), "latex", booktabs = T, digits = 3) %>%
+          kableExtra::kable_styling(latex_options = c("striped", "hold_position"))
 ```
 
-# One estimation result each at $N = 5, 10, 50, 500, 1000$
+\clearpage
 
-I set the theoretical values as: $\beta = 2, \theta = 5$
-
-Then I ran one simulation per each number of shifts. I tried the number of shifts (N) as $5, 10, 50, 500, 1000$.
+## Time truncated case
+### One estimation result each at at different sample sizes
 
 ```{r results='asis'}
 set.seed(123)
 
-for (i in c(5, 10, 50, 100, 500, 1000)) {
-  nhpp_5 = sim_mul_plp1(i, beta = 2, theta = 5)
+for (i in c(5, 10, 50, 100, 400)) {
+  nhpp_5 = sim_mul_plp_tau(n_shift = i, mean_n = 10, 
+                           beta = 2, theta = 10)
   datstan1 = list(
     N = nrow(nhpp_5$event_dat),
     K = nrow(nhpp_5$start_end_dat),
@@ -98,21 +313,20 @@ for (i in c(5, 10, 50, 100, 500, 1000)) {
 )
   
   fitplp <- stan(
-  model_code=plpstan2, model_name="NHPP2", data=datstan1, 
+  model_code=plptau, model_name="NHPP2", data=datstan1, 
   iter=1000,warmup = 500, chains=1, seed = 123, refresh = 0
 )
   param_est = as.data.frame(summary(fitplp)$c_summary[,c("mean", "sd", "2.5%", "50%", "97.5%"),1])
-  print(knitr::kable(param_est, caption = paste0("Parameter estimates when N = ", i), digits = 3))
+  print(knitr::kable(param_est, "latex", booktabs = T, 
+                     caption = paste0("Parameter estimates when N = ", i),
+                     digits = 3) %>%
+          kableExtra::kable_styling(latex_options = c("striped", "hold_position")))
 }
 ```
 
-The parameter estimates at different sample sizes seem to be quite well: **the points estimates are getting closer to true parameter values as the number of shifts increases**.
+### 30 simulations and estimations at different sample sizes
 
-However, this is only one simluation for each sample size, which may be subject to sampling error (but at least the estimates seem reasonably well). In the following section, I need to __scale up the simulation to see if we get consistently good results as we perform repeated simulations__.
-
-# 30 simulations and estimations per each $N = 5, 10, 50, 100, 500$
-
-I simulated NHPP for 30 times and accordingly performed 30 Bayesian estimation for $\beta = 2$ and $\theta = 5$ at each sample size ($N = 5, 10, 50, 100, 500$).
+Since the parameter estimates of one simulation at different sample size may subject to sampling error. Here are the results:
 
 ```{r eval=FALSE}
 set.seed(123)
@@ -127,7 +341,8 @@ sim30[,c("mean", "sd", "2.5%", "50%", "97.5%")] = NA
 
 for (n in seq_along(N)) {
   for (i in 1:sim) {
-    nhpp_5 <- sim_mul_plp1(N[n], beta = 2, theta = 5, mean_n = 6)
+    nhpp_5 <- sim_mul_plp_tau(N[n], beta = 2, theta = 10, 
+                              shift_len_mean = 50)
     datstan1 <- list(
       N = nrow(nhpp_5$event_dat),
       K = nrow(nhpp_5$start_end_dat),
@@ -136,7 +351,7 @@ for (n in seq_along(N)) {
       s = nhpp_5$shift_length
     )
     tryCatch({fitplp <- stan(
-      model_code=plpstan2, model_name="NHPP2", data=datstan1, 
+      model_code=plptau, model_name="NHPP2", data=datstan1, 
       iter=1000,warmup = 500, chains=1, seed = 123, init = 1,#, refresh = 0
     )}, error=function(e){})
     
@@ -145,11 +360,12 @@ for (n in seq_along(N)) {
   }
 }
 
-readr::write_csv(sim30, paste0("fit", sim, ".csv"))
+readr::write_csv(sim30, paste0("fit/fit_time_truncate_", sim, ".csv"))
 ```
 
+
 ```{r}
-sim30 = rio::import("fit/sim30.csv")
+sim30 = rio::import("fit/fit_time_truncate_30.csv")
 pacman::p_load(dplyr)
 df = sim30 %>% 
   group_by(parameter, sample_size) %>% 
@@ -167,15 +383,127 @@ var_names = c("sample size", "mean of the posterior means", "s.d. of the posteri
 ```
 
 ```{r}
-knitr::kable(df_beta, digits = 3, escape = FALSE, 
+knitr::kable(df_beta, "latex", booktabs = T, 
+             digits = 3, escape = FALSE, 
              caption = "Summary results for parameter $\\beta$",
-             col.names = var_names)
+             col.names = var_names) %>%
+          kableExtra::kable_styling(latex_options = "hold_position")
 ```
 
 ```{r}
-knitr::kable(df_theta, digits = 3, escape = FALSE, 
+knitr::kable(df_theta, "latex", booktabs = T, 
+             digits = 3, escape = FALSE, 
              caption = "Summary results for parameter $\\theta$",
-             col.names = var_names)
+             col.names = var_names) %>%
+          kableExtra::kable_styling(latex_options = "hold_position")
+```
+
+\clearpage
+
+## Failure truncated case
+### One estimation result each at different sample sizes
+
+Then I ran one simulation per each number of shifts. I tried the number of shifts (N) as $5, 10, 50, 500, 1000$.
+
+```{r results='asis'}
+set.seed(123)
+
+for (i in c(5, 10, 50, 100, 500, 1000)) {
+  nhpp_5 = sim_mul_plp_n(i, beta = 2, theta = 10)
+  datstan1 = list(
+    N = nrow(nhpp_5$event_dat),
+    K = nrow(nhpp_5$start_end_dat),
+    tn = nhpp_5$start_end_dat$end_time,
+    event_time = nhpp_5$event_dat$event_time,
+    s = nhpp_5$shift_length
+)
+  
+  fitplp <- stan(
+  model_code=plpn, model_name="NHPP2", data=datstan1, 
+  iter=1000,warmup = 500, chains=1, seed = 123, refresh = 0
+)
+  param_est = as.data.frame(summary(fitplp)$c_summary[,c("mean", "sd", "2.5%", "50%", "97.5%"),1])
+  print(knitr::kable(param_est, "latex", booktabs = T, 
+                     caption = paste0("Parameter estimates when N = ", i),
+                     digits = 3) %>%
+          kableExtra::kable_styling(latex_options = c("striped", "hold_position")))
+}
+```
+
+The parameter estimates at different sample sizes seem to be quite well: **the points estimates are getting closer to true parameter values as the number of shifts increases**.
+
+However, this is only one simluation for each sample size, which may be subject to sampling error (but at least the estimates seem reasonably well). In the following section, I need to __scale up the simulation to see if we get consistently good results as we perform repeated simulations__.
+
+### 30 simulations and estimations at each different sample sizes
+
+I simulated NHPP for 30 times and accordingly performed 30 Bayesian estimation for $\beta = 2$ and $\theta = 10$ at each sample size ($N = 5, 10, 50, 100, 500$).
+
+```{r eval=FALSE}
+set.seed(123)
+sim = 30
+N = c(5, 10, 50, 100, 250, 500)
+
+sim30 = data.frame(matrix(0, nrow = sim*length(N)*2, ncol = 7))
+names(sim30) = c("sample_size", "parameter", "mean", "sd", "2.5%", "50%", "97.5%")
+sim30$sample_size = rep(N, each = sim*2)
+sim30$parameter = rep(c("beta", "theta"), sim*length(N))
+sim30[,c("mean", "sd", "2.5%", "50%", "97.5%")] = NA
+
+for (n in seq_along(N)) {
+  for (i in 1:sim) {
+    nhpp_5 <- sim_mul_plp_n(N[n], beta = 2, theta = 10, mean_n = 6)
+    datstan1 <- list(
+      N = nrow(nhpp_5$event_dat),
+      K = nrow(nhpp_5$start_end_dat),
+      tn = nhpp_5$start_end_dat$end_time,
+      event_time = nhpp_5$event_dat$event_time,
+      s = nhpp_5$shift_length
+    )
+    tryCatch({fitplp <- stan(
+      model_code=plpn, model_name="NHPP2", data=datstan1, 
+      iter=1000,warmup = 500, chains=1, seed = 123, init = 1,#, refresh = 0
+    )}, error=function(e){})
+    
+    sim30[c(2*(n-1)*sim + 2*i-1, 2*(n-1)*sim + 2*i),
+          3:7] = summary(fitplp)$c_summary[1:2,c("mean", "sd", "2.5%", "50%", "97.5%"),1]
+  }
+}
+
+readr::write_csv(sim30, paste0("fit/fit_failure_truncate_", sim, ".csv"))
+```
+
+```{r}
+sim30 = rio::import("fit/fit_failure_truncate_30.csv")
+pacman::p_load(dplyr)
+df = sim30 %>% 
+  group_by(parameter, sample_size) %>% 
+  summarise(mean_posterior_mean = mean(mean), 
+            sd_posterior_mean = sd(mean),
+            mean_posterior_sd = mean(sd)) %>% 
+  ungroup()
+df_beta = df %>% 
+  filter(parameter == "beta") %>% 
+  select(-parameter)
+df_theta = df %>% 
+  filter(parameter == "theta") %>% 
+  select(-parameter)
+var_names = c("sample size", "mean of the posterior means", "s.d. of the posterior means", "mean of the posterior s.e.")
+```
+
+```{r}
+knitr::kable(df_beta, "latex", booktabs = T, 
+             digits = 3, escape = FALSE, 
+             caption = "Summary results for parameter $\\beta$",
+             col.names = var_names) %>%
+          kableExtra::kable_styling(latex_options = "hold_position")
+```
+
+```{r}
+knitr::kable(df_theta, "latex", booktabs = T, 
+             digits = 3, escape = FALSE, 
+             caption = "Summary results for parameter $\\theta$",
+             col.names = var_names) %>%
+          kableExtra::kable_styling(latex_options = "hold_position")
 ```
 
 It seems that Bayesian estimates of $\beta$ and $\theta$ are getting closer to true parameter values as the number of shifts increase:
@@ -184,11 +512,29 @@ It seems that Bayesian estimates of $\beta$ and $\theta$ are getting closer to t
 
 - The standard error of posterior mean was getting smaller, as we can tell from the 3rd column.
 
+
+\clearpage
+# Hierarchical Bayesian model for PLP
+## Time truncated case
+
+$$
+\begin{aligned}
+\beta_{d(i)} & \sim N(2, 0.5^2)\\
+\theta_{d(i)} & \sim N(10, 2^1)\\
+T_{i, d(i)} & \sim PLP(\beta_{d(i)}, \theta_{d(i)})
+\end{aligned}
+$$
+
+\hl{how to incoporate covariates into this hierarchical model?}
+
+
+
+
 \newpage
 
 # Appendix - stan code {-} 
-
-```{stan output.var="nhpp", echo=TRUE}
+## Time truncated case {-}
+```
 functions{
   real nhpp_log(vector t, real beta, real theta, real tau){
     vector[num_elements(t)] loglik_part;
@@ -216,6 +562,44 @@ model{
   position = 1;
   for (k in 1:K){
     segment(event_time, position, s[k]) ~ nhpp(beta, theta, tau[k]);
+    position = position + s[k];
+  }
+//PRIORS
+  beta ~ gamma(1, 1);
+  theta ~ gamma(1, 0.01);
+}
+```
+
+## Failure truncated case {-}
+
+```
+functions{
+  real nhpp_log(vector t, real beta, real theta, real tn){
+    vector[num_elements(t)] loglik_part;
+    real loglikelihood;
+    for (i in 1:num_elements(t)){
+      loglik_part[i] = log(beta) - beta*log(theta) + (beta - 1)*log(t[i]);
+    }
+    loglikelihood = sum(loglik_part) - (tn/theta)^beta;
+    return loglikelihood;
+  }
+}
+data {
+  int<lower=0> N; //total # of obs
+  int<lower=0> K; //total # of groups
+  vector<lower=0>[K] tn;//truncated time
+  vector<lower=0>[N] event_time; //failure time
+  int s[K]; //group sizes
+}
+parameters{
+  real<lower=0> beta;
+  real<lower=0> theta;
+}
+model{
+  int position;
+  position = 1;
+  for (k in 1:K){
+    segment(event_time, position, s[k]) ~ nhpp(beta, theta, tn[k]);
     position = position + s[k];
   }
 //PRIORS

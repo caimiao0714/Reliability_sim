@@ -5,6 +5,7 @@ date: "`r Sys.Date()`"
 output:
   bookdown::pdf_document2: 
     number_sections: true
+    toc: true
 header-include:
   - \usepackage{soul}
   - \usepackage{float}
