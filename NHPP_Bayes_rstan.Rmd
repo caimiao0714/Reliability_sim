@@ -517,8 +517,11 @@ It seems that Bayesian estimates of $\beta$ and $\theta$ are getting closer to t
 # Hierarchical Bayesian model for PLP
 ## Time truncated case
 
+Let's assume there are 10 drivers, and the parameters of each driver $\beta_{d(i)}, \theta_{d(i)}$ independently follow a normal distribution, while the number of shifts for each driver follows a Poisson distribution.
+
 $$
 \begin{aligned}
+n_{d(i)} & \sim \text{Poisson(30)}\\
 \beta_{d(i)} & \sim N(2, 0.5^2)\\
 \theta_{d(i)} & \sim N(10, 2^1)\\
 T_{i, d(i)} & \sim PLP(\beta_{d(i)}, \theta_{d(i)})
@@ -527,6 +530,111 @@ $$
 
 \hl{how to incoporate covariates into this hierarchical model?}
 
+```{r}
+set.seed(123)
+n_driver = 10
+lambda_shifts = 10
+beta_mu = 2; beta_sd = 0.5
+theta_mu = 10; theta_sd = 2
+n_shifts = rpois(n_driver, lambda_shifts)
+beta_vec = rnorm(n_driver, beta_mu, beta_sd)
+theta_vec = rnorm(n_driver, theta_mu, theta_sd)
+
+df_event = list()
+df_start_end = list()
+df_shift_length = list()
+for (i in 1:n_driver) {
+  df = sim_mul_plp_tau(n_shift = n_shifts[i], shift_len_mean = 30,
+                       beta = beta_vec[i], theta = theta_vec[i])
+  # add an ID columns
+  df$event_dat$driverID = i; df$start_end_dat$driverID = i
+  df$shift_length = as.data.frame(df$shift_length)
+  df$shift_length$driverID = i
+  names(df$shift_length) = c("shift_length", "driverID")
+  # differnt datalists
+  df_event[[i]] = df$event_dat
+  df_start_end[[i]] = df$start_end_dat
+  df_shift_length[[i]] = df$shift_length
+}
+
+event0 = bind_rows(df_event)
+start_end0 = bind_rows(df_start_end)
+shift_length0 = bind_rows(df_shift_length)
+
+# pass data to stan
+datstan1 = list(
+    D = max(event0$driverID),
+    N = nrow(event0),
+    n = count(event0, driverID) %>% 
+      pull(n),# the number of obs per driver
+    S = count(start_end0, driverID) %>% 
+               pull(n) %>% sum, # the total number of shifts
+    s = count(start_end0, driverID) %>% 
+               pull(n), # the number of shifts per driver
+    l = shift_length0$shift_length,# obs per shift
+    tau = start_end0$end_time,# truncation time
+    event_time = event0$event_time # failure time
+)
+```
+
+
+```{r}
+plpre = "
+functions{
+  real nhpp_log(vector t, real beta, real theta, real tau){
+    vector[num_elements(t)] loglik_part;
+    real loglikelihood;
+    for (i in 1:num_elements(t)){
+      loglik_part[i] = log(beta) - beta*log(theta) + (beta - 1)*log(t[i]);
+    }
+    loglikelihood = sum(loglik_part) - (tau/theta)^beta;
+    return loglikelihood;
+  }
+}
+data {
+  int<lower=0> N; //total # of obs for failures
+  int<lower=0> D; //total # of drivers
+  int<lower=0> n[D]; // events per driver
+  int<lower=0> S; //total # of shifts
+  int<lower=0> s[D];//# the number of shifts per driver
+  int<lower=0> l; //# obs per shift
+  vector<lower=0>[S] tau;//truncated time
+  vector<lower=0>[N] event_time; //failure time
+}
+parameters{
+  real<lower=0> beta[D];
+  real<lower=0> theta[d];
+  real<lower=0> mu_theta; //hyperparameter
+  real<lower=0> sigma_theta; //hyperparameter
+  real<lower=0> mu_beta; //hyperparameter
+  real<lower=0> sigma_beta; //hyperparameter
+}
+model{
+  // Hyperpriors
+  mu_beta ~ gamma(1, 1);
+  sigma_beta ~ gamma(1, 1);
+  mu_theta ~ gamma(1, 0.01);
+  sigma_theta ~ gamma(1, 1);
+  // Priors
+  beta ~ normal(mu_beta, sigma_beta);
+  theta ~ normal(mu_theta, sigma_theta);
+  // Ragged data structure
+  int position;
+  int obs_left;
+  int obs_right;
+  for(d in 1:D){
+    position = 1;
+    obs_left = n[d-1] + 1;
+    obs_right = ;
+    for (k in 1:S){
+      segment(event_time, position, l[k]) ~ nhpp(beta[i], theta[i], tau[k]);
+      position = position + s[k];
+    }
+  }
+}
+"
+
+```
 
 
 
