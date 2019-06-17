@@ -34,3 +34,5 @@ CE_i & \sim \text{PLP}(\beta, \theta_i)\\
 \end{aligned}
 \end{equation}
 
+
+
