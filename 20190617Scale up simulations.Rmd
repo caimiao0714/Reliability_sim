@@ -6,6 +6,7 @@ output:
   bookdown::pdf_document2: 
     number_sections: true
     toc: no
+    keep_tex: true
 header-includes:
   - \usepackage{soul}
   - \usepackage{float}
@@ -22,100 +23,25 @@ knitr::opts_chunk$set(echo = FALSE, eval=FALSE)
 pacman::p_load(rstan, dplyr, ggplot2)
 source("functions/NHPP_functions.R")
 
-plptau = '
-functions{
-  real nhpp_log(vector t, real beta, real theta, real tau){
-    vector[num_elements(t)] loglik_part;
-    real loglikelihood;
-    for (i in 1:num_elements(t)){
-      loglik_part[i] = log(beta) - beta*log(theta) + (beta - 1)*log(t[i]);
-    }
-    loglikelihood = sum(loglik_part) - (tau/theta)^beta;
-    return loglikelihood;
-  }
-}
-data {
-  int<lower=0> N; //total # of obs
-  int<lower=0> K; //total # of groups
-  vector<lower=0>[K] tau;//truncated time
-  vector<lower=0>[N] event_time; //failure time
-  int s[K]; //group sizes
-}
-parameters{
-  real<lower=0> beta;
-  real<lower=0> theta;
-}
-model{
-  int position;
-  position = 1;
-  for (k in 1:K){
-    segment(event_time, position, s[k]) ~ nhpp(beta, theta, tau[k]);
-    position = position + s[k];
-  }
-//PRIORS
-  beta ~ gamma(1, 1);
-  theta ~ gamma(1, 0.01);
-}
-'
-
-plpn = '
-functions{
-  real nhpp_log(vector t, real beta, real theta, real tn){
-    vector[num_elements(t)] loglik_part;
-    real loglikelihood;
-    for (i in 1:num_elements(t)){
-      loglik_part[i] = log(beta) - beta*log(theta) + (beta - 1)*log(t[i]);
-    }
-    loglikelihood = sum(loglik_part) - (tn/theta)^beta;
-    return loglikelihood;
-  }
-}
-data {
-  int<lower=0> N; //total # of obs
-  int<lower=0> K; //total # of groups
-  vector<lower=0>[K] tn;//truncated time
-  vector<lower=0>[N] event_time; //failure time
-  int s[K]; //group sizes
-}
-parameters{
-  real<lower=0> beta;
-  real<lower=0> theta;
-}
-model{
-  int position;
-  position = 1;
-  for (k in 1:K){
-    segment(event_time, position, s[k]) ~ nhpp(beta, theta, tn[k]);
-    position = position + s[k];
-  }
-//PRIORS
-  beta ~ gamma(1, 1);
-  theta ~ gamma(1, 0.01);
-}
-'
-```
-
-```{r}
 set.seed(123)
 nhpp_5 = sim_mul_plp_n(n_shift = 50)
 datstan1 = list(
-    N = nrow(nhpp_5$event_dat),
-    K = nrow(nhpp_5$start_end_dat),
-    tn = nhpp_5$start_end_dat$end_time,
-    event_time = nhpp_5$event_dat$event_time,
-    s = nhpp_5$shift_length
+  N = nrow(nhpp_5$event_dat),
+  K = nrow(nhpp_5$start_end_dat),
+  tn = nhpp_5$start_end_dat$end_time,
+  event_time = nhpp_5$event_dat$event_time,
+  s = nhpp_5$shift_length
 )
-
+# to run one sim
 fitplp <- stan(
   model_code=plpn, model_name="NHPP2", data=datstan1, 
   iter=1000,warmup = 500, chains=1, seed = 123, refresh = 0
 )
-```
 
-```{r s1}
+# 1. N = 5, 25, 50
 set.seed(123)
-sim = 2
-N = c(5, 10, 50)
+sim = 3000
+N = c(5, 25, 50)
 
 sim30 = data.frame(matrix(0, nrow = sim*length(N)*2, ncol = 7))
 names(sim30) = c("sample_size", "parameter", "mean", "sd", "2.5%", "50%", "97.5%")
@@ -135,7 +61,7 @@ for (n in seq_along(N)) {
     )
     tryCatch({fitplp <- stan(
       model_code=plpn, model_name="NHPP2", data=datstan1, 
-      iter=1000,warmup = 500, chains=1, seed = 123, init = 1#, refresh = 0
+      iter=1000,warmup = 500, chains=1, seed = 123, init = 1, refresh = 0
     )}, error=function(e){})
     
     sim30[c(2*(n-1)*sim + 2*i-1, 2*(n-1)*sim + 2*i),
@@ -143,16 +69,12 @@ for (n in seq_along(N)) {
     print(paste0("N = ", n, "; i = ", i))
   }
 }
+readr::write_csv(sim30, paste0("fit/posterior_5_10_50n", sim, ".csv"))
 
 
-readr::write_csv(sim30, paste0("fit/fit_failure_truncate_5_10_50n", sim, ".csv"))
-```
-
-
-
-```{r s2}
+# 2. N = 100, 250
 set.seed(123)
-sim = 1000
+sim = 3000
 N = c(100, 250)
 
 sim30 = data.frame(matrix(0, nrow = sim*length(N)*2, ncol = 7))
@@ -173,22 +95,19 @@ for (n in seq_along(N)) {
     )
     tryCatch({fitplp <- stan(
       model_code=plpn, model_name="NHPP2", data=datstan1, 
-      iter=1000,warmup = 500, chains=1, seed = 123, init = 1#, refresh = 0
+      iter=1000,warmup = 500, chains=1, seed = 123, init = 1, refresh = 0
     )}, error=function(e){})
     
     sim30[c(2*(n-1)*sim + 2*i-1, 2*(n-1)*sim + 2*i),
           3:7] = summary(fitplp)$c_summary[1:2,c("mean", "sd", "2.5%", "50%", "97.5%"),1]
+    print(paste0("N = ", n, "; i = ", i))
   }
 }
-readr::write_csv(sim30, paste0("fit/fit_failure_truncate_100_250", sim, ".csv"))
-```
+readr::write_csv(sim30, paste0("fit/posterior_100_250n", sim, ".csv"))
 
-
-
-
-```{r s3}
+# 3. N = 500
 set.seed(123)
-sim = 1000
+sim = 3000
 N = 500
 
 sim30 = data.frame(matrix(0, nrow = sim*length(N)*2, ncol = 7))
@@ -209,24 +128,101 @@ for (n in seq_along(N)) {
     )
     tryCatch({fitplp <- stan(
       model_code=plpn, model_name="NHPP2", data=datstan1, 
-      iter=1000,warmup = 500, chains=1, seed = 123, init = 1#, refresh = 0
+      iter=1000,warmup = 500, chains=1, seed = 123, init = 1, refresh = 0
     )}, error=function(e){})
     
     sim30[c(2*(n-1)*sim + 2*i-1, 2*(n-1)*sim + 2*i),
           3:7] = summary(fitplp)$c_summary[1:2,c("mean", "sd", "2.5%", "50%", "97.5%"),1]
+    print(paste0("N = ", n, "; i = ", i))
   }
 }
-readr::write_csv(sim30, paste0("fit/fit_failure_truncate_500", sim, ".csv"))
+readr::write_csv(sim30, paste0("fit/posterior_500n", sim, ".csv"))
+
+
+
+# 3. N = 1000
+set.seed(123)
+sim = 3000
+N = 1000
+
+sim30 = data.frame(matrix(0, nrow = sim*length(N)*2, ncol = 7))
+names(sim30) = c("sample_size", "parameter", "mean", "sd", "2.5%", "50%", "97.5%")
+sim30$sample_size = rep(N, each = sim*2)
+sim30$parameter = rep(c("beta", "theta"), sim*length(N))
+sim30[,c("mean", "sd", "2.5%", "50%", "97.5%")] = NA
+
+for (n in seq_along(N)) {
+  for (i in 1:sim) {
+    nhpp_5 <- sim_mul_plp_n(N[n], beta = 2, theta = 10, mean_n = 10)
+    datstan1 <- list(
+      N = nrow(nhpp_5$event_dat),
+      K = nrow(nhpp_5$start_end_dat),
+      tn = nhpp_5$start_end_dat$end_time,
+      event_time = nhpp_5$event_dat$event_time,
+      s = nhpp_5$shift_length
+    )
+    tryCatch({fitplp <- stan(
+      model_code=plpn, model_name="NHPP2", data=datstan1, 
+      iter=1000,warmup = 500, chains=1, seed = 123, init = 1, refresh = 0
+    )}, error=function(e){})
+    
+    sim30[c(2*(n-1)*sim + 2*i-1, 2*(n-1)*sim + 2*i),
+          3:7] = summary(fitplp)$c_summary[1:2,c("mean", "sd", "2.5%", "50%", "97.5%"),1]
+    print(paste0("N = ", n, "; i = ", i))
+  }
+}
+readr::write_csv(sim30, paste0("fit/posterior_1000n", sim, ".csv"))
+
+# 4. N = 750
+set.seed(123)
+sim = 3000
+N = 750
+
+sim30 = data.frame(matrix(0, nrow = sim*length(N)*2, ncol = 7))
+names(sim30) = c("sample_size", "parameter", "mean", "sd", "2.5%", "50%", "97.5%")
+sim30$sample_size = rep(N, each = sim*2)
+sim30$parameter = rep(c("beta", "theta"), sim*length(N))
+sim30[,c("mean", "sd", "2.5%", "50%", "97.5%")] = NA
+
+for (n in seq_along(N)) {
+  for (i in 1:sim) {
+    nhpp_5 <- sim_mul_plp_n(N[n], beta = 2, theta = 10, mean_n = 10)
+    datstan1 <- list(
+      N = nrow(nhpp_5$event_dat),
+      K = nrow(nhpp_5$start_end_dat),
+      tn = nhpp_5$start_end_dat$end_time,
+      event_time = nhpp_5$event_dat$event_time,
+      s = nhpp_5$shift_length
+    )
+    tryCatch({fitplp <- stan(
+      model_code=plpn, model_name="NHPP2", data=datstan1, 
+      iter=1000,warmup = 500, chains=1, seed = 123, init = 1, refresh = 0
+    )}, error=function(e){})
+    
+    sim30[c(2*(n-1)*sim + 2*i-1, 2*(n-1)*sim + 2*i),
+          3:7] = summary(fitplp)$c_summary[1:2,c("mean", "sd", "2.5%", "50%", "97.5%"),1]
+    print(paste0("N = ", n, "; i = ", i))
+  }
+}
+readr::write_csv(sim30, paste0("fit/posterior_750n", sim, ".csv"))
+
 ```
 
+Simulation setting:
 
+- $\beta = 2, \theta = 10$
+- The number of simulation: $N = 3,000$
+- The number of shifts in each simulation: $5, 25, 50, 100, 250, 500, 750, 1000$
 
 ```{r eval=TRUE}
 pacman::p_load(dplyr)
-d3 = data.table::fread("fit/fit_failure_truncate_5001000.csv")
-d2 = data.table::fread("fit/fit_failure_truncate_100_2501000.csv")
-d1 = data.table::fread("fit/fit_failure_truncate_5_10_50n1000.csv")
-d = rbind(d1, d2, d3)
+
+d5 = data.table::fread("fit/posterior_1000n3000.csv")
+d4 = data.table::fread("fit/posterior_750n3000.csv")
+d3 = data.table::fread("fit/posterior_500n3000.csv")
+d2 = data.table::fread("fit/posterior_100_250n3000.csv")
+d1 = data.table::fread("fit/posterior_5_10_50n3000.csv")
+d = rbind(d1, d2, d3, d4, d5)
 ```
 
 ```{r eval=TRUE}
@@ -242,14 +238,14 @@ df_beta = df %>%
 df_theta = df %>% 
   filter(parameter == "theta") %>% 
   select(-parameter)
-var_names = c("sample size", "mean of the posterior means", "s.d. of the posterior means", "mean of the posterior s.e.")
+var_names = c("number of shifts", "mean of the posterior means", "s.d. of the posterior means", "mean of the posterior s.e.")
 ```
 
 ```{r eval=TRUE}
 knitr::kable(df_beta, "latex", booktabs = T, 
              digits = 3, escape = FALSE, 
              caption = "Summary results for parameter $\\beta$",
-             col.names = var_names)
+             col.names = var_names) 
 ```
 
 ```{r eval=TRUE}
