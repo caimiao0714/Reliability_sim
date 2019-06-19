@@ -211,7 +211,7 @@ readr::write_csv(sim30, paste0("fit/posterior_750n", sim, ".csv"))
 Simulation setting:
 
 - $\beta = 2, \theta = 10$
-- The number of simulation: $N = 3,000$
+- The number of simulations: $N = 3,000$
 - The number of shifts in each simulation: $5, 25, 50, 100, 250, 500, 750, 1000$
 
 ```{r eval=TRUE}
@@ -223,9 +223,7 @@ d3 = data.table::fread("fit/posterior_500n3000.csv")
 d2 = data.table::fread("fit/posterior_100_250n3000.csv")
 d1 = data.table::fread("fit/posterior_5_10_50n3000.csv")
 d = rbind(d1, d2, d3, d4, d5)
-```
 
-```{r eval=TRUE}
 df = d %>% 
   group_by(parameter, sample_size) %>% 
   summarise(mean_posterior_mean = mean(mean), 
@@ -241,17 +239,23 @@ df_theta = df %>%
 var_names = c("number of shifts", "mean of the posterior means", "s.d. of the posterior means", "mean of the posterior s.e.")
 ```
 
-```{r eval=TRUE}
+
+```{r eval=T}
+options(kableExtra.latex.load_packages = FALSE)
+pacman::p_load(kableExtra)
+
 knitr::kable(df_beta, "latex", booktabs = T, 
              digits = 3, escape = FALSE, 
-             caption = "Summary results for parameter $\\beta$",
-             col.names = var_names) 
+             caption = "Summary results for parameter $\\beta$ (N simulation = 3000)",
+             col.names = var_names) %>% 
+  kable_styling(latex_options = c("striped", "hold_position"))
 ```
 
-```{r eval=TRUE}
+```{r eval=T}
 knitr::kable(df_theta, "latex", booktabs = T, 
              digits = 3, escape = FALSE, 
-             caption = "Summary results for parameter $\\theta$",
-             col.names = var_names)
+             caption = "Summary results for parameter $\\theta$ (N simulation = 3000)",
+             col.names = var_names)%>% 
+  kable_styling(latex_options = c("striped", "hold_position"))
 ```
 
