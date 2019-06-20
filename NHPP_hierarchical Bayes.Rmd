@@ -19,20 +19,25 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Model setting
 
-\begin{equation}
+Let $T_{d, s, i}$ denote the time to the $d$-th driver's $s$-th shift's $i$-th critical event. The total number critical events of $d$-th driver's $s$-th shift is $n_{d,s}$. The ranges of these notations are:
+
+- $i = 1, 2, \cdots, n_{d, S_d}$,
+- $s = 1, 2, \cdots, S_d$,
+- $d = 1, 2, \cdots, D$.
+
+We assume the times of critical events within the $d$-th driver's  $s$-th shift were generated from a non-homogeneous Poisson process (NHPP) with a power law process (PLP), with a fix rate parameter $\beta$ and varying scale parameters $\theta_{d, s}$ across drivers. The data generating process is then:
+
+$$
 \begin{aligned}
-CE_i & \sim \text{PLP}(\beta, \theta_i)\\
-\theta_i &= \text{EXP}(\gamma_{0i} + \gamma_{1}x_{i1} + \gamma_{2}x_{i2} + \cdots + \gamma_{k}x_{ik})\\
-\gamma_{0i}, \gamma_{0i}, \cdots, \gamma_{0D} & \sim \text{i.i.d. }N(\mu_\gamma, \sigma_\gamma^2)\\
-\gamma_1 & \sim N(0, 10)\\
-\gamma_2 & \sim N(0, 10)\\
-&\vdots\\
-\gamma_k & \sim N(0, 10)\\
+T_{d, s, 1}, T_{d, s, 2}, \cdots , T_{d, s, n_{d, s}} & \sim \text{PLP}(\beta, \theta_{d, s})\\
 \beta & \sim \text{Gamma}(1, 1)\\
-\mu_\gamma &\sim N(0, 10) \\
-\sigma_\gamma &\sim \text{Gamma}(1, 1)
+\log\theta_{d, s} &= \gamma_{0d} + \gamma_{1}x_{d, s, 1} + \gamma_{2}x_{d, s, 2} + \cdots + \gamma_{k}x_{d, s, k}\\
+\gamma_{0i}, \gamma_{0i}, \cdots, \gamma_{0D} & \sim \text{i.i.d. }N(\mu_0, \sigma_0^2)\\
+\gamma_1, \gamma_2, \cdots, \gamma_k & \sim \text{i.i.d. }N(0, 10)\\
+\mu_0 &\sim N(0, 10) \\
+\sigma_0 &\sim \text{Gamma}(1, 1)
 \end{aligned}
-\end{equation}
+$$
 
 
 
