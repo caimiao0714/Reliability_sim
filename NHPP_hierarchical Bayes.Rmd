@@ -33,11 +33,31 @@ T_{d, s, 1}, T_{d, s, 2}, \cdots , T_{d, s, n_{d, s}} & \sim \text{PLP}(\beta, \
 \beta & \sim \text{Gamma}(1, 1)\\
 \log\theta_{d, s} &= \gamma_{0d} + \gamma_{1}x_{d, s, 1} + \gamma_{2}x_{d, s, 2} + \cdots + \gamma_{k}x_{d, s, k}\\
 \gamma_{0i}, \gamma_{0i}, \cdots, \gamma_{0D} & \sim \text{i.i.d. }N(\mu_0, \sigma_0^2)\\
-\gamma_1, \gamma_2, \cdots, \gamma_k & \sim \text{i.i.d. }N(0, 10)\\
-\mu_0 &\sim N(0, 10) \\
+\gamma_1, \gamma_2, \cdots, \gamma_k & \sim \text{i.i.d. }N(0, 10^2)\\
+\mu_0 &\sim N(0, 10^2) \\
 \sigma_0 &\sim \text{Gamma}(1, 1)
 \end{aligned}
 $$
 
+# Simulating data
+
+```{r}
+set.seed(123)
+D = 10 # the number of drivers
+K = 3 # the number of predictor variables
+
+# hyperparameters
+mu0 = rnorm(1, mean = 0, sd = 10)
+sigma0 = rgamma(1, 1, 1)
+
+# Fixed-effects parameters
+R = rnorm(K, mean = 0, sd = 10)
+
+# Random intercepts
+r0 = rnorm(D, mean = mu0, sd = sigma0)
+
+# Generate x_1, x_2, .. x_K
+
+```
 
 
