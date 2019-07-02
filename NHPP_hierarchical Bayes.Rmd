@@ -41,7 +41,7 @@ $$
 
 # Simulating data
 
-1. Random intercepts $\gamma_{0i}, \gamma_{0i}, \cdots, \gamma_{0D}$.
+1. Random intercepts $\gamma_{01}, \gamma_{02}, \cdots, \gamma_{0D}$.
 $$
 \begin{aligned}
 \mu_0 &\sim N(0, 10^2) \\
@@ -55,7 +55,10 @@ $$
 \gamma_1, \gamma_2, \gamma_3 \sim \text{i.i.d. }N(0, 10^2)
 $$
 
-3. Data: three variables $x_{d, s, 1}, x_{d, s, 2}, x_{d, s, 3}$.
+3. The number of observations in the $d$-th driver: $N_{d}$.
+$$N_{d} \sim \text{Poisson}(100)$$
+
+4. Data: 3 predictor variables $x_{d, s, 1}, x_{d, s, 2}, x_{d, s, 3}$.
 $$
 \begin{aligned}
 x_{d, s, 1} &\sim \text{N}(0, 10)\\
@@ -64,17 +67,17 @@ x_{d, s, 3} &\sim \text{Poisson}(3.5)
 \end{aligned}
 $$
 
-4. scale parameterS of a NHPP (random effects): $\theta_{d, s}$.
+5. scale parameterS of a NHPP (random effects): $\theta_{d, s}$.
 $$
 \theta_{d, s} = \text{EXP}(\gamma_{0d} + \gamma_{1}x_{d, s, 1} + \gamma_{2}x_{d, s, 2} + \gamma_{k}x_{d, s, 3})
 $$
 
-5. Shape parameter of a NHPP (fixed effect): $\beta$.
+6. Shape parameter of a NHPP (fixed effect): $\beta$.
 $$
 \beta \sim \text{Gamma}(1, 1)
 $$
 
-6. Simulate a NHPP based on $\beta$ and $\theta_{d, s}$.
+7. Simulate a NHPP based on $\beta$ and $\theta_{d, s}$.
 $$
 T_{d, s, 1}, T_{d, s, 2}, \cdots , T_{d, s, n_{d, s}} \sim \text{PLP}(\beta, \theta_{d, s})
 $$
@@ -84,25 +87,31 @@ set.seed(123)
 D = 10 # the number of drivers
 K = 3 # the number of predictor variables
 
-# 1. Random intercepts
+# 1. Random-effect intercepts
 # hyperparameters
 mu0 = rnorm(1, mean = 0, sd = 10)
 sigma0 = rgamma(1, 1, 1)
+r_0D = rnorm(D, mean = mu0, sd = sigma0)
 
+# 2. Fixed-effects parameters
+R_K = rnorm(K, mean = 0, sd = 10)
 
-# Fixed-effects parameters
-R = rnorm(K, mean = 0, sd = 10)
-
-# Random intercepts
-r0 = rnorm(D, mean = mu0, sd = sigma0)
-
-# Generate x_1, x_2, .. x_K
-sim1d = function(n = 10){
+# 3. Generate data: x_1, x_2, .. x_K
+sim1 = function(n = 10){
+  x1 = rnorm(n, 0, 10)
+  x2 = rgamma(n, 10, 2)
+  x3 = rpois(n, 3.5)
+  return(data.frame(x1, x2, x3))
+}
+simXD = function(ndrivers = D){
   
 }
-x1 = rnorm()
-x2 = rgamma()
-x3 = rpois()
+XD = rep(list(data.frame()), 10)
+for (i in 1:D) {
+  XD[[i]] = sim1()
+}
+data.table::rbindlist(list())
+
 ```
 
 
