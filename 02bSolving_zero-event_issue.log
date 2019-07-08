@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.4.16)  8 JUL 2019 11:01
+This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.4.16)  8 JUL 2019 11:33
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -560,23 +560,7 @@ Package: xcolor 2016/05/11 v2.12 LaTeX color extensions (UK)
 File: color.cfg 2016/01/02 v1.6 sample color configuration
 )
 Package xcolor Info: Driver file: pdftex.def on input line 225.
-(/usr/local/texlive/2018/texmf-dist/tex/latex/colortbl/colortbl.sty
-Package: colortbl 2012/02/13 v1.0a Color table columns (DPC)
-(/usr/local/texlive/2018/texmf-dist/tex/latex/tools/array.sty
-Package: array 2018/04/07 v2.4g Tabular extension package (FMi)
-\col@sep=\dimen148
-\ar@mcellbox=\box35
-\extrarowheight=\dimen149
-\NC@list=\toks33
-\extratabsurround=\skip57
-\backup@length=\skip58
-\ar@cellbox=\box36
-)
-\everycr=\toks34
-\minrowclearance=\skip59
-)
 LaTeX Info: Redefining \color on input line 709.
-\rownum=\count128
 Package xcolor Info: Model `cmy' substituted by `cmy0' on input line 1348.
 Package xcolor Info: Model `hsb' substituted by `rgb' on input line 1352.
 Package xcolor Info: Model `RGB' extended on input line 1364.
@@ -666,14 +650,14 @@ File: mt-cmr.cfg 2013/05/19 v2.2 microtype config. file: Computer Modern Roman
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-\AtBeginShipoutBox=\box37
+\AtBeginShipoutBox=\box35
 Package hyperref Info: Link coloring OFF on input line 135.
 (/usr/local/texlive/2018/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2016/05/21 v2.44 Cross-referencing by name of section
 (/usr/local/texlive/2018/texmf-dist/tex/generic/oberdiek/gettitlestring.sty
 Package: gettitlestring 2016/05/16 v1.5 Cleanup title references (HO)
 )
-\c@section@level=\count129
+\c@section@level=\count128
 )
 LaTeX Info: Redefining \ref on input line 135.
 LaTeX Info: Redefining \pageref on input line 135.
@@ -684,17 +668,17 @@ LaTeX Info: Redefining \nameref on input line 135.
 
 (/usr/local/texlive/2018/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count130
-\scratchdimen=\dimen150
-\scratchbox=\box38
-\nofMPsegments=\count131
-\nofMParguments=\count132
-\everyMPshowfont=\toks35
-\MPscratchCnt=\count133
-\MPscratchDim=\dimen151
-\MPnumerator=\count134
-\makeMPintoPDFobject=\count135
-\everyMPtoPDFconversion=\toks36
+\scratchcounter=\count129
+\scratchdimen=\dimen148
+\scratchbox=\box36
+\nofMPsegments=\count130
+\nofMParguments=\count131
+\everyMPshowfont=\toks33
+\MPscratchCnt=\count132
+\MPscratchDim=\dimen149
+\MPnumerator=\count133
+\makeMPintoPDFobject=\count134
+\everyMPtoPDFconversion=\toks34
 ) (/usr/local/texlive/2018/texmf-dist/tex/latex/oberdiek/epstopdf-base.sty
 Package: epstopdf-base 2016/05/15 v2.6 Base part for package epstopdf
 (/usr/local/texlive/2018/texmf-dist/tex/latex/oberdiek/grfext.sty
@@ -858,27 +842,76 @@ Package xcolor Warning: Incompatible color definition on input line 351.
 [6
 
 ]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 368.
+
+Package xcolor Warning: Incompatible color definition on input line 371.
+
+
+Package xcolor Warning: Incompatible color definition on input line 410.
+
+
+Package xcolor Warning: Incompatible color definition on input line 410.
+
 [7
 
 ]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 368.
+
+Package xcolor Warning: Incompatible color definition on input line 418.
+
+
+Package xcolor Warning: Incompatible color definition on input line 427.
+
+
+Package xcolor Warning: Incompatible color definition on input line 427.
+
+
+Package xcolor Warning: Incompatible color definition on input line 429.
+
+
+Package xcolor Warning: Incompatible color definition on input line 437.
+
+
+Package xcolor Warning: Incompatible color definition on input line 437.
+
+
+Package xcolor Warning: Incompatible color definition on input line 458.
+
+
+Package xcolor Warning: Incompatible color definition on input line 476.
+
+
+Package xcolor Warning: Incompatible color definition on input line 476.
+
+
+Package xcolor Warning: Incompatible color definition on input line 476.
+
+[8
+
+]
+
+Package xcolor Warning: Incompatible color definition on input line 476.
+
+
+Package xcolor Warning: Incompatible color definition on input line 476.
+
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 499.
+[9]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 499.
 (./02bSolving_zero-event_issue.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 368.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 368.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 499.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 499.
 Package rerunfilecheck Info: File `02bSolving_zero-event_issue.out' has not cha
 nged.
-(rerunfilecheck)             Checksum: A9193A9BF55E90955A8ED24409F6C5CE;633.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 368.
+(rerunfilecheck)             Checksum: 9D50B48C336E064C7C3E51DAE3DD7DB7;924.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 499.
  ) 
 Here is how much of TeX's memory you used:
- 13453 strings out of 492649
- 196005 string characters out of 6129622
- 310609 words of memory out of 5000000
- 17082 multiletter control sequences out of 15000+600000
- 56714 words of font info for 72 fonts, out of 8000000 for 9000
+ 13373 strings out of 492649
+ 195008 string characters out of 6129622
+ 309401 words of memory out of 5000000
+ 17000 multiletter control sequences out of 15000+600000
+ 56797 words of font info for 73 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 41i,5n,38p,425b,376s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 34i,5n,38p,425b,376s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/local/texlive/2018/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}{/usr/local/
 texlive/2018/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}{/usr/local/texlive/20
 18/texmf-dist/fonts/enc/dvips/lm/lm-ts1.enc}{/usr/local/texlive/2018/texmf-dist
@@ -891,10 +924,10 @@ mbx12.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1/public/lm/lmmi10.pfb>
 ist/fonts/type1/public/lm/lmtk10.pfb></usr/local/texlive/2018/texmf-dist/fonts/
 type1/public/lm/lmtt10.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1/publ
 ic/lm/lmtt12.pfb>
-Output written on 02bSolving_zero-event_issue.pdf (7 pages, 202591 bytes).
+Output written on 02bSolving_zero-event_issue.pdf (9 pages, 209995 bytes).
 PDF statistics:
- 113 PDF objects out of 1000 (max. 8388607)
- 94 compressed objects within 1 object stream
- 17 named destinations out of 1000 (max. 500000)
- 12321 words of extra memory for PDF output out of 14400 (max. 10000000)
+ 137 PDF objects out of 1000 (max. 8388607)
+ 115 compressed objects within 2 object streams
+ 23 named destinations out of 1000 (max. 500000)
+ 12337 words of extra memory for PDF output out of 14400 (max. 10000000)
 
