@@ -1,0 +1,128 @@
+---
+title: "Bayesian estimation for NHPP using `rstan`"
+author: "Miao Cai <miao.cai@slu.edu>"
+date: "`r Sys.Date()`"
+output:
+  bookdown::pdf_document2: 
+    number_sections: true
+    toc: true
+header-includes:
+  - \usepackage{soul}
+  - \usepackage{float}
+  - \usepackage[table]{xcolor}
+  - \usepackage{setspace}\linespread{1.4}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+\clearpage
+
+The `Stan` code I used previously cannot estimate trips without any critical event. In this document, I will try to solve this issue.
+
+```{r}
+source("functions/NHPP_functions.R")
+require(rstan)
+rstan_options(auto_write = TRUE)
+```
+
+\clearpage
+
+# Reproduce the error
+
+```{r}
+plptau = '
+functions{
+  real nhpp_log(vector t, real beta, real theta, real tau){
+    vector[num_elements(t)] loglik_part;
+    real loglikelihood;
+    for (i in 1:num_elements(t)){
+      loglik_part[i] = log(beta) - beta*log(theta) + (beta - 1)*log(t[i]);
+    }
+    loglikelihood = sum(loglik_part) - (tau/theta)^beta;
+    return loglikelihood;
+  }
+}
+data {
+  int<lower=0> N; //total # of obs
+  int<lower=0> K; //total # of groups
+  vector<lower=0>[K] tau;//truncated time
+  vector<lower=0>[N] event_time; //failure time
+  int s[K]; //group sizes
+}
+parameters{
+  real<lower=0> beta;
+  real<lower=0> theta;
+}
+model{
+  int position;
+  position = 1;
+  for (k in 1:K){
+    segment(event_time, position, s[k]) ~ nhpp(beta, theta, tau[k]);
+    position = position + s[k];
+  }
+//PRIORS
+  beta ~ gamma(1, 1);
+  theta ~ gamma(1, 0.01);
+}
+'
+```
+
+\clearpage
+## An example that works
+
+Firstly, I create a example with sufficiently long time intervals so that there are at least 1 event in each time interval.
+
+```{r}
+df0 = list(
+  N = 38L, K = 10L, 
+  tau = c(21.269, 18.109, 19.468, 19.89, 18.247, 19.048, 19.957, 21.006, 
+17.524, 19.475), 
+  event_time = c(5.045, 14.921, 18.566, 7.265, 10.51, 12.155, 16.262, 17.738, 
+17.763, 16.059, 18.371, 10.393, 11.787, 5.088, 10.144, 11.646, 
+13.274, 15.233, 16.345, 17.583, 15.266, 15.391, 16.355, 17.79, 
+7.729, 13.906, 14.287, 12.012, 18.662, 5.654, 5.727, 8.144, 11.608, 
+14.756, 14.933, 16.088, 16.45, 18.876), 
+  s = c(3L, 6L, 2L, 2L, 7L, 4L, 3L, 2L, 6L, 3L)
+)
+df0
+```
+
+`Stan` works out well and produce estimates close to the true parameters $\beta = 2, \theta = 10$.
+
+
+```{r}
+fitplp <- stan(
+  model_code=plptau, model_name="NHPP", data=df0, 
+  iter=1000, warmup = 500, chains=1, seed = 123, refresh = 0
+)
+fitplp
+```
+
+\clearpage
+
+## An example that does not work
+
+However, if there is no event in any of the time intervals, the `Stan` code will not work. For example:
+
+```{r}
+df1 = list(
+  N = 8L, K = 10L, 
+  tau = c(9.9785, 7.3146, 10.0518, 10.2853, 10.2621, 8.4175, 10.7142, 12.0679, 10.6844, 8.2966), 
+  event_time = c(6.7346, 8.1608, 4.4621, 6.5118, 7.9538, 11.2332, 11.6206, 11.9121), 
+  s = c(0L, 0L, 2L, 1L, 2L, 0L, 0L, 3L, 0L, 0L)
+)
+df1
+```
+
+```{r error=TRUE}
+fitplp <- stan(
+  model_code=plptau, model_name="NHPP", data=df1, 
+  iter=1000, warmup = 500, chains=1, seed = 123, refresh = 0
+)
+```
+
+\clearpage
+
+# Update code
