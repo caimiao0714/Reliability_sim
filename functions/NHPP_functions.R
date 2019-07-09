@@ -139,6 +139,7 @@ model{
   int position;
   position = 1;
   for (k in 1:K){
+    if(s[k] == 0) continue;
     segment(event_time, position, s[k]) ~ nhpp(beta, theta, tau[k]);
     position = position + s[k];
   }
@@ -175,6 +176,7 @@ model{
   int position;
   position = 1;
   for (k in 1:K){
+    if(s[k] == 0) continue;
     segment(event_time, position, s[k]) ~ nhpp(beta, theta, tn[k]);
     position = position + s[k];
   }

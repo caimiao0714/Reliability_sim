@@ -136,7 +136,7 @@ beta = 1.5
 # Estimation
 
 
-\linespread{1.4}
+\linespread{1}
 ```{r}
 plptauML = '
 functions{
@@ -151,28 +151,52 @@ functions{
   }
 }
 data {
+  int<lower=0> D; //driver index
   int<lower=0> N; //total # of obs
-  int<lower=0> K; //total # of groups
+  int<lower=0> K; //total # of shifts
   vector<lower=0>[K] tau;//truncated time
   vector<lower=0>[N] event_time; //failure time
   int s[K]; //group sizes
 }
 parameters{
   real<lower=0> beta;
-  real<lower=0> theta;
+  vector[K] r0; // random intercept
+  vector[3] r; // fixed parameters
+  real mu0; // hyperparameter
+  real<lower=0> sigma0;// hyperparameter
+}
+transformed parameters{
+  vector<lower=0>[K] theta;
+  
+  for (k0 in 1:K)
+    theta[k0] = r0[D[k0]] + x1[i]*r[1] + x2[i]*r[2] + x3[i]*r[3];
 }
 model{
   int position;
   position = 1;
   for (k in 1:K){
-    segment(event_time, position, s[k]) ~ nhpp(beta, theta, tau[k]);
+    segment(event_time, position, s[k]) ~ nhpp(beta, theta[k], tau[k]);
     position = position + s[k];
   }
 //PRIORS
   beta ~ gamma(1, 1);
+  r0 ~ normal(mu0, sigma0);
+  r  ~ normal(0, 10);
+  mu0 ~ normal(0, 10);
+  sigma0 ~ gamma(1, 1);
   theta ~ gamma(1, 0.01);
 }
 '
 ```
 \doublespacing
+
+In Stan code:
+
+- Need a data matrix $X$,
+- Need matrix multiplication,
+
+In data:
+
+- Need a driver index $d = 1, 2, \cdots, K$ for each shift $k$
+- Need a data matrix $X$
 
