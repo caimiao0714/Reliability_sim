@@ -1,3 +1,4 @@
 \contentsline {section}{\numberline {1}Model setting}{1}{section.1}
-\contentsline {section}{\numberline {2}Simulating data}{2}{section.2}
-\contentsline {section}{\numberline {3}Estimation}{4}{section.3}
+\contentsline {section}{\numberline {2}Simulating data}{3}{section.2}
+\contentsline {section}{\numberline {3}Estimation}{6}{section.3}
+\contentsline {section}{\numberline {4}Inline Rmarkdown Stan chunk}{8}{section.4}
