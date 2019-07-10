@@ -74,7 +74,9 @@ $$
 
 6. Shape parameter of a NHPP (fixed effect): $\beta  \sim \text{Gamma}(1, 1)$. Set $$\beta = 1.5$$
 
-7. Simulate a NHPP based on $\beta$ and $\theta_{d, s}$. $$T_{d, s, 1}, T_{d, s, 2}, \cdots , T_{d, s, n_{d, s}} \sim \text{PLP}(\beta, \theta_{d, s})$$
+7. Simulate truncate time $\tau_s$ for each shift. $$\tau_s \sim N(10, 1.3)$$
+
+8. Simulate a NHPP based on $\beta$ and $\theta_{d, s}$. $$T_{d, s, 1}, T_{d, s, 2}, \cdots , T_{d, s, n_{d, s}} \sim \text{PLP}(\beta, \theta_{d, s})$$
 
 \clearpage
 \singlespacing
