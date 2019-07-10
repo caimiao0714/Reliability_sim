@@ -12,13 +12,13 @@ functions{
 data {
   int<lower=0> N; //total # of obs
   int<lower=0> K; //total # of shifts
-  int<lower=0> D[K];//driver index, this need to be an array, otherwise you will not be able to index it inside a bracket
+  int<lower=0> D[K];//driver index, this must be an array
   vector<lower=0>[K] tau;//truncated time
   vector<lower=0>[N] event_time; //failure time
+  int s[K]; //group sizes
   vector[K] x1;
   vector[K] x2;
   vector[K] x3;
-  int s[K]; //group sizes
 }
 parameters{
   real<lower=0> beta;
@@ -30,17 +30,17 @@ parameters{
 transformed parameters{
   vector<lower=0>[K] theta;
   for (k0 in 1:K){
-    theta[k0] = r0[ D[k0] ] + x1[k0]*r[1] + x2[k0]*r[2] + x3[k0]*r[3];
+    theta[k0] = exp(r0[ D[k0] ] + x1[k0]*r[1] + x2[k0]*r[2] + x3[k0]*r[3]);
   }
 }
 model{
   int position;
   position = 1;
   for (k in 1:K){
+    if(s[k] == 0) continue;
     segment(event_time, position, s[k]) ~ nhpp(beta, theta[k], tau[k]);
     position = position + s[k];
   }
-//PRIORS
   beta ~ gamma(1, 1);
   r0 ~ normal(mu0, sigma0);
   r  ~ normal(0, 10);

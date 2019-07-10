@@ -67,14 +67,12 @@ sim_mul_plp_tau = function(n_shift = 20,
 
   t_list = list()
   len_list = list()
-  end_time1 = list()
+  # end_time1 = list() # not needed for time truncated case
 
 
   for (i in 1:n_shift) {
     t_list[[i]] = sim_plp_tau(tau_vector[i], beta, theta)
     len_list[[i]] = length(t_list[[i]])
-    end_time1[[i]] = ifelse(length(t_list[[i]]) == 0, 0,
-                            max(t_list[[i]]))
   }
 
   event_dat = data.frame(
@@ -108,4 +106,31 @@ plot_events = function(event_dat, start_end_dat, cross_size = 2){
                  arrow = arrow(length = unit(0.2, "cm"))) +
     theme_classic()
   return(p)
+}
+
+
+sim_hier_plp_tau = function(){
+  t_list = list()
+  len_list = list()
+  tau_vector = rnorm(N, 10, 1.3)
+
+  for (i in 1:N) {
+    t_list[[i]] = sim_plp_tau(tau_vector[i], beta, theta[i])
+    len_list[[i]] = length(t_list[[i]])
+  }
+
+  event_dat = data.frame(
+    shift_id = rep(1:N, unlist(len_list)),
+    event_time = Reduce(c, t_list)
+  )
+
+  start_end_dat = data.frame(
+    shift_id = 1:N,
+    start_time = rep(0, N),
+    end_time = tau_vector #difference2
+  )
+
+  return(list(event_dat = event_dat,
+              start_end_dat = start_end_dat,
+              shift_length = unlist(len_list)))
 }

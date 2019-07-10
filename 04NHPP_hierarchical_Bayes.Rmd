@@ -1,0 +1,220 @@
+---
+title: "Bayesian hierarchical models for NHPP using `rstan`"
+author: "Miao Cai <miao.cai@slu.edu>"
+date: "`r Sys.Date()`"
+output:
+  bookdown::pdf_document2: 
+    number_sections: true
+    toc: true
+header-includes:
+  - \usepackage{soul}
+  - \usepackage{float}
+#  - \usepackage[table]{xcolor}
+  - \usepackage{setspace}\doublespacing
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
+```
+
+# Model setting
+
+Let $T_{d, s, i}$ denote the time to the $d$-th driver's $s$-th shift's $i$-th critical event. The total number critical events of $d$-th driver's $s$-th shift is $n_{d,s}$. The ranges of these notations are:
+
+- $i = 1, 2, \cdots, n_{d, S_d}$,
+- $s = 1, 2, \cdots, S_d$,
+- $d = 1, 2, \cdots, D$.
+
+We assume the times of critical events within the $d$-th driver's  $s$-th shift were generated from a non-homogeneous Poisson process (NHPP) with a power law process (PLP), with a fix rate parameter $\beta$ and varying scale parameters $\theta_{d, s}$ across drivers. The data generating process is then:
+
+$$
+\begin{aligned}
+T_{d, s, 1}, T_{d, s, 2}, \cdots , T_{d, s, n_{d, s}} & \sim \text{PLP}(\beta, \theta_{d, s})\\
+\beta & \sim \text{Gamma}(1, 1)\\
+\log\theta_{d, s} &= \gamma_{0d} + \gamma_{1}x_{d, s, 1} + \gamma_{2}x_{d, s, 2} + \cdots + \gamma_{k}x_{d, s, k}\\
+\gamma_{01}, \gamma_{02}, \cdots, \gamma_{0D} & \sim \text{i.i.d. }N(\mu_0, \sigma_0^2)\\
+\gamma_1, \gamma_2, \cdots, \gamma_k & \sim \text{i.i.d. }N(0, 10^2)\\
+\mu_0 &\sim N(0, 10^2) \\
+\sigma_0 &\sim \text{Gamma}(1, 1)
+\end{aligned}
+$$
+
+\clearpage
+# Simulating data
+
+\linespread{1.5}
+
+1. Random intercepts $\gamma_{01}, \gamma_{02}, \cdots, \gamma_{0D}$. The standard deviation of $\mu_0$ was intentionally set to small number 2 to make $\theta_{d, s}$ fall into a reasonably small range. If I otherwise set it as 10,  $\theta_{d, s}$ may be more than $10^5$ due to the exponentiation, which may not be realistic in real-life data.
+$$
+\begin{aligned}
+\mu_0 = 0 &, \quad \sigma_0 = 0.5 \\
+\sigma_0 &\sim \text{Gamma}(1, 1)\\
+\gamma_{01}, \gamma_{02}, \cdots, \gamma_{0D} & \sim \text{i.i.d. }N(\mu_0, \sigma_0^2)
+\end{aligned}
+$$
+
+2. fixed parameters: 3 fixed parameters $\gamma_1, \gamma_2, \gamma_3$. $$\gamma_1, \gamma_2, \gamma_3 \sim \text{i.i.d. }N(0, 10^2)$$
+
+3. The number of observations in the $d$-th driver: $N_{d}$. $$N_{d} \sim \text{Poisson}(100)$$
+
+4. Data: 3 predictor variables $x_{d, s, 1}, x_{d, s, 2}, x_{d, s, 3}$.
+$$
+\begin{aligned}
+x_{d, s, 1} &\sim \text{N}(0, 1)\\
+x_{d, s, 2} &\sim \text{Gamma}(1, 1)\\
+x_{d, s, 3} &\sim \text{Poisson}(0.2)
+\end{aligned}
+$$
+
+5. Scale parameters of a NHPP (random effects): $\theta_{d, s}$.
+$$
+\theta_{d, s} = \text{EXP}(\gamma_{0d} + \gamma_{1}x_{d, s, 1} + \gamma_{2}x_{d, s, 2} + \gamma_{k}x_{d, s, 3})
+$$
+
+6. Shape parameter of a NHPP (fixed effect): $\beta  \sim \text{Gamma}(1, 1)$. Set $$\beta = 1.5$$
+
+7. Simulate a NHPP based on $\beta$ and $\theta_{d, s}$. $$T_{d, s, 1}, T_{d, s, 2}, \cdots , T_{d, s, n_{d, s}} \sim \text{PLP}(\beta, \theta_{d, s})$$
+
+\clearpage
+\singlespacing
+```{r parameters}
+pacman::p_load(rstan, tidyverse, data.table)
+source("functions/NHPP_functions.R")
+
+set.seed(123)
+D = 10 # the number of drivers
+K = 3 # the number of predictor variables
+
+# 1. Random-effect intercepts
+# hyperparameters
+mu0 = 0
+sigma0 = 0.5
+r_0D = rnorm(D, mean = mu0, sd = sigma0)
+
+# 2. Fixed-effects parameters
+R_K = rnorm(K, mean = 0, sd = 0.5)
+
+# 3. The number of observations (shifts) in the $d$-th driver: $N_{d}$
+N_K = rpois(D, 10)
+N = sum(N_K) # the total number of obs
+id = rep(1:D, N_K)
+
+# 4. Generate data: x_1, x_2, .. x_K
+sim1 = function(group_sizes = N_K){
+  ntot = sum(group_sizes)
+  
+  int1 = rep(1, ntot)
+  x1 =  rnorm(ntot, 0, 1)
+  x2 = rgamma(ntot, 1, 1)
+  x3 =  rpois(ntot, 0.2)
+  
+  return(data.frame(int1, x1, x2, x3))
+}
+X = sim1(N_K)
+
+# 5. Scale parameters of a NHPP
+# 5a. parameter matrix: P
+P = cbind(r0 = rep(r_0D, N_K), 
+          t(replicate(N, R_K)))
+M_logtheta = P*X
+
+# returned parameter for each observed shift
+beta = 1.5
+theta = exp(rowSums(M_logtheta))
+round(theta, 3)
+```
+
+
+
+```{r NHPPdata}
+sim_hier_plp_tau = function(){
+  t_list = list()
+  len_list = list()
+  tau_vector = rnorm(N, 10, 1.3)
+  
+  for (i in 1:N) {
+    t_list[[i]] = sim_plp_tau(tau_vector[i], beta, theta[i])
+    len_list[[i]] = length(t_list[[i]])
+  }
+
+  event_dat = data.frame(
+    shift_id = rep(1:N, unlist(len_list)),
+    event_time = Reduce(c, t_list)
+  )
+
+  start_end_dat = data.frame(
+    shift_id = 1:N,
+    start_time = rep(0, N),
+    end_time = tau_vector #difference2
+  )
+  
+  return(list(event_dat = event_dat,
+              start_end_dat = start_end_dat,
+              shift_length = unlist(len_list)))
+}
+
+df = sim_hier_plp_tau()
+
+hier_dat = list(
+    N = nrow(df$event_dat),
+    K = nrow(df$start_end_dat),
+    D = id, #driver index
+    tau = df$start_end_dat$end_time,
+    event_time = df$event_dat$event_time,
+    s = df$shift_length, #the number of events in each shift
+    x1 = X[,2], x2 = X[,3], x3 = X[,4]
+)
+```
+
+\clearpage
+
+# Stan code
+
+```{r comment = NA, echo=FALSE}
+cat(readLines("stan/nhpp_plp_tau_ML.stan"), sep = c("\n"))
+```
+
+
+# Estimated results
+
+```{r}
+f = stan("stan/nhpp_plp_tau_ML.stan",
+         chains = 1, iter = 1000, data = hier_dat, refresh = 0)
+```
+
+```{r}
+pacman::p_load(magrittr)
+est = broom::tidy(f)
+
+pull_est = function(var = "theta", est_obj = f){
+  z = est_obj %>% 
+    broom::tidy() %>% 
+    filter(grepl(var, term)) %>% 
+    pull(estimate) %>% 
+    round(3)
+  return(z)
+}
+```
+\doublespacing
+
+Estimated values: 
+
+- Hyperparameters: $\hat{\mu}_0$: `r pull_est("mu0")`, $\hat{\sigma}_0$: `r pull_est("sigma0")`
+- Individual level parameters: $\gamma_1, \gamma_2, \gamma_3$: `r pull_est("r\\[")`
+- Rate parameter $\beta$: `r pull_est("beta")`
+- $\theta$: `r pull_est("theta")`
+
+
+
+\clearpage
+# Further improvement
+
+In Stan code:
+
+- Need a data matrix $X$,
+- Need matrix multiplication,
+
+In data:
+
+- Need a driver index $d = 1, 2, \cdots, K$ for each shift $k$
+- Need a data matrix $X$
