@@ -1,5 +1,0 @@
-\contentsline {section}{\numberline {1}Model setting}{1}{section.1}
-\contentsline {section}{\numberline {2}Simulating data}{3}{section.2}
-\contentsline {section}{\numberline {3}Stan code}{6}{section.3}
-\contentsline {section}{\numberline {4}Estimated results}{7}{section.4}
-\contentsline {section}{\numberline {5}Further improvement}{8}{section.5}

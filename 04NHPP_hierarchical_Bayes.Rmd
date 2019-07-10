@@ -10,13 +10,14 @@ header-includes:
   - \usepackage{soul}
   - \usepackage{float}
 #  - \usepackage[table]{xcolor}
-  - \usepackage{setspace}\doublespacing
+  - \usepackage{setspace}\linespread{1.2}
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
+knitr::opts_chunk$set(echo = TRUE, cache = FALSE)
 ```
 
+\clearpage
 # Model setting
 
 Let $T_{d, s, i}$ denote the time to the $d$-th driver's $s$-th shift's $i$-th critical event. The total number critical events of $d$-th driver's $s$-th shift is $n_{d,s}$. The ranges of these notations are:
@@ -42,7 +43,7 @@ $$
 \clearpage
 # Simulating data
 
-\linespread{1.5}
+## Theoretical data generating process (DGP)
 
 1. Random intercepts $\gamma_{01}, \gamma_{02}, \cdots, \gamma_{0D}$. The standard deviation of $\mu_0$ was intentionally set to small number 2 to make $\theta_{d, s}$ fall into a reasonably small range. If I otherwise set it as 10,  $\theta_{d, s}$ may be more than $10^5$ due to the exponentiation, which may not be realistic in real-life data.
 $$
@@ -53,9 +54,9 @@ $$
 \end{aligned}
 $$
 
-2. fixed parameters: 3 fixed parameters $\gamma_1, \gamma_2, \gamma_3$. $$\gamma_1, \gamma_2, \gamma_3 \sim \text{i.i.d. }N(0, 10^2)$$
+2. Fixed parameters: 3 fixed parameters $\gamma_1, \gamma_2, \gamma_3$. $$\gamma_1, \gamma_2, \gamma_3 \sim \text{i.i.d. }N(0, 0.5^2)$$
 
-3. The number of observations in the $d$-th driver: $N_{d}$. $$N_{d} \sim \text{Poisson}(100)$$
+3. The number of observations in the $d$-th driver: $N_{d}$. $$N_{d} \sim \text{Poisson}(10)$$
 
 4. Data: 3 predictor variables $x_{d, s, 1}, x_{d, s, 2}, x_{d, s, 3}$.
 $$
@@ -77,6 +78,7 @@ $$
 
 \clearpage
 \singlespacing
+## R code to simulate data and parameters according to the DGP
 ```{r parameters}
 pacman::p_load(rstan, tidyverse, data.table)
 source("functions/NHPP_functions.R")
@@ -114,8 +116,7 @@ X = sim1(N_K)
 
 # 5. Scale parameters of a NHPP
 # 5a. parameter matrix: P
-P = cbind(r0 = rep(r_0D, N_K), 
-          t(replicate(N, R_K)))
+P = cbind(r0 = rep(r_0D, N_K), t(replicate(N, R_K)))
 M_logtheta = P*X
 
 # returned parameter for each observed shift
@@ -124,7 +125,7 @@ theta = exp(rowSums(M_logtheta))
 round(theta, 3)
 ```
 
-
+## Generate NHPP data to pass to `rstan`
 
 ```{r NHPPdata}
 sim_hier_plp_tau = function(){
@@ -168,7 +169,7 @@ hier_dat = list(
 
 \clearpage
 
-# Stan code
+# `Stan` code
 
 ```{r comment = NA, echo=FALSE}
 cat(readLines("stan/nhpp_plp_tau_ML.stan"), sep = c("\n"))
@@ -176,6 +177,7 @@ cat(readLines("stan/nhpp_plp_tau_ML.stan"), sep = c("\n"))
 
 
 # Estimated results
+## A single simulation to demonstrate
 
 ```{r}
 f = stan("stan/nhpp_plp_tau_ML.stan",
@@ -204,7 +206,9 @@ Estimated values:
 - Rate parameter $\beta$: `r pull_est("beta")`
 - $\theta$: `r pull_est("theta")`
 
+## Scale up simulation
 
+To be added.
 
 \clearpage
 # Further improvement
