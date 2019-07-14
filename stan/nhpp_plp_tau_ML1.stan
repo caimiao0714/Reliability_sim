@@ -10,50 +10,56 @@ functions{
   }
 }
 data {
-  int<lower=0> N; //total # of failures
-  int<lower=0> K; //number of predictors
-  int<lower=0> S; //total # of shifts
-  int<lower=0> D[S];//driver index, this must be an array
+  int<lower=1> N; //total # of failures
+  int<lower=1> K; //number of predictors
+  int<lower=1> S; //total # of shifts
+  int<lower=1> D; //total # of drivers
+  int<lower=1> id[S];//driver index, must be an array
   vector<lower=0>[S] tau;//truncated time
   vector<lower=0>[N] event_time; //failure time
-  int n_group[S]; //group sizes
+  int group_size[S]; //group sizes
   matrix[S, K] X_predictors;//predictor variable matrix
 }
 transformed data{
   matrix[S, K] X_centered;
-  vector[S] X_means;
-  for(m in 1:K){
-    X_means[, m] = mean(X_predictors[, m]);
+  vector[K] X_means;
+  for(k0 in 1:K){
+    X_means[k0] = mean(X_predictors[, k0]);
+    X_centered[,k0] = X_predictors[, k0] - X_means[k0];
   }
 }
 parameters{
-  real<lower=0> beta;
-  vector[S] R0; // random intercept
-  vector[3] R1_K; // fixed parameters
   real mu0; // hyperparameter
   real<lower=0> sigma0;// hyperparameter
+  real<lower=0> beta;
+  vector[K] R1_K; // fixed parameters
+  vector[D] R0; // random intercept
 }
 transformed parameters{
-  vector<lower=0>[S] theta;
-  for (s0 in 1:S){
-    theta[s0] = exp(R0[ D[s0] ] + X_predictors[s0,]*R1_K);
-  }
+  //vector[S] r_1_1 = ()
 }
 model{
-  int position;
-  position = 1;
+  int position = 1;
+  vector[S] theta_temp;
+
+  for (s0 in 1:S){
+    theta_temp[s0] = exp(R0[id[s0]] + X_centered[s0,]*R1_K);
+  }
+
   for (s1 in 1:S){
-    if(n_group[s1] == 0) continue;
-    segment(event_time, position, n_group[s1]) ~ nhpp(beta, theta[s1], tau[s1]);
-    position = position + n_group[s1];
+    if(group_size[s1] == 0) continue;
+    segment(event_time, position, group_size[s1]) ~ nhpp(beta, theta_temp[s1], tau[s1]);
+    position += group_size[s1];
   }
   beta ~ gamma(1, 1);
   R0 ~ normal(mu0, sigma0);
   R1_K  ~ normal(0, 10);
   mu0 ~ normal(0, 10);
   sigma0 ~ gamma(1, 1);
-  theta ~ gamma(1, 0.01);
+  //theta_temp ~ gamma(1, 0.01);
 }
 generated quantities{
-
+  real mu0_true = mu0 - dot_product(X_means, R1_K);
+  vector[D] R0_true = R0 - dot_product(X_means, R1_K);
+  //real theta_correct = theta_temp - dot_product(X_centered, R1_K);
 }

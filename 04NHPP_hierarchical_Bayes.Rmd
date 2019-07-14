@@ -235,12 +235,12 @@ sim_hier_nhpp = function(group_size_lambda = 10, D = 10, K = 3, beta = 1.5)
 {
   # 1. Random-effect intercepts
   # hyperparameters
-  mu0 = 0.5
+  mu0 = 0.2
   sigma0 = 0.5
   r_0D = rnorm(D, mean = mu0, sd = sigma0)
 
   # 2. Fixed-effects parameters
-  R_K = rnorm(K, mean = 0.3, sd = 0.1)
+  R_K = c(1, 0.3, 0.2)
 
   # 3. The number of shifts in the $d$-th driver: $N_{d}$
   N_K = rpois(D, group_size_lambda)
@@ -275,12 +275,13 @@ sim_hier_nhpp = function(group_size_lambda = 10, D = 10, K = 3, beta = 1.5)
 
   hier_dat = list(
     N = nrow(df$event_dat),
-    k_vars = K,
-    K = nrow(df$start_end_dat),
-    D = id, #driver index
+    K = K,
+    S = nrow(df$start_end_dat),
+    D = max(id),
+    id = id, #driver index
     tau = df$start_end_dat$end_time,
     event_time = df$event_dat$event_time,
-    s = df$shift_length, #the number of events in each shift
+    group_size = df$shift_length, #the number of events in each shift
     X_predictors = X[,2:4]
   )
   
@@ -295,10 +296,16 @@ sim_hier_nhpp = function(group_size_lambda = 10, D = 10, K = 3, beta = 1.5)
 }
 
 
-
-
+# sampling from Stan
 df = sim_hier_nhpp(D = 10, beta = 1.5)
 f = stan("stan/nhpp_plp_tau_ML1.stan",
          chains = 1, iter = 1000, data = df$hier_dat)
+
+# check estimation results
+f
+df$true_params
+
+
+
 ```
 
