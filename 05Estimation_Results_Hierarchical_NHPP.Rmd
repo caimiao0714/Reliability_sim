@@ -1,0 +1,81 @@
+---
+title: "Estimation Results of Bayesian hierarchical NHPP"
+author: "Miao Cai <miao.cai@slu.edu>"
+date: "`r Sys.Date()`"
+output:
+  bookdown::pdf_document2: 
+    number_sections: true
+    toc: no
+header-includes:
+  - \usepackage{soul}
+  - \usepackage{float}
+#  - \usepackage[table]{xcolor}
+  - \usepackage{setspace}\linespread{1.2}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r}
+pacman::p_load(data.table, dplyr, ggplot2)
+
+read_all_csv <- function(z){
+  dat <- fread(paste0("fit/hierarchical_NHPP20190713/", z))
+  return(dat)
+}
+
+plot_est = function(data, var = "beta", hline_var = 1.5){
+  p = data %>% 
+    filter(term == var) %>% 
+    ggplot(aes(file, est_mean)) + 
+    geom_point() + 
+    geom_line(linetype = "dashed", color = "red")+
+    geom_errorbar(aes(ymax = est_mean + 1.96*est_sd,
+                      ymin = est_mean - 1.96*est_sd), 
+                  width = 1)+
+    geom_segment(aes(x=10,xend=100,y=hline_var,yend=hline_var), 
+                 color = "green")+
+    scale_x_continuous(breaks = c(0, 10, 25, 50, 75, 100),
+                       labels = c("0", "10", "25", "50", "75", "100")) +
+    labs(x = "The number of drivers (random effects)",
+         y = var) +
+    theme_bw()
+  return(p)
+}
+```
+
+
+```{r}
+est_df = list.files("fit/hierarchical_NHPP20190713/") %>% 
+  lapply(read_all_csv) %>% 
+  rbindlist(idcol="file") %>% 
+  mutate(file = case_when(file == 1 ~ 10,
+    file == 2 ~ 100, file == 3 ~ 25,
+    file == 4 ~ 50, file == 5 ~ 75)) %>% 
+  as.data.table() %>% 
+  .[,.(est_mean = mean(estimate),
+        est_sd = sd(estimate)),
+     .(term, file)]
+```
+
+# beta
+
+```{r}
+plot_est(est_df, "beta"， 1.5)
+```
+
+
+# mu0
+
+```{r}
+plot_est(est_df, "mu0", 0.5)
+```
+
+
+# sigma0
+
+```{r}
+plot_est(est_df, "sigma0", 0.5)
+```
+
