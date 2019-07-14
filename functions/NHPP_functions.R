@@ -1,6 +1,6 @@
 # simulating PLP - time truncated case
 sim_plp_tau = function(tau = 30,
-                       beta = 2,
+                       beta = 1.5,
                        theta = 10){
   # initialization
   s = 0; t = 0
@@ -115,7 +115,7 @@ sim_hier_plp_tau = function(N, beta = 1.5, theta){
   tau_vector = rnorm(N, 10, 1.3)
 
   for (i in 1:N) {
-    t_list[[i]] = sim_plp_tau(tau_vector[i], beta, theta[i])
+    t_list[[i]] = sim_plp_tau(tau_vector[i], beta = beta, theta = theta[i])
     len_list[[i]] = length(t_list[[i]])
   }
 
