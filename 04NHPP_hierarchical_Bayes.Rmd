@@ -125,6 +125,7 @@ M_logtheta = P*X
 beta = 1.5
 theta = exp(rowSums(M_logtheta))
 round(theta, 3)
+round(r_0D, 3)
 ```
 
 ## Generate NHPP data to pass to `rstan`
@@ -224,3 +225,67 @@ In data:
 
 - Need a driver index $d = 1, 2, \cdots, K$ for each shift $k$
 - Need a data matrix $X$
+
+
+```{r}
+pacman::p_load(rstan, tidyverse, data.table)
+source("functions/NHPP_functions.R")
+
+sim_hier_nhpp = function(group_size_lambda = 10, D = 10, K = 3){
+  # 1. Random-effect intercepts
+  # hyperparameters
+  mu0 = 0
+  sigma0 = 0.5
+  r_0D = rnorm(D, mean = mu0, sd = sigma0)
+
+  # 2. Fixed-effects parameters
+  R_K = rnorm(K, mean = 0, sd = 0.5)
+
+  # 3. The number of observations (shifts) in the $d$-th driver: $N_{d}$
+  N_K = rpois(D, group_size_lambda)
+  N = sum(N_K) # the total number of obs
+  id = rep(1:D, N_K)
+
+  # 4. Generate data: x_1, x_2, .. x_K
+  sim1 = function(group_sizes = N_K){
+    ntot = sum(group_sizes)
+
+    int1 = rep(1, ntot)
+    x1 =  rnorm(ntot, 0, 1)
+    x2 = rgamma(ntot, 1, 1)
+    x3 =  rpois(ntot, 0.2)
+
+    return(data.frame(int1, x1, x2, x3))
+  }
+  X = sim1(N_K)
+
+  # 5. Scale parameters of a NHPP
+  # 5a. parameter matrix: P
+  P = cbind(r0 = rep(r_0D, N_K),
+            t(replicate(N, R_K)))
+  M_logtheta = P*X
+
+  # returned parameter for each observed shift
+  beta = 1.5
+  theta_vec = exp(rowSums(M_logtheta))
+
+  df = sim_hier_plp_tau(N = N, beta = 1.5, theta = theta_vec)
+
+  hier_dat = list(
+    N = nrow(df$event_dat),
+    K = nrow(df$start_end_dat),
+    D = id, #driver index
+    tau = df$start_end_dat$end_time,
+    event_time = df$event_dat$event_time,
+    s = df$shift_length, #the number of events in each shift
+    x1 = X[,2], x2 = X[,3], x3 = X[,4]
+  )
+
+  return(hier_dat)
+}
+
+df = sim_hier_nhpp()
+f = stan("stan/nhpp_plp_tau_ML.stan",
+         chains = 1, iter = 1000, data = z)
+```
+

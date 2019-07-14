@@ -109,7 +109,7 @@ plot_events = function(event_dat, start_end_dat, cross_size = 2){
 }
 
 
-sim_hier_plp_tau = function(){
+sim_hier_plp_tau = function(N, beta = 1.5, theta){
   t_list = list()
   len_list = list()
   tau_vector = rnorm(N, 10, 1.3)
@@ -134,3 +134,6 @@ sim_hier_plp_tau = function(){
               start_end_dat = start_end_dat,
               shift_length = unlist(len_list)))
 }
+
+
+
