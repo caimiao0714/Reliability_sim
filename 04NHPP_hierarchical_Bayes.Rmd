@@ -304,8 +304,5 @@ f = stan("stan/nhpp_plp_tau_ML1.stan",
 # check estimation results
 f
 df$true_params
-
-
-
 ```
 
