@@ -193,4 +193,16 @@ knitr::kable(est_df, format = "latex", booktabs = TRUE,
   pack_rows("NHPP parameters", 1, 3) %>%
   pack_rows("Covariate parameters", 4, 9)
 ```
+
+
+
+Potential problems and further improvement
+
+- A eight-hour threshold is not sufficient to separate shifts,
+- Should I just delete the extremely long shifts due to the imperfect eight-hour threshold?
+- Should I compute the time to event within shifts or trips?
+- Imperfect repair between trips and within shifts?
+- Bathtube shape intensity?
+- Submodels by different types of critical events?
+
 \elandscape
