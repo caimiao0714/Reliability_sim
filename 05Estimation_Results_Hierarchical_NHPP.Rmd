@@ -11,7 +11,11 @@ header-includes:
   - \usepackage{float}
 #  - \usepackage[table]{xcolor}
   - \usepackage{setspace}\linespread{1.2}
+  - \usepackage{lscape}
 ---
+
+\newcommand{\blandscape}{\begin{landscape}}
+\newcommand{\elandscape}{\end{landscape}}
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, fig.height = 4, fig.pos = "H")
@@ -137,3 +141,56 @@ r3 = plot_est(est_df2, "R1_K[3]", 0.2)
 ```{r fig.height=10, fig.width=8}
 gridExtra::grid.arrange(r1, r2, r3)
 ```
+
+\blandscape
+Real data estimation
+====================
+
+```{r}
+rds_path = "fit/50driver_NHPP_fit/"
+rds_file = list.files(rds_path)
+
+est_df = rds_path %>% 
+  list.files() %>% 
+  map_dfr(function(rds_file){
+    readRDS(paste0(rds_path, rds_file)) %>% 
+      mutate(id = gsub(".rds", "", rds_file)) %>%
+      mutate(id = gsub("f_", "", id))
+    }) %>% 
+  filter(grepl("beta|mu0_true|sigma0|R1", term)) %>% 
+  arrange(term, id) %>% 
+  mutate(term = case_when(
+    term == "R1_K[1]" ~ "ping speed",
+    term == "R1_K[2]" ~ "precip intensity",
+    term == "R1_K[3]" ~ "precip probability",
+    term == "R1_K[4]" ~ "wind speed",
+    term == "R1_K[5]" ~ "visibility",
+    term == "R1_K[6]" ~ "driver age",
+    term == "mu0_true" ~ "$\\mu_0$",
+    term == "sigma0" ~ "$\\sigma_0$",
+    term == "beta" ~ "$\\beta$",
+    TRUE ~ term),
+    estimate = round(estimate, 4),
+    std.error = round(std.error, 4),
+    re = paste0(estimate, " (", std.error, ")")
+  ) %>% 
+  mutate(term = factor(term, levels = 
+    c("$\\beta$", "$\\mu_0$", "$\\sigma_0$", 
+      "driver age", "ping speed",  "precip intensity",
+      "precip probability", "visibility", "wind speed"))) %>% 
+  select(term, id, re) %>% 
+  tidyr::spread(key = id, value = re)
+```
+
+
+```{r}
+pacman::p_load(kableExtra)
+knitr::kable(est_df, format = "latex", booktabs = TRUE, 
+             col.names = c("parameters", "drivers 1-50", "drivers 101-150", 
+                           "drivers 151-200", "drivers 251-300"),
+             escape = F, linesep = "") %>% 
+  kable_styling(latex_options = c("scale_down")) %>%
+  pack_rows("NHPP parameters", 1, 3) %>%
+  pack_rows("Covariate parameters", 4, 9)
+```
+\elandscape
