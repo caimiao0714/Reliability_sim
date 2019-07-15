@@ -62,35 +62,6 @@ plot_est = function(data, var = "beta", hline_var = 1.5){
 ```
 
 
-100 simulation on 2019-07-13
-============================
-
-```{r}
-est_df = read_all("fit/hierarchical_NHPP20190713/")
-```
-
-## beta
-
-```{r}
-plot_est(est_df, "beta"， 1.5)
-```
-
-
-## mu0
-
-```{r}
-plot_est(est_df, "mu0", 0.5)
-```
-
-
-## sigma0
-
-```{r}
-plot_est(est_df, "sigma0", 0.5)
-```
-
-
-
 100 simulation on 2019-07-14
 ============================
 
@@ -101,7 +72,7 @@ est_df1 = read_all("fit/hierarchical_NHPP20190714/")
 ## beta
 
 ```{r}
-plot_est(est_df1, "beta"， 1.5)
+plot_est(est_df1, "beta", 1.5)
 ```
 
 
