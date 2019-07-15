@@ -28,7 +28,7 @@ read_all <- function(file_path = "fit/hierarchical_NHPP20190713/"){
     map_dfr(function(file_name){
       fread(paste0(file_path, file_name)) %>% 
         mutate(id = gsub(".csv", "", file_name)) %>% 
-        mutate(id = gsub("_100", "", id)) %>% 
+        mutate(id = gsub("_.*", "", id)) %>% 
         mutate(id = gsub("sim", "", id)) %>% 
         mutate(id = as.integer(id))
     }) %>% 
@@ -102,3 +102,38 @@ r3 = plot_est(est_df1, "R1_K[3]", 0.2)
 gridExtra::grid.arrange(r1, r2, r3)
 ```
 
+3000 simulations
+================
+
+```{r}
+est_df2 = read_all("fit/hierarchical_NHPP20190715/")
+```
+## beta
+
+```{r}
+plot_est(est_df2, "beta", 1.5)
+```
+
+## mu0
+
+```{r}
+plot_est(est_df2, "mu0_true", 0.2)
+```
+
+## Sigma0
+
+```{r}
+plot_est(est_df2, "sigma0", 0.5)
+```
+
+## Fixed-effect parameters
+
+```{r}
+r1 = plot_est(est_df2, "R1_K[1]", 1)
+r2 = plot_est(est_df2, "R1_K[2]", 0.3)
+r3 = plot_est(est_df2, "R1_K[3]", 0.2)
+```
+
+```{r fig.height=10, fig.width=8}
+gridExtra::grid.arrange(r1, r2, r3)
+```
