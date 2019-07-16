@@ -9,7 +9,7 @@ functions{
     loglikelihood = sum(loglik_part) - (tau/theta)^beta;
     return loglikelihood;
   }
-  real nhppnoevent_log(real tau, real beta, real theta){
+  real nhppnoevent_lp(real tau, real beta, real theta){
     real loglikelihood = - (tau/theta)^beta;
     return(loglikelihood);
   }
@@ -53,7 +53,7 @@ model{
 
   for (s1 in 1:S){
     if(group_size[s1] == 0) {
-      tau[s1] ~ nhppnoevent(beta, theta_temp[s1]);
+      target += nhppnoevent_lp(tau[s1], beta, theta_temp[s1]);
     }else{
       segment(event_time, position, group_size[s1]) ~ nhpp(beta, theta_temp[s1], tau[s1]);
       position += group_size[s1];

@@ -95,7 +95,7 @@ sim_hier_nhpp = function(group_size_lambda = 10, D = 10, K = 3, beta = 1.5)
 df = sim_hier_nhpp(D = 10, beta = 1.5)
 f = stan("stan/conquer_hierarchical_NHPP_no_events.stan",
          chains = 1, iter = 1000, data = df$hier_dat)
-f0 = broom::tidy(f)
+f = broom::tidy(f)
 
 f1 = stan("stan/nhpp_plp_tau_ML1.stan",
          chains = 1, iter = 1000, data = df$hier_dat)
