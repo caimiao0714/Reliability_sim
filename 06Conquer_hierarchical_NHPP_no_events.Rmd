@@ -1,5 +1,5 @@
 ---
-title: "06Conquer_hierarchical_NHPP_no_events"
+title: "Conquer zero-event issue in hierarchical NHPP"
 author: "Miao Cai <miao.cai@slu.edu>"
 date: "`r Sys.Date()`"
 output:
@@ -21,73 +21,10 @@ knitr::opts_chunk$set(echo = FALSE)
 ```{r eval = FALSE}
 pacman::p_load(rstan, tidyverse, data.table)
 source("functions/NHPP_functions.R")
-
-sim_hier_nhpp = function(group_size_lambda = 10, D = 10, K = 3, beta = 1.5)
-{
-  # 1. Random-effect intercepts
-  # hyperparameters
-  mu0 = 0.2
-  sigma0 = 0.5
-  r_0D = rnorm(D, mean = mu0, sd = sigma0)
-
-  # 2. Fixed-effects parameters
-  R_K = c(1, 0.3, 0.2)
-
-  # 3. The number of shifts in the $d$-th driver: $N_{d}$
-  N_K = rpois(D, group_size_lambda)
-  N = sum(N_K) # the total number of obs
-  id = rep(1:D, N_K)
-
-  # 4. Generate data: x_1, x_2, .. x_K
-  sim1 = function(group_sizes = N_K)
-  {
-    ntot = sum(group_sizes)
-
-    int1 = rep(1, ntot)
-    x1 = rnorm(ntot, 1, 1)
-    x2 = rgamma(ntot, 1, 1)
-    x3 = rpois(ntot, 2)
-
-    return(data.frame(int1, x1, x2, x3))
-  }
-  X = sim1(N_K)
-
-  # 5. Scale parameters of a NHPP
-  # 5a. parameter matrix: P
-  P = cbind(r0 = rep(r_0D, N_K),
-            t(replicate(N, R_K)))
-  M_logtheta = P*X
-
-  # returned parameter for each observed shift
-  
-  theta_vec = exp(rowSums(M_logtheta))
-
-  df = sim_hier_plp_tau(N = N, beta = beta, theta = theta_vec)
-
-  hier_dat = list(
-    N = nrow(df$event_dat),
-    K = K,
-    S = nrow(df$start_end_dat),
-    D = max(id),
-    id = id, #driver index
-    tau = df$start_end_dat$end_time,
-    event_time = df$event_dat$event_time,
-    group_size = df$shift_length, #the number of events in each shift
-    X_predictors = X[,2:4]
-  )
-  
-  true_params = list(
-    mu0 = mu0, sigma0 = sigma0,
-    r0 = r_0D, r1_rk = R_K,
-    beta = beta,
-    theta = theta_vec
-  )
-
-  return(list(hier_dat = hier_dat, true_params = true_params))
-}
+# source to import sim_hier_nhpp() and plot_est()
 ```
 
-```{r eval = FALSE}
+```{r test, eval = FALSE}
 # sampling from Stan
 df = sim_hier_nhpp(D = 10, beta = 1.5)
 f = stan("stan/nhppnoevent_lp.stan",
@@ -104,6 +41,82 @@ df$true_params$r1_rk
 # check estimation results
 # f
 # df$true_params
+```
+
+```{r simulation, eval=FALSE}
+set.seed(123)
+sim10 = list()
+for (i in 1:500) {
+  print(paste0("D = 10: ", i, " (out of 500)"))
+  z = sim_hier_nhpp(D = 10)
+  tryCatch({fit0 = stan("stan/nhppnoevent_lp.stan",
+                        chains = 1, iter = 1000, 
+                        data = z$hier_dat, seed = 123
+  )}, error=function(e){})
+  
+  sim10[[i]] = pull_use("mu0_true|sigma0|beta|R1_K", fit0)
+}
+data.table::fwrite(data.table::rbindlist(sim10), 
+                   "fit/Conquer_no_events_20190715/sim10.csv")
+
+
+sim25 = list()
+for (i in 1:500) {
+  print(paste0("D = 25: ", i, " (out of 500)"))
+  z = sim_hier_nhpp(D = 25)
+  tryCatch({fit0 = stan("stan/nhppnoevent_lp.stan",
+                        chains = 1, iter = 1000, 
+                        data = z$hier_dat, seed = 123
+  )}, error=function(e){})
+  
+  sim25[[i]] = pull_use("mu0_true|sigma0|beta|R1_K", fit0)
+}
+data.table::fwrite(data.table::rbindlist(sim25), 
+                   "fit/Conquer_no_events_20190715/sim25.csv")
+
+sim50 = list()
+for (i in 1:500) {
+  print(paste0("D = 50: ", i, " (out of 500)"))
+  z = sim_hier_nhpp(D = 50)
+  tryCatch({fit0 = stan("stan/nhppnoevent_lp.stan",
+                        chains = 1, iter = 1000, 
+                        data = z$hier_dat, seed = 123
+  )}, error=function(e){})
+  
+  sim50[[i]] = pull_use("mu0_true|sigma0|beta|R1_K", fit0)
+}
+data.table::fwrite(data.table::rbindlist(sim50), 
+                   "fit/Conquer_no_events_20190715/sim50.csv")
+
+
+sim75 = list()
+for (i in 1:500) {
+  print(paste0("D = 75: ", i, " (out of 500)"))
+  z = sim_hier_nhpp(D = 75)
+  tryCatch({fit0 = stan("stan/nhppnoevent_lp.stan",
+                        chains = 1, iter = 1000, 
+                        data = z$hier_dat, seed = 123
+  )}, error=function(e){})
+  
+  sim75[[i]] = pull_use("mu0_true|sigma0|beta|R1_K", fit0)
+}
+data.table::fwrite(data.table::rbindlist(sim75), 
+                   "fit/Conquer_no_events_20190715/sim75.csv")
+
+
+sim100 = list()
+for (i in 1:500) {
+  print(paste0("D = 100: ", i, " (out of 2000)"))
+  z = sim_hier_nhpp(D = 100)
+  tryCatch({fit0 = stan("stan/nhppnoevent_lp.stan",
+                        chains = 1, iter = 1000, 
+                        data = z$hier_dat, seed = 123
+  )}, error=function(e){})
+  
+  sim100[[i]] = pull_use("mu0_true|sigma0|beta|R1_K", fit0)
+}
+data.table::fwrite(data.table::rbindlist(sim100), 
+                   "fit/Conquer_no_events_20190715/sim100.csv")
 ```
 
 \clearpage

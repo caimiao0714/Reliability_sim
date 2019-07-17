@@ -136,4 +136,87 @@ sim_hier_plp_tau = function(N, beta = 1.5, theta){
 }
 
 
+sim_hier_nhpp = function(group_size_lambda = 10, D = 10, K = 3, beta = 1.5)
+{
+  # 1. Random-effect intercepts
+  # hyperparameters
+  mu0 = 0.2
+  sigma0 = 0.5
+  r_0D = rnorm(D, mean = mu0, sd = sigma0)
 
+  # 2. Fixed-effects parameters
+  R_K = c(1, 0.3, 0.2)
+
+  # 3. The number of shifts in the $d$-th driver: $N_{d}$
+  N_K = rpois(D, group_size_lambda)
+  N = sum(N_K) # the total number of obs
+  id = rep(1:D, N_K)
+
+  # 4. Generate data: x_1, x_2, .. x_K
+  sim1 = function(group_sizes = N_K)
+  {
+    ntot = sum(group_sizes)
+
+    int1 = rep(1, ntot)
+    x1 = rnorm(ntot, 1, 1)
+    x2 = rgamma(ntot, 1, 1)
+    x3 = rpois(ntot, 2)
+
+    return(data.frame(int1, x1, x2, x3))
+  }
+  X = sim1(N_K)
+
+  # 5. Scale parameters of a NHPP
+  # 5a. parameter matrix: P
+  P = cbind(r0 = rep(r_0D, N_K),
+            t(replicate(N, R_K)))
+  M_logtheta = P*X
+
+  # returned parameter for each observed shift
+
+  theta_vec = exp(rowSums(M_logtheta))
+
+  df = sim_hier_plp_tau(N = N, beta = beta, theta = theta_vec)
+
+  hier_dat = list(
+    N = nrow(df$event_dat),
+    K = K,
+    S = nrow(df$start_end_dat),
+    D = max(id),
+    id = id, #driver index
+    tau = df$start_end_dat$end_time,
+    event_time = df$event_dat$event_time,
+    group_size = df$shift_length, #the number of events in each shift
+    X_predictors = X[,2:4]
+  )
+
+  true_params = list(
+    mu0 = mu0, sigma0 = sigma0,
+    r0 = r_0D, r1_rk = R_K,
+    beta = beta,
+    theta = theta_vec
+  )
+
+  return(list(hier_dat = hier_dat, true_params = true_params))
+}
+
+
+plot_est = function(data, var = "beta", hline_var = 1.5){
+  p = data %>%
+    filter(term == var) %>%
+    ggplot(aes(id, est_mean)) +
+    geom_point() +
+    geom_line(linetype = "dashed", color = "red")+
+    geom_errorbar(aes(ymax = est_mean + 1.96*est_sd,
+                      ymin = est_mean - 1.96*est_sd),
+                  width = 1)+
+    geom_segment(aes(x = 10, xend = 100,
+                     y = hline_var, yend = hline_var),
+                 color = "green")+
+    scale_x_continuous(breaks = c(0, 10, 25, 50, 75, 100),
+                       labels = c("0", "10", "25", "50", "75", "100")) +
+    labs(x = "The number of drivers (random effects)",
+         y = var) +
+    theme_bw()
+  return(p)
+}
