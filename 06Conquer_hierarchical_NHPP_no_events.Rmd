@@ -14,11 +14,11 @@ header-includes:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 ```
 
 
-```{r}
+```{r eval = FALSE}
 pacman::p_load(rstan, tidyverse, data.table)
 source("functions/NHPP_functions.R")
 
@@ -85,19 +85,16 @@ sim_hier_nhpp = function(group_size_lambda = 10, D = 10, K = 3, beta = 1.5)
 
   return(list(hier_dat = hier_dat, true_params = true_params))
 }
-
-
-
 ```
 
-```{r}
+```{r eval = FALSE}
 # sampling from Stan
 df = sim_hier_nhpp(D = 10, beta = 1.5)
-f = stan("stan/conquer_hierarchical_NHPP_no_events.stan",
+f = stan("stan/nhppnoevent_lp.stan",
          chains = 1, iter = 1000, data = df$hier_dat)
 f = broom::tidy(f)
 
-f1 = stan("stan/nhpp_plp_tau_ML1.stan",
+f1 = stan("stan/nhppnoevent_lp.stan",
          chains = 1, iter = 1000, data = df$hier_dat)
 f1 = broom::tidy(f1)
 
@@ -109,4 +106,93 @@ df$true_params$r1_rk
 # df$true_params
 ```
 
+\clearpage
+\singlespacing
 
+# Revised code
+
+```{r comment = NA, echo=FALSE}
+cat(readLines("stan/nhpp_plp_tau_ML.stan"), sep = c("\n"))
+```
+
+# Estimation results - 500 simulations for each sample size
+
+```{r}
+pacman::p_load(data.table, dplyr, ggplot2, purrr)
+
+read_all <- function(file_path = "fit/hierarchical_NHPP20190713/"){
+  est_df = file_path %>% 
+    list.files() %>% 
+    map_dfr(function(file_name){
+      fread(paste0(file_path, file_name)) %>% 
+        mutate(id = gsub(".csv", "", file_name)) %>% 
+        mutate(id = gsub("_.*", "", id)) %>% 
+        mutate(id = gsub("sim", "", id)) %>% 
+        mutate(id = as.integer(id))
+    }) %>% 
+    group_by(term, id) %>% 
+    summarise(est_mean = mean(estimate),
+              est_sd = sd(estimate)) %>% 
+    arrange(term, id)
+
+  return(est_df)
+}
+
+plot_est = function(data, var = "beta", hline_var = 1.5){
+  p = data %>% 
+    filter(term == var) %>% 
+    ggplot(aes(id, est_mean)) + 
+    geom_point() + 
+    geom_line(linetype = "dashed", color = "red")+
+    geom_errorbar(aes(ymax = est_mean + 1.96*est_sd,
+                      ymin = est_mean - 1.96*est_sd), 
+                  width = 1)+
+    geom_segment(aes(x = 10, xend = 100, 
+                     y = hline_var, yend = hline_var), 
+                 color = "green")+
+    scale_x_continuous(breaks = c(0, 10, 25, 50, 75, 100),
+                       labels = c("0", "10", "25", "50", "75", "100")) +
+    labs(x = "The number of drivers (random effects)",
+         y = var) +
+    theme_bw()
+  return(p)
+}
+```
+
+
+```{r}
+est_df1 = read_all("fit/hierarchical_NHPP20190716_lp/")
+```
+
+## beta
+
+```{r}
+plot_est(est_df1, "beta", 1.5)
+```
+
+
+## mu0
+
+```{r}
+plot_est(est_df1, "mu0_true", 0.2)
+```
+
+
+## sigma0
+
+```{r}
+plot_est(est_df1, "sigma0", 0.5)
+```
+
+
+## Fixed parameters
+
+```{r}
+r1 = plot_est(est_df1, "R1_K[1]", 1)
+r2 = plot_est(est_df1, "R1_K[2]", 0.3)
+r3 = plot_est(est_df1, "R1_K[3]", 0.2)
+```
+
+```{r fig.height=10, fig.width=8}
+gridExtra::grid.arrange(r1, r2, r3)
+```
