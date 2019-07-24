@@ -10,7 +10,7 @@ header-includes:
   - \usepackage{soul}
   - \usepackage{float}
 #  - \usepackage[table]{xcolor}
-  - \usepackage{setspace}\linespread{1.2}
+  - \usepackage{setspace}\linespread{1.4}
 ---
 
 ```{r setup, include=FALSE}
@@ -120,14 +120,14 @@ data.table::fwrite(data.table::rbindlist(sim100),
 ```
 
 \clearpage
-\singlespacing
 
 # Revised code
 
 ```{r comment = NA, echo=FALSE}
-cat(readLines("stan/nhpp_plp_tau_ML.stan"), sep = c("\n"))
+cat(readLines("stan/nhppnoevent_lp.stan"), sep = c("\n"))
 ```
 
+\clearpage
 # Estimation results - 500 simulations for each sample size
 
 ```{r}
@@ -176,6 +176,8 @@ plot_est = function(data, var = "beta", hline_var = 1.5){
 ```{r}
 est_df1 = read_all("fit/hierarchical_NHPP20190716_lp/")
 ```
+
+
 
 ## beta
 

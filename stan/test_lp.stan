@@ -1,5 +1,6 @@
+// NOT WORKING
 functions{
-  real nhpp_log(vector t, real beta, real theta, real tau){
+  real nhpp_lp(vector t, real beta, real theta, real tau){
     vector[num_elements(t)] loglik_part;
     real loglikelihood;
     for (i in 1:num_elements(t)){
@@ -8,7 +9,7 @@ functions{
     loglikelihood = sum(loglik_part) - (tau/theta)^beta;
     return loglikelihood;
   }
-  real nhppnoevent_log(real tau, real beta, real theta){
+  real nhppnoevent_lp(real beta, real theta, real tau){
     real loglikelihood = - (tau/theta)^beta;
     return(loglikelihood);
   }
@@ -52,9 +53,9 @@ model{
 
   for (s1 in 1:S){
     if(group_size[s1] == 0) {
-      tau[s1] ~ nhppnoevent(beta, theta_temp[s1]);
+      target += nhppnoevent_lp(beta, theta_temp[s1], tau[s1]);
     }else{
-      segment(event_time, position, group_size[s1]) ~ nhpp(beta, theta_temp[s1], tau[s1]);
+      target += nhpp_lp( segment(event_time, position, group_size[s1]) | beta, theta_temp[s1], tau[s1]);
       position += group_size[s1];
     }
   }

@@ -1,0 +1,68 @@
+---
+title: "07Compare_lp_and_log"
+author: "Miao Cai <miao.cai@slu.edu>"
+date: "`r Sys.Date()`"
+output:
+  bookdown::pdf_document2: 
+    number_sections: true
+    toc: true
+header-includes:
+  - \usepackage{soul}
+  - \usepackage{float}
+#  - \usepackage[table]{xcolor}
+  - \usepackage{setspace}\linespread{0.8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r}
+pacman::p_load(rstan, tidyverse, data.table)
+source("functions/NHPP_functions.R")
+
+set.seed(123)
+df = sim_hier_nhpp(D = 50, beta = 1.5)
+```
+
+\clearpage
+
+# `_lp` form
+
+```{r comment = NA, echo=FALSE}
+cat(readLines("stan/nhppnoevent_lp.stan"), sep = c("\n"))
+```
+
+
+```{r}
+f_lp = stan("stan/nhppnoevent_lp.stan",
+         chains = 1, iter = 1000, data = df$hier_dat, refresh = 0)
+f_lp = broom::tidy(f_lp)
+```
+
+\clearpage
+
+# `_log` form
+
+```{r comment = NA, echo=FALSE}
+cat(readLines("stan/nhppnoevent_log.stan"), sep = c("\n"))
+```
+
+
+```{r}
+f_log = stan("stan/nhppnoevent_log.stan",
+         chains = 1, iter = 1000, data = df$hier_dat, refresh = 0)
+f_log = broom::tidy(f_log)
+```
+
+\clearpage
+
+```{r}
+f_lp$estimate - f_log$estimate
+```
+
+Nominal difference. I am suspecting there is no difference between using `_lp` or `_log` in this case.
+
+
+
+
