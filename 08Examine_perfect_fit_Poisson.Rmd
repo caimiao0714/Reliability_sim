@@ -1,0 +1,126 @@
+---
+title: "Examine perfect fit problem of hierarchical Poisson regression"
+author: "Miao Cai <miao.cai@slu.edu>"
+date: "`r Sys.Date()`"
+output:
+  bookdown::pdf_document2: 
+    number_sections: true
+    toc: true
+header-includes:
+  - \usepackage{soul}
+  - \usepackage{float}
+  - \usepackage[usenames,dvipsnames]{xcolor}
+  - \usepackage{setspace}\linespread{1.4}
+  - \usepackage{lscape}
+  - \usepackage{longtable}
+  - \usepackage{booktabs}
+---
+
+\newcommand{\blandscape}{\begin{landscape}}
+\newcommand{\elandscape}{\end{landscape}}
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, cache = TRUE)
+```
+
+\clearpage
+Statistical model
+===
+
+$$
+\begin{aligned}
+Y_i & \sim \text{Poisson}(\lambda_i)\\
+\log \lambda_i &= \beta_{0, i} + \beta_1x_1 + \beta_2x_2\\
+\beta_{0, i} & \sim N(\mu_0, \sigma_0^2)
+\end{aligned}
+$$
+
+
+
+Simulate data
+===
+
+```{r echo = TRUE}
+set.seed(123)
+N = 50 # total obs
+K = N # groups
+mu0 = 3 
+sigma0 = 1
+b0 = rnorm(N, mu0, sigma0)
+
+x1 = rnorm(N, 1, 2)
+x2 = rgamma(N, 10, 10)
+
+b1 = 1; b2 = 0.2
+
+lambda = exp(b0 + b1*x1 + b2*x2)
+
+Y = rpois(n = N, lambda = lambda)
+```
+
+\clearpage
+
+Stan code
+===
+
+```{r comment = NA, echo=FALSE}
+cat(readLines("stan/08Perfect_fit_Poisson.stan"), sep = c("\n"))
+```
+
+\clearpage
+
+Fit the model
+===
+
+```{r}
+df = list(
+  N = N,
+  K = N,
+  Y = Y,
+  id = 1:N,
+  x1 = x1,
+  x2 = x2
+)
+
+pacman::p_load(rstan)
+
+f = stan("stan/08Perfect_fit_Poisson.stan",
+         chains = 1, iter = 1000, data = df, 
+         control = list(max_treedepth = 15), refresh = 0)
+```
+
+\textcolor{red}{The warning message above highly suggests that there are identifiability issue here in this model since stan cannot sample much effective samples from this model.} The column `n_eff` stands for the number of effective sample size (ESS).  ESS in this model are very very low compared with the number of iterations I used, typically around 30 out of 1000, which means only around 3% of the samples were effective.
+
+This warning message is identical with the following two posts demonstrating the identifiability issues using `Stan`:
+
+- [Identifying non-identifiability by Martin Modrak](https://www.martinmodrak.cz/2018/05/14/identifying-non-identifiability/)
+- [Richard McElreath: Statistical Rethinking – 8.4.4. Non-identifiable parameters, page 261](https://bookdown.org/ajkurz/Statistical_Rethinking_recoded/markov-chain-monte-carlo.html#care-and-feeding-of-your-markov-chain.)
+
+```{r}
+print(f, probs=c(.1,.5,.9))
+```
+
+
+
+\clearpage
+Compare true and estimated parameters
+===
+
+```{r}
+f0 = broom::tidy(f)
+
+est = data.frame(
+  id = 1:N,
+  b0true = b0,
+  b0hat = f0$estimate[3:52],
+  difference = b0 - f0$estimate[3:52]
+)
+
+knitr::kable(est, digits = 3, format = "latex", 
+             booktabs = TRUE, escape = F, linesep = "",
+             longtable = TRUE,
+             col.names = c("id", "$\\beta_0$", 
+                           "$\\hat{\\beta}_0$", "$\\Delta$"))
+```
+
+There are noticeable difference ($\Delta$) between the true ($\beta_0$) and estimated ($\hat{\beta}_0$) random intercepts.
