@@ -26,7 +26,7 @@ Let $T_{d, s, i}$ denote the time to the $d$-th driver's $s$-th shift's $i$-th c
 - $s = 1, 2, \cdots, S_d$,
 - $d = 1, 2, \cdots, D$.
 
-We assume the times of critical events within the $d$-th driver's  $s$-th shift were generated from a non-homogeneous Poisson process (NHPP) with a power law process (PLP), with a fix rate parameter $\beta$ and varying scale parameters $\theta_{d, s}$ across drivers. The data generating process is then:
+We assume the times of critical events within the $d$-th driver's  $s$-th shift were generated from a non-homogeneous Poisson process (NHPP) with a power law process (PLP), with a fix shape parameter $\beta$ and varying scale parameters $\theta_{d, s}$ across drivers. The data generating process is then:
 
 $$
 \begin{aligned}

@@ -364,6 +364,12 @@ An arrow plot of these simulated multiple shifts is shown in Figure \@ref(fig:mu
 plot_events(df2$event_dat, df2$start_end_dat)
 ```
 
+```{r}
+p = plot_events(df2$event_dat, df2$start_end_dat)
+p = p + theme_test()
+ggsave("figs/simulated_arrow_plot.png", p, 
+       width = 10, height = 6.18, dpi = 300)
+```
 
 \newpage
 # References {-}
