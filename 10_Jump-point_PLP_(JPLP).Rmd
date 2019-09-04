@@ -1,0 +1,236 @@
+---
+title: "Jump-point PLP (JPLP)"
+author: "Miao Cai <miao.cai@slu.edu>"
+date: "`r Sys.Date()`"
+output:
+  bookdown::pdf_document2: 
+    number_sections: true
+    toc: true
+header-includes:
+  - \usepackage{soul}
+  - \usepackage{float}
+#  - \usepackage[table]{xcolor}
+  - \usepackage{setspace}\linespread{1.2}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.pos = 'H', 
+                      fig.height = 3.5, fig.align = 'c')
+```
+
+
+
+**Intensity function**: The intensity function of a point process is 
+
+$$\lambda(t) = \lim_{\Delta t \rightarrow 0}\frac{P(N(t, t+\Delta t] \geq 1)}{\Delta t}$$
+
+When there is no simultaneous events, ROCOF is the same as intensity function.
+
+# NHPP and PLP
+
+**Nonhomogeneous Poisson Process (NHPP)**: The NHPP is a Poisson process whose intensity function is non-constant.
+
+**Power law process (PLP)**: When the intensity function of a NHPP is:
+
+$$\lambda(t) = \frac{\beta}{\theta}\bigg(\frac{t}{\theta}\bigg)^{\beta-1}$$
+Where $\beta > 0$ and $\theta > 0$, the process is called the power law process (PLP).
+
+Therefore, the mean function $\Lambda(t)$ is the integral of the intensity function:
+
+$$\Lambda(t) = \int_0^t \lambda(t)dt = \int_0^t \frac{\beta}{\theta}\bigg(\frac{t}{\theta}\bigg)^{\beta-1} = \bigg(\frac{t}{\theta}\bigg)^{\beta}$$
+
+```{r}
+library(ggplot2)
+lambda = function(beta, theta, t) return(beta/theta^beta*t^(beta-1))
+
+plot_plp = function(beta, theta){
+  x = seq(0, 10, 0.1)
+  lam_y = lambda(beta, theta, x)
+  dat = data.frame(lam_y, x)
+  p = ggplot(dat, aes(x, lam_y)) + 
+    geom_line() + theme_bw() + 
+    ggtitle(paste0("beta = ", beta, "; theta = ", theta))
+  return(p)
+}
+
+plot_plp(1.1, 2)
+plot_plp(0.8, 2)
+```
+
+\clearpage
+# Jump-point PLP (JPLP)
+
+At the time of the failure or rest, the intensity will bounce back at a certain percent $\kappa$, and $0 < \kappa < 1$.
+
+```{r plpjumppoint, fig.cap='Intensity function, time to SCEs, and rest time within a shift generated from a NHPP with a PLP intensity function, $\\beta = 1.2$, $\\theta=2$', echo=FALSE, eval=TRUE, out.height='250pt'}
+knitr::include_graphics("figs/PLP_NHPP_intensity.pdf")
+```
+
+```{r plpnhpp, fig.cap='Intensity function, time to SCEs, and rest time within a shift with a jump-point PLP intensity function, $\\beta = 1.2$, $\\theta=2$, $\\kappa=0.8$', echo=FALSE, eval=TRUE, out.height='250pt'}
+knitr::include_graphics("figs/PLP_jump_point_intensity.pdf")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r eval=FALSE, echo=FALSE}
+plp = function(t, beta = 2, theta = 10) return(beta*theta^(-beta)*t^(beta-1))
+sim_plp_tau = function(tau = 30,
+                       beta = 2,
+                       theta = 10){
+  # initialization
+   s = 0; t = 0
+  while (max(t) <= tau) {
+    u <- runif(1)
+    s <- s - log(u)
+    t_new <- theta*s^(1/beta)
+    t <- c(t, t_new)
+  }
+  t = t[c(-1, -length(t))] 
+  
+  return(t)
+}
+```
+
+```{r regularplp, eval=FALSE, echo=FALSE}
+pacman::p_load(ggplot2, dplyr)
+
+set.seed(223)
+tau0 = 13; beta0 = 1.2; theta0 = 2
+rest_time = c(4, 5, 8.2, 9.2)
+
+# SCE time
+t_SCE = sim_plp_tau(tau = tau0, beta = beta0, theta = theta0)
+shift_id= rep(0, length(t_SCE))
+SCE = data.frame(shift_id, t_SCE)
+
+# Intensity and limit
+INTENS = data.frame(t = seq(0, tau0, 0.001),
+                    intensity = plp(seq(0, tau0, 0.001), beta0, theta0)) %>% 
+  mutate(type = ifelse(((t >= rest_time[1] & t <= rest_time[2])|(t >= rest_time[3] & t <= rest_time[4])), 0.2, 1))
+
+# LIM data
+LIM = data.frame(start_time = 0, end_time = tau0, shift_id = shift_id)
+
+# maximum intensity
+max_int = round(max(INTENS$intensity), 2) + 0.01
+
+# Rest
+REST1 = data.frame(xaxis = c(rest_time[1:2], rev(rest_time[1:2])),
+                   yaxis = rep(c(0, max(INTENS$intensity)), each = 2))
+REST2 = data.frame(xaxis = c(rest_time[3:4], rev(rest_time[3:4])),
+                   yaxis = rep(c(0, max(INTENS$intensity)), each = 2))
+
+# plot
+p0 = ggplot() + 
+  geom_line(data = INTENS, aes(x = t, y = intensity), size = 0.8) + 
+  geom_point(data = SCE, aes(x = t_SCE, y = shift_id), 
+             alpha = 1, shape = 4, color = 'red', size = 2, stroke = 1.5) + 
+  geom_segment(data = LIM, 
+               aes(x = start_time, xend = end_time, y = shift_id, yend = shift_id),
+               arrow = arrow(length = unit(0.2, "cm")), lineend = 'butt', size = 0.8) + 
+  scale_x_continuous(expand = c(0.001, 0))+
+  scale_y_continuous(labels = c(0, max_int), breaks = c(0, max_int), 
+                     expand = c(0.02, 0)) +
+  geom_polygon(data = REST1, aes(xaxis, yaxis),
+               fill="green", alpha = 0.2) + 
+  geom_polygon(data = REST2, aes(xaxis, yaxis),
+               fill="green", alpha = 0.2) +
+  labs(x = unname(latex2exp::TeX('Time to SCEs (hours), $t_1$ - $t_n$')), 
+       y = "intensity") + 
+  geom_text(aes(x = c(4.5, 8.7), y = rep(max_int/2, 2), 
+                label = c("rest 1","rest 2"))) +
+  theme_bw()+
+  theme(panel.grid = element_blank())
+p0
+ggsave("figs/PLP_NHPP_intensity.pdf", p0, width = 10, height = 6.18)
+```
+
+```{r plotjumpointPLP, eval=FALSE, echo=FALSE}
+set.seed(223)
+tau0 = 13; beta0 = 1.2; theta0 = 2; kappa = 0.8
+
+# SCE time
+t_SCE = sim_plp_tau(tau = tau0, beta = beta0, theta = theta0)
+shift_id= rep(0, length(t_SCE))
+SCE = data.frame(shift_id, t_SCE)
+
+# Rest
+rest_time = c(4, 5, 8.2, 9.2)
+REST1 = data.frame(xaxis = c(rest_time[1:2], rev(rest_time[1:2])),
+                   yaxis = rep(c(0,max(INTENS$intensity)), each = 2))
+REST2 = data.frame(xaxis = c(rest_time[3:4], rev(rest_time[3:4])),
+                   yaxis = rep(c(0,max(INTENS$intensity)), each = 2))
+
+# Intensity and limit
+INTENS = data.frame(t = seq(0, tau0, 0.001),
+                    intensity = plp(seq(0, tau0, 0.001), beta0, theta0)) %>% 
+  mutate(intensity1 = case_when(
+    t >= rest_time[2] & t <= rest_time[3] ~ intensity*kappa^1,
+    t >= rest_time[4]  ~ intensity*kappa^2,
+     TRUE ~ intensity*kappa^0))
+
+# plot
+p1 = ggplot() + 
+  geom_line(data = INTENS[INTENS$t <= rest_time[1],], 
+            aes(x = t, y = intensity1), size = 0.8) + 
+  geom_line(data = INTENS[INTENS$t >= rest_time[2]&INTENS$t <= rest_time[3],], 
+            aes(x = t, y = intensity1), size = 0.8) + 
+  geom_line(data = INTENS[INTENS$t >= rest_time[4],], 
+            aes(x = t, y = intensity1), size = 0.8) + 
+  geom_line(data = INTENS, 
+            aes(x = t, y = intensity), alpha = 0.3, size = 0.8)+
+  geom_point(data = SCE, aes(x = t_SCE, y = shift_id), 
+             alpha = 1, shape = 4, color = 'red', size = 2, stroke = 1.5) + 
+  geom_segment(data = LIM, 
+               aes(x = start_time, xend = end_time, y = shift_id, yend = shift_id),
+               arrow = arrow(length = unit(0.2, "cm")), lineend = 'butt', size = 0.8) + 
+  scale_x_continuous(expand = c(0.001, 0))+
+  scale_y_continuous(labels = c(0, max_int), breaks = c(0, max_int), 
+                     expand = c(0.02, 0)) +
+  geom_polygon(data = REST1, aes(xaxis, yaxis),
+               fill="green", alpha = 0.2) + 
+  geom_polygon(data = REST2, aes(xaxis, yaxis),
+               fill="green", alpha = 0.2) +
+  labs(x = unname(latex2exp::TeX('Time to SCEs (hours), $t_1$ - $t_n$')), 
+       y = "intensity") + 
+  geom_text(aes(x = c(4.5, 8.7), y = rep(max_int/2, 2), 
+                label = c("rest 1","rest 2"))) +
+  theme_bw()+
+  theme(panel.grid = element_blank())#panel.border = element_blank()
+p1
+ggsave("figs/PLP_jump_point_intensity.pdf", p1, width = 10, height = 6.18)
+```
