@@ -9,14 +9,14 @@ output:
 header-includes:
   - \usepackage{soul}
   - \usepackage{float}
-#  - \usepackage[table]{xcolor}
+  - \usepackage{graphicx}
   - \usepackage{setspace}\linespread{1.2}
 geometry: "left=2cm,right=2cm,top=2cm,bottom=2cm"
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, fig.pos = 'H', 
-                      fig.height = 3.5, fig.align = 'c')
+                      fig.height = 3.5, fig.align = 'center')
 ```
 
 # NHPP and PLP
