@@ -11,22 +11,21 @@ header-includes:
   - \usepackage{float}
 #  - \usepackage[table]{xcolor}
   - \usepackage{setspace}\linespread{1.2}
+geometry: "left=2cm,right=2cm,top=2cm,bottom=2cm"
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, fig.pos = 'H', 
+knitr::opts_chunk$set(echo = FALSE, fig.pos = 'H', 
                       fig.height = 3.5, fig.align = 'c')
 ```
 
-
+# NHPP and PLP
 
 **Intensity function**: The intensity function of a point process is 
 
 $$\lambda(t) = \lim_{\Delta t \rightarrow 0}\frac{P(N(t, t+\Delta t] \geq 1)}{\Delta t}$$
 
 When there is no simultaneous events, ROCOF is the same as intensity function.
-
-# NHPP and PLP
 
 **Nonhomogeneous Poisson Process (NHPP)**: The NHPP is a Poisson process whose intensity function is non-constant.
 
@@ -39,7 +38,7 @@ Therefore, the mean function $\Lambda(t)$ is the integral of the intensity funct
 
 $$\Lambda(t) = \int_0^t \lambda(t)dt = \int_0^t \frac{\beta}{\theta}\bigg(\frac{t}{\theta}\bigg)^{\beta-1} = \bigg(\frac{t}{\theta}\bigg)^{\beta}$$
 
-```{r}
+```{r out.width='\\textwidth'}
 library(ggplot2)
 lambda = function(beta, theta, t) return(beta/theta^beta*t^(beta-1))
 
@@ -54,37 +53,107 @@ plot_plp = function(beta, theta){
 }
 
 plot_plp(1.1, 2)
+```
+
+```{r out.width='\\textwidth'}
 plot_plp(0.8, 2)
 ```
+
 
 \clearpage
 # Jump-point PLP (JPLP)
 
 At the time of the failure or rest, the intensity will bounce back at a certain percent $\kappa$, and $0 < \kappa < 1$.
 
-```{r plpjumppoint, fig.cap='Intensity function, time to SCEs, and rest time within a shift generated from a NHPP with a PLP intensity function, $\\beta = 1.2$, $\\theta=2$', echo=FALSE, eval=TRUE, out.height='250pt'}
+```{r plpnhpp, fig.cap='Intensity function, time to SCEs, and rest time within a shift generated from a NHPP with a PLP intensity function, $\\beta = 1.2$, $\\theta=2$', echo=FALSE, eval=TRUE, out.height='250pt', out.width='\\textwidth'}
 knitr::include_graphics("figs/PLP_NHPP_intensity.pdf")
 ```
 
-```{r plpnhpp, fig.cap='Intensity function, time to SCEs, and rest time within a shift with a jump-point PLP intensity function, $\\beta = 1.2$, $\\theta=2$, $\\kappa=0.8$', echo=FALSE, eval=TRUE, out.height='250pt'}
+```{r plpjumppoint, fig.cap='Intensity function, time to SCEs, and rest time within a shift with a jump-point PLP intensity function, $\\beta = 1.2$, $\\theta=2$, $\\kappa=0.8$', echo=FALSE, eval=TRUE, out.height='250pt', out.width='\\textwidth'}
 knitr::include_graphics("figs/PLP_jump_point_intensity.pdf")
 ```
 
+# Complete intensity function
 
+The complete intensity function of a NHPP with a PLP intensity function is:
+$$\lambda^\star(t) = \frac{\beta}{\theta}\bigg(\frac{t}{\theta}\bigg)^{\beta-1}$$
 
+The complete intensity function of a JPLP is then:
+\begin{equation}
+  \lambda_{JPLP}(t) =
+    \begin{cases}
+      \lambda^\star(t) & \quad  0 \leq t \leq t_1\\
+      \kappa\lambda^\star(t) & \quad t_1 < t \leq t_2\\
+      \kappa^2\lambda^\star(t) & \quad t_2 \leq t \leq t_3\\
+      \cdots & \cdots\\
+      \kappa^{n-1}\lambda^\star(t) & \quad t_{n-1} \leq t \leq t_n\\
+      \kappa^{n}\lambda^\star(t) & \quad t_{n} \leq t < \tau
+    \end{cases}       
+\end{equation}
+where $t_1, t_2, \cdots, t_n$ are the time to the 1st, 2nd, $\cdots$, and n-th event. $\tau$ is the truncation time.
 
+Joint likelihood function
+=========================
+The first event
+---------------
+The survival function for the first event is 
+$$
+\begin{aligned}
+S_1(t_1) & = P(T_1 > t_1)\\
+         & = \exp\bigg(-\int_0^{t_1}\lambda(x)dx\bigg)\\
+         & = \exp\bigg(-\int_0^{t_1}\lambda^\star(x)dx\bigg)
+\end{aligned}
+$$
+The likelihood function is then
+$$
+\begin{aligned}
+f_1(t_1) & = -S_1^\prime(t_1)\\
+         & = \lambda^\star(t_1)\exp\bigg(-\int_0^{t_1}\lambda^\star(x)dx\bigg)
+\end{aligned}
+$$
 
+The second event
+----------------
+The survival function for the second event is 
+$$
+\begin{aligned}
+S_2(t_2) & = P(T_2 > t_2|t_1)\\
+         & = P(N(t_1, t_2]) = 0)\\
+         & = \exp\bigg(-\int_{t_1}^{t_2}\kappa\lambda^\star(x)dx\bigg)
+\end{aligned}
+$$
 
+The associated likelihood function is:
+$$
+\begin{aligned}
+f_2(t_2) & = -S_2^\prime(t_2)\\
+         & = \kappa\lambda^\star(t_2)\exp\bigg(-\int_{t_1}^{t_2}\kappa\lambda^\star(x)dx\bigg)
+\end{aligned}
+$$
 
+The n-th event
+--------------
+Likewise, the likelihood function of the n-th event is:
+$$
+\begin{aligned}
+f_n(t_n|t_1, t_2, \cdots, t_n) & = -S_n^\prime(t_n)\\
+         & = \kappa^{n-1}\lambda^\star(t_n)\exp\bigg(-\int_{t_{n-1}}^{t_n}\kappa^{n-1}\lambda^\star(x)dx\bigg)
+\end{aligned}
+$$
 
-
-
-
-
-
-
-
-
+All events
+----------
+The likelihood function of all events is:
+$$
+\begin{aligned}
+& f(t_1, t_2, \cdots, t_n) \\
+& = f_1(t_1)f_2(t_2|t_1)\cdots f_n(t_n|t_1, t_2,\cdots,t_{n-1})\\
+         & = \kappa^0\lambda^\star(t_1)\exp\bigg(-\int_0^{t_1}\lambda^\star(x)dx\bigg)\times \kappa^1\lambda^\star(t_2)\exp\bigg(-\int_{t_1}^{t_2}\kappa\lambda^\star(x)dx\bigg) \times \cdots\times \quad \kappa^{n-1}\lambda^\star(t_n)\exp\bigg(-\int_{t_{n-1}}^{t_n}\kappa^{n-1}\lambda^\star(x)dx\bigg)\\
+         & = \kappa^{n(n-1)/2}\bigg(\prod_{i=1}^n\lambda^\star(t_i)\bigg) \times\exp\Bigg(-\bigg[\Big(\frac{t_1}{\theta}\Big)^\beta - \Big(\frac{0}{\theta}\Big)^\beta + \kappa\Big(\frac{t_2}{\theta}\Big)^\beta - \kappa\Big(\frac{t_1}{\theta}\Big)^\beta + \cdots \kappa^{n-1}\Big(\frac{t_n}{\theta}\Big)^\beta - \kappa^{n-1}\Big(\frac{t_{n-1}}{\theta}\Big)^\beta\bigg]\Bigg)\\
+         & = \kappa^{n(n-1)/2}\bigg(\prod_{i=1}^n\lambda^\star(t_i)\bigg)\times\exp\Bigg(-\bigg[(1-\kappa)\Big(\frac{t_1}{\theta}\Big)^\beta + \kappa(1-\kappa)\Big(\frac{t_2}{\theta}\Big)^\beta + \cdots + \kappa^{n-2}(1-\kappa)\Big(\frac{t_{n-1}}{\theta}\Big)^\beta + \kappa^{n-1}\Big(\frac{t_{n}}{\theta}\Big)^\beta\bigg]\Bigg)\\
+         & = \kappa^{n(n-1)/2}\bigg(\prod_{i=1}^n\lambda^\star(t_i)\bigg)\exp\Bigg(\bigg[\sum_{j=1}^{n-1}\kappa^{j-1}(1-\kappa)\Big(\frac{t_j}{\theta}\Big)^\beta\bigg] + \kappa^{n-1}\Big(\frac{t_n}{\theta}\Big)^\beta\Bigg)
+\end{aligned}
+$$
 
 
 
