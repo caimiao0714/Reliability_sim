@@ -92,7 +92,7 @@ The complete intensity function of a JPLP is then:
 \end{equation}
 where $t_1, t_2, \cdots, t_n$ are the time to the 1st, 2nd, $\cdots$, and n-th event. $\tau$ is the truncation time.
 
-Joint likelihood function
+Likelihood function
 =========================
 The first event
 ---------------
