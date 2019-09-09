@@ -195,7 +195,7 @@ sim_plp_tau = function(tau = 30,
 ```
 
 ```{r regularplp, eval=FALSE, echo=FALSE}
-pacman::p_load(ggplot2, dplyr)
+pacman::p_load(ggplot2, dplyr, extrafont)
 
 set.seed(223)
 tau0 = 13; beta0 = 1.2; theta0 = 2
@@ -247,6 +247,7 @@ p0 = ggplot() +
 p0
 ggsave("figs/PLP_NHPP_intensity.pdf", p0, width = 10, height = 6.18)
 ```
+
 
 ```{r plotjumpointPLP, eval=FALSE, echo=FALSE}
 set.seed(223)
@@ -303,3 +304,119 @@ p1 = ggplot() +
 p1
 ggsave("figs/PLP_jump_point_intensity.pdf", p1, width = 10, height = 6.18)
 ```
+
+
+## Updated plot of PLP
+
+
+```{r REVregularplp, eval=FALSE, echo=FALSE}
+pacman::p_load(ggplot2, dplyr, extrafont)
+font_import(pattern = "lmroman*")
+loadfonts()
+
+plp = function(t, beta = 2, theta = 10) return(beta*theta^(-beta)*t^(beta-1))
+
+set.seed(223)
+tau0 = 13; beta0 = 1.2; theta0 = 2
+rest_time = c(4, 8)
+
+# SCE time
+t_SCE = c(1.5081062, 2.9090437, 3.821632, 
+          4.75131, 6.3752535, 7.2168730, 
+          10.5380954, 12.1135213)
+shift_id= rep(0, length(t_SCE))
+SCE = data.frame(shift_id, t_SCE)
+
+# Intensity and limit
+INTENS = data.frame(t = seq(0, tau0, 0.001),
+                    intensity = plp(seq(0, tau0, 0.001), beta0, theta0)) %>% 
+  mutate(type = ifelse(((t >= rest_time[1] & t <= rest_time[2])|(t >= rest_time[3] & t <= rest_time[4])), 0.2, 1))
+
+# LIM data
+LIM = data.frame(start_time = 0, end_time = tau0, shift_id = shift_id)
+
+# maximum intensity
+max_int = round(max(INTENS$intensity), 2) + 0.01
+
+# plot
+p0 = ggplot() + 
+  geom_line(data = INTENS, aes(x = t, y = intensity), size = 0.8) + 
+  geom_point(data = SCE, aes(x = t_SCE, y = shift_id), 
+             alpha = 1, shape = 4, color = 'red', size = 2, stroke = 1.5) + 
+  geom_segment(data = LIM, 
+               aes(x = start_time, xend = end_time, y = shift_id, yend = shift_id),
+               arrow = arrow(length = unit(0.2, "cm")), lineend = 'butt', size = 0.8) + 
+  scale_x_continuous(expand = c(0.001, 0))+
+  scale_y_continuous(labels = c(0, max_int), breaks = c(0, max_int), 
+                     expand = c(0.02, 0)) +
+  geom_vline(xintercept = rest_time[1], color="green", 
+             alpha = 0.7, size = 1.2, linetype = "dashed") + 
+  geom_vline(xintercept = rest_time[2], color="green", 
+             alpha = 0.7, size = 1.2, linetype = "dashed") +
+  labs(x = unname(latex2exp::TeX('Time to SCEs (hours), $t_1$ - $t_n$')), 
+       y = "intensity") + 
+  geom_text(aes(x = c(4.5, 8.5), y = rep(max_int/3, 2), 
+                label = c("rest 1","rest 2")), 
+            color = "darkgreen", size = 5, family="LM Roman 10") +
+  theme_bw()+
+  theme(panel.grid = element_blank(),
+        text = element_text(size=10, family="LM Roman 10"))
+p0
+ggsave("figs/PLP_NHPP_intensity_rev.pdf", p0, width = 10, height = 6.18)
+```
+
+
+```{r REVJPLP}
+set.seed(223)
+tau0 = 13; beta0 = 1.2; theta0 = 2; kappa = 0.8
+rest_time = c(4, 8)
+
+# SCE time
+t_SCE = c(1.5081062, 2.9090437, 3.821632, 
+          4.75131, 6.3752535, 7.2168730, 
+          10.5380954, 12.1135213)
+shift_id= rep(0, length(t_SCE))
+SCE = data.frame(shift_id, t_SCE)
+
+# Intensity and limit
+INTENS = data.frame(t = seq(0, tau0, 0.001),
+                    intensity = plp(seq(0, tau0, 0.001), beta0, theta0)) %>% 
+  mutate(intensity1 = case_when(
+    t >= rest_time[1] & t <= rest_time[2] ~ intensity*kappa^1,
+    t >= rest_time[2]  ~ intensity*kappa^2,
+     TRUE ~ intensity*kappa^0))
+
+# plot
+p1 = ggplot() + 
+  geom_line(data = INTENS[INTENS$t < rest_time[1],], 
+            aes(x = t, y = intensity1), size = 0.8) + 
+  geom_line(data = INTENS[INTENS$t > rest_time[1]&INTENS$t <= rest_time[2],], 
+            aes(x = t, y = intensity1), size = 0.8) + 
+  geom_line(data = INTENS[INTENS$t > rest_time[2],], 
+            aes(x = t, y = intensity1), size = 0.8) + 
+  geom_line(data = INTENS, 
+            aes(x = t, y = intensity), alpha = 0.3, size = 0.8)+
+  geom_point(data = SCE, aes(x = t_SCE, y = shift_id), 
+             alpha = 1, shape = 4, color = 'red', size = 2, stroke = 1.5) + 
+  geom_segment(data = LIM, 
+               aes(x = start_time, xend = end_time, y = shift_id, yend = shift_id),
+               arrow = arrow(length = unit(0.2, "cm")), lineend = 'butt', size = 0.8) + 
+  scale_x_continuous(expand = c(0.001, 0))+
+  scale_y_continuous(labels = c(0, max_int), breaks = c(0, max_int), 
+                     expand = c(0.02, 0)) +
+  geom_vline(xintercept = rest_time[1], color="green", 
+             alpha = 0.7, size = 1.2, linetype = "dashed") + 
+  geom_vline(xintercept = rest_time[2], color="green", 
+             alpha = 0.7, size = 1.2, linetype = "dashed")+
+  labs(x = unname(latex2exp::TeX('Time to SCEs (hours), $t_1$ - $t_n$')), 
+       y = "intensity") + 
+  geom_text(aes(x = c(4.5, 8.5), y = rep(max_int/3, 2), 
+                label = c("rest 1","rest 2")), 
+            color = "darkgreen", size = 5, family="LM Roman 10") +
+  theme_bw()+
+  theme(panel.grid = element_blank(),
+        text = element_text(size=10, family="LM Roman 10"))
+p1
+ggsave("figs/PLP_jump_point_intensity.pdf", p1, width = 10, height = 6.18)
+```
+
