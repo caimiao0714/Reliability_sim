@@ -23,7 +23,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## DIC, WAIC, LOOIC, and PSIS-LOO
 
-This is copied from [Stan online forum]()
+This is copied from [Stan online forum](https://discourse.mc-stan.org/t/advantages-of-loo-over-dic/5319/3):
 
 1. Bayesian LOO estimates the predictive performance given the predictions are made using the posterior predictive distributions (ie integrating over the posterior of parameters) while DIC estimates the predictive performance if the predictions are made using plug-in predictive distributions (ie using a point estimate like the posterior mean of the parameters),
 2. Bayesian LOO is applicable also for singular models where the posterior converges to an analytic set instead of a point,
@@ -51,9 +51,9 @@ This a quick note on different cases why Pareto k values can be large. I’ll tr
 - If all Pareto $k$ small, model is likely to be ok (although there can be better models)
 - If high Pareto $k$ values
     + If `p_loo` << the number of parameters $p$, then the model is likely to be misspecified. PPC is likely to detect the problem, too. Try using overdispersed model, or add more structural information (nonlinearity, mixture model, etc.).
-    + If `p_loo` > the number of parameters $p$, then the model is likely to be badly misspecified. If the number of parameters p<<n, then PPC is likely to detect the problem, too. Case example [https://rawgit.com/avehtari/modelselection_tutorial/master/roaches.html](https://rawgit.com/avehtari/modelselection_tutorial/master/roaches.html) 41
-    + If `p_loo` > the number of parameters $p$, then the model is likely to be badly misspecified. If the number of parameters $p$ is relatively large compared to the number of observations p>n/5 (more accurately we should count number of observations influencing each parameter as in hierarchical models some groups may have small n and some groups large n), it is possible that PPC doesn’t detect the problem. Case example Recommendations for what to do when k exceeds 0.5 in the loo package? 58
-    + If `p_loo` < the number of parameters $p$ and the number of parameters $p$ is relatively large compared to the number of observations p>n/5, it is likely that model is so flexible or population prior is so weak that it’s difficult to predict for left out observation even if the model is true one. Case example is the simulated 8 schools in [https://arxiv.org/abs/1507.04544](https://arxiv.org/abs/1507.04544) 24 and Gaussian processes and spatial models with short correlation lengths.
+    + If `p_loo` > the number of parameters $p$, then the model is likely to be badly misspecified. If the number of parameters p<<n, then PPC is likely to detect the problem, too. Case example [https://rawgit.com/avehtari/modelselection_tutorial/master/roaches.html](https://rawgit.com/avehtari/modelselection_tutorial/master/roaches.html)
+    + If `p_loo` > the number of parameters $p$, then the model is likely to be badly misspecified. If the number of parameters $p$ is relatively large compared to the number of observations p>n/5 (more accurately we should count number of observations influencing each parameter as in hierarchical models some groups may have small n and some groups large n), it is possible that PPC doesn’t detect the problem. Case example [Recommendations for what to do when k exceeds 0.5 in the loo package](https://discourse.mc-stan.org/t/recommendations-for-what-to-do-when-k-exceeds-0-5-in-the-loo-package/3417/10)?
+    + If `p_loo` < the number of parameters $p$ and the number of parameters $p$ is relatively large compared to the number of observations p>n/5, it is likely that model is so flexible or population prior is so weak that it’s difficult to predict for left out observation even if the model is true one. Case example is the simulated 8 schools in [https://arxiv.org/abs/1507.04544](https://arxiv.org/abs/1507.04544) and Gaussian processes and spatial models with short correlation lengths.
     
 # Useful papers and case studies
 
