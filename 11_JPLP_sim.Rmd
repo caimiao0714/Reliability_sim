@@ -1,0 +1,20 @@
+---
+title: "Jump-point PLP (JPLP) simulation"
+author: "Miao Cai <miao.cai@slu.edu>"
+date: "`r Sys.Date()`"
+output:
+  bookdown::pdf_document2: 
+    number_sections: true
+    toc: true
+header-includes:
+  - \usepackage{soul}
+  - \usepackage{float}
+  - \usepackage{graphicx}
+  - \usepackage{setspace}\linespread{1.2}
+geometry: "left=2cm,right=2cm,top=2cm,bottom=2cm"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
