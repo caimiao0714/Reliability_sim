@@ -1,0 +1,5 @@
+\contentsline {section}{\numberline {1}Power law process (PLP)}{1}{section.1}
+\contentsline {subsection}{\numberline {1.1}PLP intensity function}{1}{subsection.1.1}
+\contentsline {subsection}{\numberline {1.2}PLP simulation}{1}{subsection.1.2}
+\contentsline {section}{\numberline {2}Jump Power Law Process (JPLP)}{4}{section.2}
+\contentsline {subsection}{\numberline {2.1}JPLP intensity function}{4}{subsection.2.1}
