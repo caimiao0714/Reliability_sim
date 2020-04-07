@@ -33,14 +33,21 @@ PLP simulation
 --------------
 
 ```{r}
-# simulating PLP - failure truncated case
-sim_plp_n = function(mean_n, beta, theta){
-  N = rpois(1, mean_n)
-  u = runif(N, 0, 1)
-  n_logu = -log(u)
-  s = cumsum(n_logu)
-  Delta_t = theta*s^(1/beta)
-  return(Delta_t)
+# simulating PLP - time truncated case
+sim_plp_tau = function(tau = 30,
+                       beta = 1.5,
+                       theta = 10){
+  # initialization
+  s = 0; t = 0
+  while (max(t) <= tau) {
+    u <- runif(1)
+    s <- s - log(u)
+    t_new <- theta*s^(1/beta)
+    t <- c(t, t_new)
+  }
+  t = t[c(-1, -length(t))]
+
+  return(t)
 }
 
 # simulate multiple NHPPs - time truncated case
@@ -163,3 +170,40 @@ A Bayesian hierarchical JPLP has the following intensity function:
 \end{aligned}
 \end{equation}
 where the introduced parameter $\kappa$ is the percent of intensity function recovery once the driver takes a break. We assume that this $\kappa$ is constant across drivers and shifts.
+
+
+JPLP simulation
+---------------
+
+
+```{r}
+# simulating PLP - time truncated case
+sim_plp_tau = function(tau = 30,
+                       beta = 1.5,
+                       theta = 10)
+{
+  # initialization
+  s = 0; t = 0
+  while (max(t) <= tau) {
+    u <- runif(1)
+    s <- s - log(u)
+    t_new <- theta*s^(1/beta)
+    t <- c(t, t_new)
+  }
+  t = t[c(-1, -length(t))]
+
+  return(t)
+}
+
+sim_jplp = function(tau = 30,
+                    kappa = 0.8,
+                    t_trip = c(10, 20),
+                    beta = 1.5,
+                    theta = 10)
+{
+  
+  
+}
+
+```
+
