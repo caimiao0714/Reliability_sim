@@ -214,6 +214,8 @@ Lambda = function(t,
 }
 ```
 
+### Test the mean fucntion $\Lambda(t)$
+
 ```{r}
 # test Lambda
 kappa = 0.8
@@ -240,8 +242,12 @@ kappa^0*L_plp(t_trip[1]) +
   kappa^3*L_plp(12) - kappa^3*L_plp(t_trip[3])
 ```
 
+### Plot the mean function of PLP and JPLP
+
 ```{r}
 pacman::p_load(ggplot2, dplyr, tidyr)
+
+t_trip = c(3.5, 6.2, 9)
 beta = 1.5
 theta = 4
 
@@ -250,17 +256,22 @@ y0 = (x/theta)^beta
 y1 = rep(NA_real_, length(x))
 
 for (i in 1:length(x)) {
-  y1[i] = Lambda(t = x[i])
+  y1[i] = Lambda(t = x[i], kappa = 0.8)
 }
 
 data.frame(x, y0, y1) %>% 
-  tidyr::pivot_longer(cols = c('y0', 'y1'), names_to = "type", values_to = 'y') %>% 
-  ggplot(aes(x = x, y = y, group = type, color = type)) + 
-  geom_line()
-
-
-
-
+  tidyr::pivot_longer(cols = c('y0', 'y1'), 
+                      names_to = "Type", 
+                      values_to = 'y') %>% 
+  mutate(Type = case_when(Type == 'y0' ~ 'PLP',
+                          Type == 'y1' ~ 'JPLP')) %>% 
+  ggplot(aes(x = x, y = y, group = Type, color = Type)) + 
+  geom_line() + 
+  geom_vline(xintercept = t_trip, linetype = "dashed") +
+  labs(x = 'Time (hours)', 
+       y = 'Mean function (Lambda)') + 
+  theme_minimal() + 
+  theme(legend.position = "top") 
 ```
 
 
