@@ -174,66 +174,106 @@ where the introduced parameter $\kappa$ is the percent of intensity function rec
 
 JPLP simulation
 ---------------
+
+> Let $T_1, T_2, \ldots$ be random variables representing the event times of a nonhomogeneous Poisson process with continuous expectation function $\Lambda(t)$, and let $N_t$ represent the total number of events occurring before time $t$ in the process. Then, conditional on the number of events $N_{t_0} = n$, the event times $T_1, T_2, \ldots, T_n$ are distributed as order statistics from a sample with distribution function $F(t) = \Lambda(t)/\Lambda(t_0)$ for $t \in [0, t_0]$.
+
+This is a generalization of the result for homogeneous Poisson processes. It naturally gives rise to the following algorithm for generating random variates from a nonhomogeneous Poisson process with expectation function $\Lambda(t)$ in a fixed interval $[0, t_0]$.
+
+(1) Generate $n \sim \text{Poisson}(\Lambda(t_0))$.
+(2) Independently generate $n$ random variates $t_1^\prime, t_2^\prime, \ldots, t_n^\prime$ from the cdf $F(t) = \Lambda(t)/\Lambda(t_0)$.
+(3) Order $t_1^\prime, t_2^\prime, \ldots, t_n^\prime$ to obtain $t_1 = t_{(1)}^\prime, t_2 = t_{(2)}^\prime, \ldots, t_n = t_{(n)}^\prime$.
+(4) Deliver $t_1, t_2, \ldots, t_n$.
+
+
 ### Mean function $\Lambda(t)$
 ```{r}
 # Mean function Lambda for JPLP
+L_plp = function(t, beta = 1.5, theta = 4) return((t/theta)^beta)
 Lambda = function(t,
                   tau = 12,
                   kappa = 0.8,
                   t_trip = c(3.5, 6.2, 9),
                   beta = 1.5,
-                  theta = 10)
+                  theta = 4)
 {
   t_trip1 = c(0, t_trip)
   n_trip = length(t_trip1)
-  comp = ((t_trip1[-1] - t_trip1[-n_trip])/theta)^beta
-  kappa_vec = rep(kappa, n_trip)^(0:(n_trip - 1))
-  comp_kappa = comp*kappa_vec[-n_trip]
-  cum_comp = cumsum(comp_kappa)
-  index_trip = max(cumsum(t > t_trip1))
+  comp = L_plp(t_trip, beta, theta)
+  kappa_vec0 = rep(kappa, n_trip - 1)^(0:(n_trip - 2))
+  kappa_vec1 = rep(kappa, n_trip - 1)^(1:(n_trip - 1))
+  cum_comp0 = comp*kappa_vec0
+  cum_comp1 = comp*kappa_vec1
+  index_trip = max(cumsum(t > t_trip1)) - 1
   
-  if(index_trip == 1){
-    return(((t - t_trip1[index_trip])/theta)^beta)
+  if(index_trip == 0){
+    return((t/theta)^beta)
   }else{
-    return(cum_comp[index_trip - 1] + kappa^(index_trip - 1)*((t - t_trip1[index_trip])/theta)^beta)
+    return(sum(cum_comp0[1:index_trip]) - sum(cum_comp1[1:index_trip]) +
+             kappa^index_trip*(t/theta)^beta)
   }
 }
+```
 
+```{r}
 # test Lambda
 kappa = 0.8
 t_trip = c(3.5, 6.2, 9)
 beta = 1.5
-theta = 10
+theta = 4
 
 Lambda(3.1)
-kappa^0*((3.1 - 0)/theta)^beta
+L_plp(3.1)
 
 Lambda(4.1)
-kappa^0*((t_trip[1] - 0)/theta)^beta + 
-  kappa^1*((4.1 - t_trip[1])/theta)^beta
+kappa^0*L_plp(t_trip[1]) + 
+  kappa^1*L_plp(4.1) - kappa^1*L_plp(t_trip[1])
 
 Lambda(8.9)
-kappa^0*((t_trip[1] - 0)/theta)^beta + 
-  kappa^1*((t_trip[2] - t_trip[1])/theta)^beta + 
-  kappa^2*((8.9 - t_trip[2])/theta)^beta
+kappa^0*L_plp(t_trip[1]) + 
+  kappa^1*L_plp(t_trip[2]) - kappa^1*L_plp(t_trip[1]) +
+  kappa^2*L_plp(8.9) - kappa^2*L_plp(t_trip[2])
 
 Lambda(12)
-kappa^0*((t_trip[1] - 0)/theta)^beta + 
-  kappa^1*((t_trip[2] - t_trip[1])/theta)^beta + 
-  kappa^2*((t_trip[3] - t_trip[2])/theta)^beta + 
-  kappa^3*((12 - t_trip[3])/theta)^beta  
+kappa^0*L_plp(t_trip[1]) + 
+  kappa^1*L_plp(t_trip[2]) - kappa^1*L_plp(t_trip[1]) +
+  kappa^2*L_plp(t_trip[3]) - kappa^2*L_plp(t_trip[2]) + 
+  kappa^3*L_plp(12) - kappa^3*L_plp(t_trip[3])
 ```
+
+```{r}
+pacman::p_load(ggplot2, dplyr, tidyr)
+beta = 1.5
+theta = 4
+
+x = seq(0.01, 12, 0.01)
+y0 = (x/theta)^beta
+y1 = rep(NA_real_, length(x))
+
+for (i in 1:length(x)) {
+  y1[i] = Lambda(t = x[i])
+}
+
+data.frame(x, y0, y1) %>% 
+  tidyr::pivot_longer(cols = c('y0', 'y1'), names_to = "type", values_to = 'y') %>% 
+  ggplot(aes(x = x, y = y, group = type, color = type)) + 
+  geom_line()
+
+
+
+
+```
+
 
 ### Simulation JPLP events
 
 ```{r}
 sim_jplp = function(tau = 12,
                     kappa = 0.8,
-                    t_trip = c(3, 6, 9),
+                    t_trip = c(3.5, 6.2, 9),
                     beta = 1.5,
-                    theta = 10)
+                    theta = 4)
 {
-  
+  Lambda_t0 = Lambda(tau)
   
 }
 ```
