@@ -278,14 +278,32 @@ data.frame(x, y0, y1) %>%
 ### Simulation JPLP events
 
 ```{r}
+inverse = function (f, lower = 0.0001, upper = 100) {
+   function (y) uniroot((function (x) f(x) - y), lower = lower, upper = upper)[1]
+}
+
+inv_Lambda = inverse(Lambda, 0.0001, 100)
+inv_Lambda(3.564885)$root
+
+# simulating PLP - time truncated case
 sim_jplp = function(tau = 12,
                     kappa = 0.8,
                     t_trip = c(3.5, 6.2, 9),
                     beta = 1.5,
                     theta = 4)
-{
-  Lambda_t0 = Lambda(tau)
-  
+{ s = 0; t = 0
+  while (max(t) <= tau) {
+    u <- runif(1)
+    s <- s - log(u)
+    t_new <- inv_Lambda(s)
+    t_new <- t_new$root
+    t <- c(t, t_new)
+  }
+  t = t[c(-1, -length(t))]
+
+  return(t)
 }
+
+sim_jplp()
 ```
 
