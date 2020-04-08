@@ -4,3 +4,5 @@
 \contentsline {section}{\numberline {2}Jump Power Law Process (JPLP)}{4}{section.2}
 \contentsline {subsection}{\numberline {2.1}JPLP intensity function}{4}{subsection.2.1}
 \contentsline {subsection}{\numberline {2.2}JPLP simulation}{4}{subsection.2.2}
+\contentsline {subsubsection}{\numberline {2.2.1}Mean function \(\Lambda (t)\)}{4}{subsubsection.2.2.1}
+\contentsline {subsubsection}{\numberline {2.2.2}Simulation JPLP events}{5}{subsubsection.2.2.2}

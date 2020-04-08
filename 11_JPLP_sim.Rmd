@@ -174,36 +174,67 @@ where the introduced parameter $\kappa$ is the percent of intensity function rec
 
 JPLP simulation
 ---------------
-
-
+### Mean function $\Lambda(t)$
 ```{r}
-# simulating PLP - time truncated case
-sim_plp_tau = function(tau = 30,
-                       beta = 1.5,
-                       theta = 10)
+# Mean function Lambda for JPLP
+Lambda = function(t,
+                  tau = 12,
+                  kappa = 0.8,
+                  t_trip = c(3.5, 6.2, 9),
+                  beta = 1.5,
+                  theta = 10)
 {
-  # initialization
-  s = 0; t = 0
-  while (max(t) <= tau) {
-    u <- runif(1)
-    s <- s - log(u)
-    t_new <- theta*s^(1/beta)
-    t <- c(t, t_new)
+  t_trip1 = c(0, t_trip)
+  n_trip = length(t_trip1)
+  comp = ((t_trip1[-1] - t_trip1[-n_trip])/theta)^beta
+  kappa_vec = rep(kappa, n_trip)^(0:(n_trip - 1))
+  comp_kappa = comp*kappa_vec[-n_trip]
+  cum_comp = cumsum(comp_kappa)
+  index_trip = max(cumsum(t > t_trip1))
+  
+  if(index_trip == 1){
+    return(((t - t_trip1[index_trip])/theta)^beta)
+  }else{
+    return(cum_comp[index_trip - 1] + kappa^(index_trip - 1)*((t - t_trip1[index_trip])/theta)^beta)
   }
-  t = t[c(-1, -length(t))]
-
-  return(t)
 }
 
-sim_jplp = function(tau = 30,
+# test Lambda
+kappa = 0.8
+t_trip = c(3.5, 6.2, 9)
+beta = 1.5
+theta = 10
+
+Lambda(3.1)
+kappa^0*((3.1 - 0)/theta)^beta
+
+Lambda(4.1)
+kappa^0*((t_trip[1] - 0)/theta)^beta + 
+  kappa^1*((4.1 - t_trip[1])/theta)^beta
+
+Lambda(8.9)
+kappa^0*((t_trip[1] - 0)/theta)^beta + 
+  kappa^1*((t_trip[2] - t_trip[1])/theta)^beta + 
+  kappa^2*((8.9 - t_trip[2])/theta)^beta
+
+Lambda(12)
+kappa^0*((t_trip[1] - 0)/theta)^beta + 
+  kappa^1*((t_trip[2] - t_trip[1])/theta)^beta + 
+  kappa^2*((t_trip[3] - t_trip[2])/theta)^beta + 
+  kappa^3*((12 - t_trip[3])/theta)^beta  
+```
+
+### Simulation JPLP events
+
+```{r}
+sim_jplp = function(tau = 12,
                     kappa = 0.8,
-                    t_trip = c(10, 20),
+                    t_trip = c(3, 6, 9),
                     beta = 1.5,
                     theta = 10)
 {
   
   
 }
-
 ```
 

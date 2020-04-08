@@ -69,7 +69,7 @@ Let $\Lambda(t)$ be a positive-valued, continuous, nondecreasing function. Then 
 Theorem \@ref(thm:cinlarthm) can be used to generate failures from a NHPP: First generate event times from a HPP with rate one, then invert $\Lambda()$ to get the event times. Here are the steps/algorithms provided by @pasupathy2010generating to generate NHPP failure times.
 
 (0) Initialize $s = 0$
-(1) Generate $u ~ U(0, 1)$
+(1) Generate $u \sim U(0, 1)$
 (2) Set $s \leftarrow s - \log(u)$
 (3) Set $t \leftarrow \inf \{ \Lambda(v) \geq s \}$
 (4) Deliver t
