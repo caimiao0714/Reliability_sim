@@ -277,8 +277,8 @@ data.frame(x, y0, y1) %>%
 ```
 
 
-Simulation JPLP events
-----------------------
+Simulation JPLP events in one shift
+-----------------------------------
 
 ### Simulate JPLP events in one shift
 
@@ -369,7 +369,7 @@ d_shift = data.frame(start_x = 0,
                      end_y = 0)
 ```
 
-```{r}
+```{r fig.cap='Event times (red cross) and mean function Lambda (curves)'}
 ggplot(data = dLambda) + 
   geom_line(aes(x = x, y = y, group = Type, color = Type)) + 
   scale_color_manual(values = c(PLP = "#0B775E", JPLP = "#F2300F")) + 
@@ -436,7 +436,7 @@ d_shift = data.frame(start_x = 0,
                      end_y = 0)
 ```
 
-```{r}
+```{r fig.cap='Event times (red cross) and intensity function lambda (curves)'}
 ggplot(data = dlambda) + 
   geom_line(aes(x = x, y = y, group = Type, color = Type)) + 
   scale_color_manual(values = c(PLP = "#0B775E", JPLP = "#F2300F")) + 
@@ -453,5 +453,12 @@ ggplot(data = dlambda) +
                  lineend = 'butt',
                  arrow = arrow(length = unit(0.2, "cm"))) + 
   scale_x_continuous(expand = c(0, 0))
+```
+
+Simulation JPLP events in multiple shifts
+-----------------------------------------
+
+```{r}
+
 ```
 
