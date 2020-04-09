@@ -172,9 +172,8 @@ A Bayesian hierarchical JPLP has the following intensity function:
 where the introduced parameter $\kappa$ is the percent of intensity function recovery once the driver takes a break. We assume that this $\kappa$ is constant across drivers and shifts.
 
 
-JPLP simulation
----------------
-
+JPLP mean function
+------------------
 > Let $T_1, T_2, \ldots$ be random variables representing the event times of a nonhomogeneous Poisson process with continuous expectation function $\Lambda(t)$, and let $N_t$ represent the total number of events occurring before time $t$ in the process. Then, conditional on the number of events $N_{t_0} = n$, the event times $T_1, T_2, \ldots, T_n$ are distributed as order statistics from a sample with distribution function $F(t) = \Lambda(t)/\Lambda(t_0)$ for $t \in [0, t_0]$.
 
 This is a generalization of the result for homogeneous Poisson processes. It naturally gives rise to the following algorithm for generating random variates from a nonhomogeneous Poisson process with expectation function $\Lambda(t)$ in a fixed interval $[0, t_0]$.
@@ -214,7 +213,7 @@ Lambda = function(t,
 }
 ```
 
-### Test the mean fucntion $\Lambda(t)$
+### Test the mean function $\Lambda(t)$
 
 ```{r}
 # test Lambda
@@ -265,38 +264,59 @@ data.frame(x, y0, y1) %>%
                       values_to = 'y') %>% 
   mutate(Type = case_when(Type == 'y0' ~ 'PLP',
                           Type == 'y1' ~ 'JPLP')) %>% 
+  mutate(Type = factor(Type, levels = c('PLP', 'JPLP'))) %>% 
   ggplot(aes(x = x, y = y, group = Type, color = Type)) + 
+  scale_color_manual(values = c(PLP = "#0B775E", JPLP = "#F2300F")) + 
   geom_line() + 
   geom_vline(xintercept = t_trip, linetype = "dashed") +
   labs(x = 'Time (hours)', 
        y = 'Mean function (Lambda)') + 
   theme_minimal() + 
-  theme(legend.position = "top") 
+  theme(legend.position = "top")  + 
+  scale_x_continuous(expand = c(0, 0))
 ```
 
 
-### Simulation JPLP events
+Simulation JPLP events
+----------------------
+
+### Simulate JPLP events in one shift
 
 ```{r}
+# Define a inverse function for mean function Lambda
 inverse = function (f, lower = 0.0001, upper = 100) {
    function (y) uniroot((function (x) f(x) - y), lower = lower, upper = upper)[1]
 }
 
-inv_Lambda = inverse(Lambda, 0.0001, 100)
+# Test the inverse function
+Lambda1 = function(t, tau = 12, kappa = 0.8, t_trip = c(3.5, 6.2, 9),
+                beta = 1.5, theta = 4){
+  return(Lambda(t, tau = tau, kappa = kappa, t_trip = t_trip,
+                beta = beta, theta = theta))
+}
+inv_Lambda = inverse(Lambda1, 0.0001, 100)
 inv_Lambda(3.564885)$root
+```
 
-# simulating PLP - time truncated case
-sim_jplp = function(tau = 12,
-                    kappa = 0.8,
-                    t_trip = c(3.5, 6.2, 9),
-                    beta = 1.5,
-                    theta = 4)
+```{r}
+# simulating JPLP - time truncated case
+sim_jplp = function(tau0 = 12,
+                    kappa0 = 0.8,
+                    t_trip0 = c(3.5, 6.2, 9),
+                    beta0 = 1.5,
+                    theta0 = 0.5)
 { s = 0; t = 0
-  while (max(t) <= tau) {
+  Lambda1 = function(t, tau1 = tau0, kappa1 = kappa0, t_trip1 = t_trip0,
+                     beta1 = beta0, theta1 = theta0){
+    return(Lambda(t, tau = tau1, kappa = kappa1, t_trip = t_trip1,
+                  beta = beta1, theta = theta1))
+  }
+  inv_Lambda = inverse(Lambda1, 0.0001, 100)
+
+  while (max(t) <= tau0) {
     u <- runif(1)
     s <- s - log(u)
-    t_new <- inv_Lambda(s)
-    t_new <- t_new$root
+    t_new <- inv_Lambda(s)$root
     t <- c(t, t_new)
   }
   t = t[c(-1, -length(t))]
@@ -304,6 +324,134 @@ sim_jplp = function(tau = 12,
   return(t)
 }
 
-sim_jplp()
+sim_jplp(theta0 = 1)
+sim_jplp(theta0 = 2)
+```
+
+
+### Plot JPLP events in one shift
+
+```{r}
+set.seed(123)
+
+tauX = 12
+kappaX = 0.8
+t_tripX = c(3.5, 6.2, 9)
+betaX = 1.5
+thetaX = 2
+
+t_events = sim_jplp(tau0 = tauX,
+                    kappa0 = kappaX,
+                    t_trip0 = t_tripX,
+                    beta0 = betaX,
+                    theta0 = thetaX)
+
+x = seq(0.01, 12, 0.01)
+y0 = (x/theta)^beta
+y1 = rep(NA_real_, length(x))
+
+for (i in 1:length(x)) {
+  y1[i] = Lambda(t = x[i], kappa = 0.8)
+}
+
+dLambda = data.frame(x, y0, y1) %>% 
+  tidyr::pivot_longer(cols = c('y0', 'y1'), 
+                      names_to = "Type", 
+                      values_to = 'y') %>% 
+  mutate(Type = case_when(Type == 'y0' ~ 'PLP',
+                          Type == 'y1' ~ 'JPLP')) %>% 
+  mutate(Type = factor(Type, levels = c('PLP', 'JPLP')))
+
+d_event = data.frame(t_events = t_events, y = 0)
+d_shift = data.frame(start_x = 0,
+                     end_x = tauX,
+                     start_y = 0,
+                     end_y = 0)
+```
+
+```{r}
+ggplot(data = dLambda) + 
+  geom_line(aes(x = x, y = y, group = Type, color = Type)) + 
+  scale_color_manual(values = c(PLP = "#0B775E", JPLP = "#F2300F")) + 
+  geom_vline(xintercept = t_trip, linetype = "dashed") +
+  labs(x = 'Time (hours)', 
+       y = 'Mean function (Lambda)') + 
+  theme_minimal() + 
+  theme(legend.position = "top") + 
+  geom_point(data = d_event, aes(x = t_events, y = y), 
+             alpha = 0.8, shape = 4, color = 'red', size = 2) + 
+  geom_segment(data = d_shift, 
+                 aes(x = start_x, xend = end_x, 
+                     y = start_y, yend = end_y),
+                 lineend = 'butt',
+                 arrow = arrow(length = unit(0.2, "cm"))) + 
+  scale_x_continuous(expand = c(0, 0))
+```
+
+```{r}
+set.seed(666)
+
+tauX = 12
+kappaX = 0.8
+t_tripX = c(3.5, 6.2, 9)
+betaX = 1.5
+thetaX = 1
+
+t_events = sim_jplp(tau0 = tauX,
+                    kappa0 = kappaX,
+                    t_trip0 = t_tripX,
+                    beta0 = betaX,
+                    theta0 = thetaX)
+
+lambda_plp = function(t, beta, theta) return(beta*theta^(-beta)*t^(beta - 1))
+lambda_jplp = function(t, beta, theta, kappa = 0.8, t_trip){
+  index_trip = max(cumsum(t > t_trip))
+  return((kappa^index_trip)*beta*theta^(-beta)*t^(beta - 1))
+}
+
+
+x = seq(0.01, 12, 0.01)
+y_plp = lambda_plp(x, beta = betaX, theta = thetaX)
+y_jplp = rep(NA_real_, length(lambda_plp))
+
+for (i in 1:length(x)) {
+  y_jplp[i] = lambda_jplp(x[i], 
+                          beta = betaX, theta = thetaX, 
+                          kappa = 0.8, t_trip = t_tripX)
+}
+
+
+dlambda = tibble::tibble(x, y_plp, y_jplp) %>% 
+  tidyr::pivot_longer(cols = c('y_plp', 'y_jplp'), 
+                      names_to = "Type", 
+                      values_to = 'y') %>% 
+  mutate(Type = case_when(Type == 'y_plp' ~ 'PLP',
+                          Type == 'y_jplp' ~ 'JPLP')) %>% 
+  mutate(Type = factor(Type, levels = c('PLP', 'JPLP')))
+
+d_event = data.frame(t_events = t_events, y = 0)
+d_shift = data.frame(start_x = 0,
+                     end_x = tauX,
+                     start_y = 0,
+                     end_y = 0)
+```
+
+```{r}
+ggplot(data = dlambda) + 
+  geom_line(aes(x = x, y = y, group = Type, color = Type)) + 
+  scale_color_manual(values = c(PLP = "#0B775E", JPLP = "#F2300F")) + 
+  geom_vline(xintercept = t_trip, linetype = "dashed") +
+  labs(x = 'Time (hours)', 
+       y = 'Mean function (Lambda)') + 
+  theme_minimal() + 
+  theme(legend.position = "top") + 
+  geom_point(data = d_event, aes(x = t_events, y = y), 
+             alpha = 0.8, shape = 4, color = 'red', size = 2) + 
+  geom_segment(data = d_shift, 
+                 aes(x = start_x, xend = end_x, 
+                     y = start_y, yend = end_y),
+                 lineend = 'butt',
+                 arrow = arrow(length = unit(0.2, "cm"))) + 
+  scale_x_continuous(expand = c(0, 0))
 ```
 
