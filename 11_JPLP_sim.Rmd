@@ -459,6 +459,57 @@ Simulation JPLP events in multiple shifts
 -----------------------------------------
 
 ```{r}
+# Function to get the number of stops
+get_n_stop = function() sample(1:4, 1, TRUE)
 
+# Function to simulate event time for multiple shifts
+sim_mul_jplp = function(kappa = 0.8, beta = 1.5, theta = 2, n_shift = 10)
+{
+  t_shift_vec = list()
+  n_stop_vec = list()
+  t_stop_vec = list()
+  n_event_vec = list()
+  t_event_vec = list()
+  
+  for (i in 1:n_shift) {
+    sim_tau = round(runif(1, min = 6, max = 12), 1)
+    n_stop = get_n_stop()
+    sim_t_trip = runif(n_stop, min = 1, max = sim_tau - 1)
+    t_events = sim_jplp(tau0 = sim_tau,
+                        kappa0 = kappa,
+                        t_trip0 = sim_t_trip,
+                        beta0 = beta,
+                        theta0 = theta)
+    t_shift_vec[[i]] = sim_tau
+    n_stop_vec[[i]] = n_stop
+    t_stop_vec[[i]] = sim_t_trip
+    n_event_vec[[i]] = length(t_events)
+    t_event_vec[[i]] = t_events
+  }
+  
+  event_dt = data.frame(
+    shift_id = rep(1:n_shift, unlist(n_event_vec)),
+    event_time = Reduce(c, t_event_vec)
+  )
+  
+  trip_dt = data.frame(
+    shift_id = rep(1:n_shift, unlist(n_stop_vec)),
+    trip_time = Reduce(c, t_stop_vec)
+  )
+
+  shift_dt = data.frame(
+    shift_id = 1:n_shift,
+    start_time = rep(0, n_shift),
+    end_time = Reduce(c, t_shift_vec)
+  )
+
+  return(list(event_time = event_dt,
+              trip_time = trip_dt,
+              shift_time = shift_dt))
+  
+}
+
+z = sim_mul_jplp()
+str(z)
 ```
 
