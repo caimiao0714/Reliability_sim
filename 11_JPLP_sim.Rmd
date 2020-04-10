@@ -474,7 +474,8 @@ sim_mul_jplp = function(kappa = 0.8, beta = 1.5, theta = 2, n_shift = 10)
   for (i in 1:n_shift) {
     sim_tau = round(runif(1, min = 6, max = 12), 1)
     n_stop = get_n_stop()
-    sim_t_trip = runif(n_stop, min = 1, max = sim_tau - 1)
+    sim_t_trip = round((1:n_stop)*sim_tau/(n_stop + 1) + 
+                         rnorm(n_stop, 0, sim_tau*0.15/n_stop), 2)
     t_events = sim_jplp(tau0 = sim_tau,
                         kappa0 = kappa,
                         t_trip0 = sim_t_trip,
@@ -509,18 +510,19 @@ sim_mul_jplp = function(kappa = 0.8, beta = 1.5, theta = 2, n_shift = 10)
   
 }
 
-z = sim_mul_jplp()
+set.seed(666)
+z = sim_mul_jplp(theta = 3)
 str(z)
 ```
 
-```{r fig.cap='Simulated events (red cross) in different shifts'}
+```{r fig.cap='Simulated events (red cross) in different trips (green cross) and shifts'}
 # Plot events in multiple shifts
 plot_jplp = function(dt){
   p = ggplot() + 
     geom_point(data = dt$event_time, aes(x = event_time, y = shift_id), 
-               alpha = 0.8, shape = 4, color = 'red', size = 3) + 
+               alpha = 0.8, shape = 4, color = '#F2300F', size = 3, stroke = 1) + 
     geom_point(data = dt$trip_time, aes(x = trip_time, y = shift_id), 
-               shape = 3, color = 'blue', fill = 'blue', size = 3.5) + 
+               shape = 3, color = '#0B775E', fill = '#0B775E', size = 3.5, stroke = 1.05) + 
     geom_segment(data = dt$shift_time,
                  aes(x = start_time, xend = end_time,
                      y = shift_id, yend = shift_id),
