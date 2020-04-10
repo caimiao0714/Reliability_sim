@@ -513,3 +513,26 @@ z = sim_mul_jplp()
 str(z)
 ```
 
+```{r fig.cap='Simulated events (red cross) in different shifts'}
+# Plot events in multiple shifts
+plot_jplp = function(dt){
+  p = ggplot() + 
+    geom_point(data = dt$event_time, aes(x = event_time, y = shift_id), 
+               alpha = 0.8, shape = 4, color = 'red', size = 3) + 
+    geom_point(data = dt$trip_time, aes(x = trip_time, y = shift_id), 
+               shape = 3, color = 'blue', fill = 'blue', size = 3.5) + 
+    geom_segment(data = dt$shift_time,
+                 aes(x = start_time, xend = end_time,
+                     y = shift_id, yend = shift_id),
+                 lineend = 'butt',
+                 arrow = arrow(length = unit(0.2, "cm"))) +
+    scale_y_continuous("shift ID",
+                       labels = as.character(dt$shift_time$shift_id),
+                       breaks = dt$shift_time$shift_id) + 
+    theme_classic()
+    return(p)
+}
+
+plot_jplp(z)
+```
+
