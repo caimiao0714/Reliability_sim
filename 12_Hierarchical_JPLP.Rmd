@@ -20,6 +20,25 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Bayesian Hierarchical Jump Power Law Process (JPLP)
 ===================================================
+Model setting
+-------------
+The Bayesian hierarchical JPLP model is parameterized as
+\begin{equation}\label{eq:jplp}
+\begin{aligned}
+  t_{d, s, 1}, t_{d, s, 2}, \cdots , t_{d, s, n_{d, s}} & \sim \text{JPLP}(\beta, \theta_{d, s}, \kappa)\\
+  \beta & \sim \text{Gamma}(1, 1)\\
+  \log\theta_{d, s} &= \gamma_{0d} + \gamma_{1}x_{d, s, 1} + \gamma_{2}x_{d, s, 2} + \cdots + \gamma_{k}x_{d, s, k}\\
+  \kappa & \sim \text{Uniform}(0, 1)\\
+  \gamma_{01}, \gamma_{02}, \cdots, \gamma_{0D} & \sim \text{i.i.d. }N(\mu_0, \sigma_0^2)\\
+  \gamma_1, \gamma_2, \cdots, \gamma_k & \sim \text{i.i.d. }N(0, 10^2)\\
+  \mu_0 &\sim N(0, 5^2) \\
+  \sigma_0 &\sim \text{Gamma}(1, 1),
+\end{aligned}
+\end{equation}
+where the introduced parameter $\kappa$ is the percent of intensity function recovery once the driver takes a break. By definition, $a_{d, s, 0} = 0$. We assume that this $\kappa$ is constant across drivers and shifts.
+
+
+
 Intensity function of JPLP
 --------------------------
 Since the Bayesian hierarchical PLP in Subsection \ref{sec:model_plp} does not account for the rests within a shift and associated potential reliability repairment. In this subsection, we proposes a Bayesian hierarchical JPLP, with the following intensity function:
@@ -35,24 +54,6 @@ Since the Bayesian hierarchical PLP in Subsection \ref{sec:model_plp} does not a
     & = \kappa^{r-1}\lambda(t|d, s, r, \kappa, \beta, \gamma_{0, d}, \mathbf{\gamma}, \mathbf{X}_{d}, \mathbf{W}) \quad  a_{d, s, r-1} < t \leq a_{d, s, r},
 \end{aligned}
 \end{equation}
-where the introduced parameter $\kappa$ is the percent of intensity function recovery once the driver takes a break. By definition, $a_{d, s, 0} = 0$. We assume that this $\kappa$ is constant across drivers and shifts.
-
-Parametrization of Bayesian hierarchical JPLP model
----------------------------------------------------
-The Bayesian hierarchical JPLP model is parameterized as
-\begin{equation}\label{eq:jplp}
-\begin{aligned}
-  t_{d, s, 1}, t_{d, s, 2}, \cdots , t_{d, s, n_{d, s}} & \sim \text{JPLP}(\beta, \theta_{d, s}, \kappa)\\
-  \beta & \sim \text{Gamma}(1, 1)\\
-  \log\theta_{d, s} &= \gamma_{0d} + \gamma_{1}x_{d, s, 1} + \gamma_{2}x_{d, s, 2} + \cdots + \gamma_{k}x_{d, s, k}\\
-  \kappa & \sim \text{Uniform}(0, 1)\\
-  \gamma_{01}, \gamma_{02}, \cdots, \gamma_{0D} & \sim \text{i.i.d. }N(\mu_0, \sigma_0^2)\\
-  \gamma_1, \gamma_2, \cdots, \gamma_k & \sim \text{i.i.d. }N(0, 10^2)\\
-  \mu_0 &\sim N(0, 5^2) \\
-  \sigma_0 &\sim \text{Gamma}(1, 1),
-\end{aligned}
-\end{equation}
-
 The notations are identical with those in Equation \ref{eq:plp} except for the extra $\kappa$ parameter.
 
 The likelihood function of JPLP
@@ -70,3 +71,63 @@ The overall likelihood function is
 \begin{equation}
     L = \displaystyle\prod_d\prod_{s \in d}L_{s, d}
 \end{equation}
+
+
+
+Simulating data
+===============
+
+```{r}
+pacman::p_load(rstan, tidyverse, data.table)
+source("functions/NHPP_functions.R")
+
+set.seed(123)
+D = 10 # the number of drivers
+K = 3 # the number of predictor variables
+
+# 1. Random-effect intercepts
+# hyperparameters
+mu0 = 0
+sigma0 = 0.5
+r_0D = rnorm(D, mean = mu0, sd = sigma0)
+
+# 2. Fixed-effects parameters
+R_K = rnorm(K, mean = 0, sd = 0.5)
+
+# 3. The number of observations (shifts) in the $d$-th driver: $N_{d}$
+N_K = rpois(D, 10)
+N = sum(N_K) # the total number of obs
+id = rep(1:D, N_K)
+
+# 4. Generate data: x_1, x_2, .. x_K
+sim1 = function(group_sizes = N_K){
+  ntot = sum(group_sizes)
+  
+  int1 = rep(1, ntot)
+  x1 =  rnorm(ntot, 0, 1)
+  x2 = rgamma(ntot, 1, 1)
+  x3 =  rpois(ntot, 0.2)
+  
+  return(data.frame(int1, x1, x2, x3))
+}
+X = sim1(N_K)
+
+# 5. Scale parameters of a NHPP
+# 5a. parameter matrix: P
+P = cbind(r0 = rep(r_0D, N_K), t(replicate(N, R_K)))
+M_logtheta = P*X
+
+# returned parameter for each observed shift
+beta = 1.5
+theta = exp(rowSums(M_logtheta))
+round(theta, 3)
+round(r_0D, 3)
+```
+
+
+
+
+
+
+
+
