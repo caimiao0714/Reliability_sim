@@ -119,6 +119,7 @@ M_logtheta = P*X
 
 # returned parameter for each observed shift
 beta = 1.5
+kappa = 0.8
 theta = exp(rowSums(M_logtheta))
 round(theta, 3)
 round(r_0D, 3)
