@@ -77,9 +77,14 @@ The overall likelihood function is
 Simulating data
 ===============
 
+* Parameters needed: $\kappa, \beta, \theta, \gamma_{0, d}, \mathbf{\gamma}$
+    - $\theta \leftarrow \gamma_{0, d}, \mathbf{\gamma}, \mathbf{X}$
+* Data needed: $\mathbf{X}$
+    - $x_1, x_2, x_3$
+
 ```{r}
 pacman::p_load(rstan, tidyverse, data.table)
-source("functions/NHPP_functions.R")
+#source("functions/JPLP_functions.R")
 
 set.seed(123)
 D = 10 # the number of drivers
@@ -100,7 +105,7 @@ N = sum(N_K) # the total number of obs
 id = rep(1:D, N_K)
 
 # 4. Generate data: x_1, x_2, .. x_K
-sim1 = function(group_sizes = N_K){
+simX = function(group_sizes = N_K){
   ntot = sum(group_sizes)
   
   int1 = rep(1, ntot)
@@ -110,9 +115,9 @@ sim1 = function(group_sizes = N_K){
   
   return(data.frame(int1, x1, x2, x3))
 }
-X = sim1(N_K)
+X = simX(N_K)
 
-# 5. Scale parameters of a NHPP
+# 5. Scale parameters of a JPLP
 # 5a. parameter matrix: P
 P = cbind(r0 = rep(r_0D, N_K), t(replicate(N, R_K)))
 M_logtheta = P*X
@@ -121,10 +126,21 @@ M_logtheta = P*X
 beta = 1.5
 kappa = 0.8
 theta = exp(rowSums(M_logtheta))
-round(theta, 3)
-round(r_0D, 3)
 ```
 
+Simulated parameters:
+
+- $\kappa$: `r kappa`
+- $\beta$: `r beta`
+- $\theta$: `r str(theta)`
+- $\gamma_{0, d}$: `r str(r_0D)`
+- $\mathbf{\gamma}$: `r R_K`
+
+Simulated data:
+
+```{r}
+str(X)
+```
 
 
 
