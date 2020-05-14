@@ -1,5 +1,0 @@
-\contentsline {section}{\numberline {1}Bayesian Hierarchical Jump Power Law Process (JPLP)}{1}{section.1}
-\contentsline {subsection}{\numberline {1.1}Model setting}{1}{subsection.1.1}
-\contentsline {subsection}{\numberline {1.2}Intensity function of JPLP}{1}{subsection.1.2}
-\contentsline {subsection}{\numberline {1.3}The likelihood function of JPLP}{2}{subsection.1.3}
-\contentsline {section}{\numberline {2}Simulating data}{2}{section.2}
