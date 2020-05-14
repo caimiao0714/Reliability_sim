@@ -176,22 +176,22 @@ beta = 1.5
 theta = 4
 
 Lambda_JPLP(3.1)
-L_plp(3.1)
+Lambda_PLP(3.1)
 
 Lambda_JPLP(4.1)
-kappa^0*L_plp(t_trip[1]) + 
-  kappa^1*L_plp(4.1) - kappa^1*L_plp(t_trip[1])
+kappa^0*Lambda_PLP(t_trip[1]) + 
+  kappa^1*Lambda_PLP(4.1) - kappa^1*Lambda_PLP(t_trip[1])
 
 Lambda_JPLP(8.9)
-kappa^0*L_plp(t_trip[1]) + 
-  kappa^1*L_plp(t_trip[2]) - kappa^1*L_plp(t_trip[1]) +
-  kappa^2*L_plp(8.9) - kappa^2*L_plp(t_trip[2])
+kappa^0*Lambda_PLP(t_trip[1]) + 
+  kappa^1*Lambda_PLP(t_trip[2]) - kappa^1*Lambda_PLP(t_trip[1]) +
+  kappa^2*Lambda_PLP(8.9) - kappa^2*Lambda_PLP(t_trip[2])
 
 Lambda_JPLP(12)
-kappa^0*L_plp(t_trip[1]) + 
-  kappa^1*L_plp(t_trip[2]) - kappa^1*L_plp(t_trip[1]) +
-  kappa^2*L_plp(t_trip[3]) - kappa^2*L_plp(t_trip[2]) + 
-  kappa^3*L_plp(12) - kappa^3*L_plp(t_trip[3])
+kappa^0*Lambda_PLP(t_trip[1]) + 
+  kappa^1*Lambda_PLP(t_trip[2]) - kappa^1*Lambda_PLP(t_trip[1]) +
+  kappa^2*Lambda_PLP(t_trip[3]) - kappa^2*Lambda_PLP(t_trip[2]) + 
+  kappa^3*Lambda_PLP(12) - kappa^3*Lambda_PLP(t_trip[3])
 ```
 
 ### Plot the mean function of PLP and JPLP
