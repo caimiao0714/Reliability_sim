@@ -173,7 +173,6 @@ sim_hier_nhpp = function(group_size_lambda = 10, D = 10, K = 3, beta = 1.5)
   M_logtheta = P*X
 
   # returned parameter for each observed shift
-
   theta_vec = exp(rowSums(M_logtheta))
 
   df = sim_hier_plp_tau(N = N, beta = beta, theta = theta_vec)
@@ -198,6 +197,13 @@ sim_hier_nhpp = function(group_size_lambda = 10, D = 10, K = 3, beta = 1.5)
   )
 
   return(list(hier_dat = hier_dat, true_params = true_params))
+}
+
+pull_use = function(var = "theta", est_obj = f){
+  z = est_obj %>%
+    broom::tidy() %>%
+    filter(grepl(var, term))
+  return(z)
 }
 
 

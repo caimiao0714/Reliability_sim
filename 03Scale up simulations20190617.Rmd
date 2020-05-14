@@ -23,7 +23,7 @@ knitr::opts_chunk$set(echo = FALSE, eval=FALSE)
 pacman::p_load(rstan, dplyr, ggplot2)
 source("functions/NHPP_functions.R")
 
-set.seed(123)
+set.seed(123) 
 nhpp_5 = sim_mul_plp_n(n_shift = 50)
 datstan1 = list(
   N = nrow(nhpp_5$event_dat),

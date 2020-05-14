@@ -26,14 +26,11 @@ source("functions/NHPP_functions.R")
 
 ```{r test, eval = FALSE}
 # sampling from Stan
+set.seed(123)
 df = sim_hier_nhpp(D = 10, beta = 1.5)
 f = stan("stan/nhppnoevent_lp.stan",
          chains = 1, iter = 1000, data = df$hier_dat)
 f = broom::tidy(f)
-
-f1 = stan("stan/nhppnoevent_lp.stan",
-         chains = 1, iter = 1000, data = df$hier_dat)
-f1 = broom::tidy(f1)
 
 df$true_params$mu0
 df$true_params$sigma0
