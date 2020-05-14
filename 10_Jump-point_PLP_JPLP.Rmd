@@ -143,6 +143,9 @@ $$
 
 All events
 ----------
+
+**comment:** This likelihood function is not correct. See 11 and 12.
+
 The likelihood function of all events is:
 $$
 \begin{aligned}
@@ -154,22 +157,6 @@ $$
          & = \kappa^{n(n-1)/2}\bigg(\prod_{i=1}^n\lambda^\star(t_i)\bigg)\exp\Bigg(\bigg[\sum_{j=1}^{n-1}\kappa^{j-1}(1-\kappa)\Big(\frac{t_j}{\theta}\Big)^\beta\bigg] + \kappa^{n-1}\Big(\frac{t_n}{\theta}\Big)^\beta\Bigg)
 \end{aligned}
 $$
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

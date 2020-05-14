@@ -1,13 +1,13 @@
 \contentsline {section}{\numberline {1}Power law process (PLP)}{1}{section.1}
 \contentsline {subsection}{\numberline {1.1}PLP intensity function}{1}{subsection.1.1}
 \contentsline {subsection}{\numberline {1.2}PLP simulation}{1}{subsection.1.2}
-\contentsline {section}{\numberline {2}Jump Power Law Process (JPLP)}{4}{section.2}
-\contentsline {subsection}{\numberline {2.1}JPLP intensity function}{4}{subsection.2.1}
-\contentsline {subsection}{\numberline {2.2}JPLP mean function}{4}{subsection.2.2}
-\contentsline {subsubsection}{\numberline {2.2.1}Mean function \(\Lambda (t)\)}{4}{subsubsection.2.2.1}
-\contentsline {subsubsection}{\numberline {2.2.2}Test the mean function \(\Lambda (t)\)}{5}{subsubsection.2.2.2}
-\contentsline {subsubsection}{\numberline {2.2.3}Plot the mean function of PLP and JPLP}{6}{subsubsection.2.2.3}
-\contentsline {subsection}{\numberline {2.3}Simulation JPLP events in one shift}{7}{subsection.2.3}
-\contentsline {subsubsection}{\numberline {2.3.1}Simulate JPLP events in one shift}{7}{subsubsection.2.3.1}
-\contentsline {subsubsection}{\numberline {2.3.2}Plot JPLP events in one shift}{8}{subsubsection.2.3.2}
+\contentsline {section}{\numberline {2}Jump Power Law Process (JPLP)}{3}{section.2}
+\contentsline {subsection}{\numberline {2.1}JPLP intensity function}{3}{subsection.2.1}
+\contentsline {subsection}{\numberline {2.2}JPLP mean function}{3}{subsection.2.2}
+\contentsline {subsubsection}{\numberline {2.2.1}Mean function \(\Lambda (t)\)}{3}{subsubsection.2.2.1}
+\contentsline {subsubsection}{\numberline {2.2.2}Test the mean function \(\Lambda (t)\)}{4}{subsubsection.2.2.2}
+\contentsline {subsubsection}{\numberline {2.2.3}Plot the mean function of PLP and JPLP}{5}{subsubsection.2.2.3}
+\contentsline {subsection}{\numberline {2.3}Simulation JPLP events in one shift}{6}{subsection.2.3}
+\contentsline {subsubsection}{\numberline {2.3.1}Simulate JPLP events in one shift}{6}{subsubsection.2.3.1}
+\contentsline {subsubsection}{\numberline {2.3.2}Plot JPLP events in one shift}{7}{subsubsection.2.3.2}
 \contentsline {subsection}{\numberline {2.4}Simulation JPLP events in multiple shifts}{12}{subsection.2.4}
