@@ -397,6 +397,7 @@ d_shift = data.frame(start_x = 0,
                      end_x = tauX,
                      start_y = 0,
                      end_y = 0)
+
 ```
 
 ```{r fig.cap='Event times (red cross) and intensity function lambda (curves)'}
@@ -418,7 +419,7 @@ ggplot() +
                         "last.points", cex = 1.2)) +
   scale_color_manual(values = c(PLP = "#0082c8", JPLP = "#4b0082")) +
   # Points that suggest non-overlapping intensity function at jump points
-  geom_point(data = filter(dlambda, Type == 'JPLP' & x %in% t_trip),
+  geom_point(data = filter(dlambda, Type == 'JPLP', x %in% (t_trip + 0.01)),
              aes(x = x, y = y), color = '#4b0082', size = 2, shape = 1) +
   # Vertical lines indicating stops
   geom_vline(xintercept = t_trip, linetype = "dashed", color = '#4daf4a') +
