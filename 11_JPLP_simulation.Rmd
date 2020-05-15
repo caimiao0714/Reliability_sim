@@ -404,7 +404,7 @@ ggplot() +
                         "last.points", cex = 1.2)) +
   geom_vline(xintercept = t_trip, linetype = "dashed") +
   labs(x = 'Time (hours)', 
-       y = 'Mean function (Lambda)') + 
+       y = 'Intensity function (Lambda)') + 
   theme_minimal() + 
   guides(color = FALSE) +
   geom_point(data = d_event, aes(x = t_events, y = y), 
