@@ -18,8 +18,63 @@ geometry: "left=2cm,right=2cm,top=2cm,bottom=2cm"
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-One case scenario
-=================
+Theory
+======
+Intensity function of JPLP
+--------------------------
+We proposes a Bayesian hierarchical JPLP, with the following piecewise intensity function:
+\begin{equation}
+\begin{aligned}
+  \lambda_{\text{JPLP}}(t|d, s, r, \beta, \gamma_{0, d}, \mathbf{\gamma}, \mathbf{X}_{d}, \mathbf{W}_s) & =
+    \begin{cases}
+      \kappa^0\lambda(t|\beta, \gamma_{0, d}, \mathbf{\gamma}, \mathbf{X}_{d}, \mathbf{W}_s) & \quad  0 < t \leq a_{d, s, 1},\\
+      \kappa^1\lambda(t|\beta, \gamma_{0, d}, \mathbf{\gamma}, \mathbf{X}_{d}, \mathbf{W}_s) & \quad  a_{d, s, 1} < t \leq a_{d, s, 2},\\
+      \cdots & \cdots\\
+      \kappa^{R-1}\lambda(t|\beta, \gamma_{0, d}, \mathbf{\gamma}, \mathbf{X}_{d}, \mathbf{W}_s) & \quad  a_{d, s, R-1} < t \leq a_{d, s, R},
+    \end{cases} \\
+    & = \kappa^{r-1}\lambda(t|d, s, r, \kappa, \beta, \gamma_{0, d}, \mathbf{\gamma}, \mathbf{X}_{d}, \mathbf{W}_s) \quad  a_{d, s, r-1} < t \leq a_{d, s, r},
+\end{aligned}
+\end{equation}
+where the introduced parameter $\kappa$ is the percent of intensity function recovery once the driver takes a break, and $a_{d, s, r}$ is the end time of trip $r$ within shift $s$ for driver $d$. By definition, the end time of the 0-th trip $a_{d, s, 0} = 0$, and the end time of the last trip for the $d$-driver within $s$-shift $a_{d, s, R}$ equals the shift end time $\tau_{d, s}$. We assume that this $\kappa$ is constant across drivers and shifts.
+
+Parameterization of JPLP
+------------------------
+The Bayesian hierarchical JPLP model is parameterized as
+\begin{equation}\label{eq:jplp}
+\begin{aligned}
+  t_{d, s, 1}, t_{d, s, 2}, \cdots , t_{d, s, n_{d, s}}, \tau_{d, s} & \sim \text{JPLP}(\beta, \theta_{d, s}, \kappa)\\
+  \beta & \sim \text{Gamma}(1, 1)\\
+  \log\theta_{d, s} &= \gamma_{0d} + \gamma_{1}x_{d, s, 1} + \gamma_{2}x_{d, s, 2} + \cdots + \gamma_{k}x_{d, s, k}\\
+  \kappa & \sim \text{Uniform}(0, 1)\\
+  \gamma_{01}, \gamma_{02}, \cdots, \gamma_{0D} & \sim \text{i.i.d. }N(\mu_0, \sigma_0^2)\\
+  \gamma_1, \gamma_2, \cdots, \gamma_k & \sim \text{i.i.d. }N(0, 10^2)\\
+  \mu_0 &\sim N(0, 5^2) \\
+  \sigma_0 &\sim \text{Gamma}(1, 1),
+\end{aligned}
+\end{equation}
+
+Likelihood function of JPLP
+---------------------------
+The likelihood function of event times generated from a JPLP for driver $d$ on shift $s$ is
+\begin{equation}
+\begin{split}
+ L^\ast_{s, d}(\kappa, \beta, \gamma_{0d}, \mathbf{\gamma}&|\mathbf{X}_d, \mathbf{W}_s) = \\
+    & \begin{cases}
+    \exp\Big(-\int_0^{a_{d, s, R}}\lambda_{\text{JPLP}}\big(u|d, s, r, k, \beta, \gamma_{0d}, \mathbf{\gamma}, \mathbf{X}_{d}, \mathbf{W}_s\big)du\Big), & \, \text{if } n_{d, s} = 0, \\[15pt]
+    \Big( \prod_{i=1}^{n_{d, s}}\lambda_{\text{JPLP}}\big( t_{i, d, s}| d, s, r, k, \beta, \gamma_{0d}, \mathbf{\gamma}, \mathbf{X}_{d}, \mathbf{W}_s \big)
+    \Big)\\ \times \exp\Big(-\int_0^{a_{d, s, R}}\lambda_{\text{JPLP}}\big(u|d, s, r, k, \beta, \gamma_{0d}, \mathbf{\gamma}, \mathbf{X}_{d}, \mathbf{W}_s\big)du\Big), & \, \text{if } n_{d, s} > 0,
+    \end{cases}
+\end{split}
+\end{equation}
+where $t_{i, d, s}$ is the time to the $i$-th SCE for driver $d$ on shift $s$,  $n_{d, s}$ is the number of SCEs for driver $d$ on shift $s$. Therefore, the overall likelihood function for drivers $d \in 1, 2, \ldots, D$ and their corresponding shifts $s \in d$ is:
+\begin{equation}
+    L^\ast = \displaystyle\prod_{d}\prod_{s \in d}L^\ast_{s, d}.
+\end{equation}
+
+Since $\lambda_{\text{JPLP}}$ is a piecewise likelihood function that depends on event time and trip time, we will not spell out the details of the full likelihood or log likelihood.
+
+One driver scenario
+===================
 Simulating data for multiple shifts from one driver
 ---------------------------------------------------
 
