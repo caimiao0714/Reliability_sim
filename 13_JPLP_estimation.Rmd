@@ -86,4 +86,12 @@ dt = sim_mul_jplp()
 str(dt)
 ```
 
+Estimating JPLP using Stan
+--------------------------
+
+```{r eval=FALSE}
+fit = stan("stan/jplp_simple.stan",
+           chains = 1, iter = 1000, refresh = 0, 
+           data = z$hier_dat, seed = 123)
+```
 
