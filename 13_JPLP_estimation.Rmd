@@ -95,3 +95,20 @@ fit = stan("stan/jplp_simple.stan",
            data = z$hier_dat, seed = 123)
 ```
 
+
+
+Multiple drivers scenario
+=========================
+Simulating data for multiple shifts from multiple drivers
+---------------------------------------------------------
+
+
+
+
+Estimating JPLP using Stan
+--------------------------
+```{r eval=FALSE}
+fit = stan("stan/jplp_hierarchical.stan",
+           chains = 1, iter = 1000, refresh = 0, 
+           data = z$hier_dat, seed = 123)
+```
