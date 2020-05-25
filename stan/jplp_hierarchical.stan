@@ -54,9 +54,10 @@ transformed data{
   }
 }
 parameters{
+  real mu0; // hyperparameter
+  real<lower=0> sigma0;// hyperparameter
   real<lower=0> beta;
-  real<lower=0> theta;
-  real<lower=0> kappa;
+  real<lower=0, upper=1> kappa;
   vector[K] R1_K; // fixed parameters for K predictors
   vector[D] R0; // random intercept for D drivers
 }
@@ -78,6 +79,14 @@ model{
   }
 //PRIORS
   beta ~ gamma(1, 1);
-  theta ~ gamma(1, 0.01);
-  kappa ~
+  kappa ~ uniform(0, 1);
+  R0 ~ normal(mu0, sigma0);
+  R1_K  ~ normal(0, 10);
+  mu0 ~ normal(0, 10);
+  sigma0 ~ gamma(1, 1);
+}
+generated quantities{
+  real mu0_true = mu0 - dot_product(X_means, R1_K);
+  vector[D] R0_true = R0 - dot_product(X_means, R1_K);
+  //real theta_correct = theta_temp - dot_product(X_centered, R1_K);
 }

@@ -61,5 +61,5 @@ model{
 //PRIORS
   beta ~ gamma(1, 1);
   theta ~ gamma(1, 0.01);
-  kappa ~ uniform(0, 1)
+  kappa ~ uniform(0, 1);
 }
