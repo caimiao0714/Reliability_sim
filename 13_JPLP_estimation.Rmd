@@ -79,20 +79,32 @@ Simulating data for multiple shifts from one driver
 ---------------------------------------------------
 
 ```{r}
-pacman::p_load(rstan, tidyverse, data.table)
+pacman::p_load(rstan, tidyverse, data.table, broom)
 source("functions/JPLP_functions.R")
 
-dt = sim_mul_jplp()
+dt = sim_mul_jplp(kappa = 0.8, beta = 1.5, theta = 2, n_shift = 500)
 str(dt)
 ```
 
 Estimating JPLP using Stan
 --------------------------
 
+```{r}
+dt_stan = list(N = nrow(dt$event_time),
+               S = nrow(dt$trip_time),
+               r_trip = dt$trip_time$trip_id,
+               t_trip_start = dt$trip_time$t_trip_start,
+               t_trip_end = dt$trip_time$t_trip_end,
+               event_time = dt$event_time$event_time,
+               group_size = dt$trip_time$N_events)
+```
+
+
 ```{r eval=FALSE}
 fit = stan("stan/jplp_simple.stan",
            chains = 1, iter = 1000, refresh = 0, 
-           data = z$hier_dat, seed = 123)
+           data = dt_stan, seed = 123)
+broom::tidy(fit)
 ```
 
 

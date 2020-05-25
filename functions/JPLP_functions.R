@@ -66,12 +66,15 @@ sim_jplp = function(tau0 = 12,
 
 
 # Simulate event times for multiple shifts
-sim_mul_jplp = function(kappa = 0.8, beta = 1.5, theta = 2, n_shift = 10)
+sim_mul_jplp = function(kappa = 0.8, beta = 1.2, theta = 2, n_shift = 10)
 {
   t_shift_vec = list()
-  n_stop_vec = list()
+  n_trip_vec = list()
+  id_trip_vec = list()
+  t_start_vec = list()
   t_stop_vec = list()
-  n_event_vec = list()
+  n_event_shift_vec = list()
+  n_event_trip_vec = list()
   t_event_vec = list()
 
   for (i in 1:n_shift) {
@@ -85,20 +88,33 @@ sim_mul_jplp = function(kappa = 0.8, beta = 1.5, theta = 2, n_shift = 10)
                         beta0 = beta,
                         theta0 = theta)
     t_shift_vec[[i]] = sim_tau
-    n_stop_vec[[i]] = n_stop
-    t_stop_vec[[i]] = sim_t_trip
-    n_event_vec[[i]] = length(t_events)
+    id_trip_vec[[i]] = 1:(n_stop + 1)
+    n_trip_vec[[i]] = n_stop + 1
+    t_start_vec[[i]] = c(0, sim_t_trip)
+    t_stop_vec[[i]]  = c(sim_t_trip, sim_tau)
+    n_event_shift_vec[[i]] = length(t_events)
     t_event_vec[[i]] = t_events
+
+    tmp_n_event_trip = rep(NA_integer_, (n_stop + 1))
+    for (j in 1:(n_stop + 1)) {
+       tmp_n_event_trip[j] = sum(t_events > t_start_vec[[i]][j] &
+                                   t_events <= t_stop_vec[[i]][j])
+    }
+    n_event_trip_vec[[i]] = tmp_n_event_trip
   }
 
   event_dt = data.frame(
-    shift_id = rep(1:n_shift, unlist(n_event_vec)),
+    shift_id = rep(1:n_shift, unlist(n_event_shift_vec)),
+    trip_id = rep(Reduce(c, id_trip_vec), Reduce(c, n_event_trip_vec)),
     event_time = Reduce(c, t_event_vec)
   )
 
   trip_dt = data.frame(
-    shift_id = rep(1:n_shift, unlist(n_stop_vec)),
-    trip_time = Reduce(c, t_stop_vec)
+    shift_id = rep(1:n_shift, Reduce(c, n_trip_vec)),
+    trip_id = Reduce(c, id_trip_vec),
+    t_trip_start = Reduce(c, t_start_vec),
+    t_trip_end = Reduce(c, t_stop_vec),
+    N_events = Reduce(c, n_event_trip_vec)
   )
 
   shift_dt = data.frame(
@@ -107,8 +123,24 @@ sim_mul_jplp = function(kappa = 0.8, beta = 1.5, theta = 2, n_shift = 10)
     end_time = Reduce(c, t_shift_vec)
   )
 
-  return(list(event_time = event_dt,
-              trip_time = trip_dt,
-              shift_time = shift_dt))
+  stan_dt = list(N = nrow(event_dt),
+                 S = nrow(trip_dt),
+                 r_trip = trip_dt$trip_id,
+                 t_trip_start = trip_dt$t_trip_start,
+                 t_trip_end = trip_dt$t_trip_end,
+                 event_time = event_dt$event_time,
+                 group_size = trip_dt$N_events)
 
+  return(list(event_dt = event_dt,
+              trip_dt = trip_dt,
+              shift_dt = shift_dt,
+              stan_dt = stan_dt))
+
+}
+
+pull_use = function(var = "theta", est_obj = f){
+  z = est_obj %>%
+    broom::tidy() %>%
+    filter(grepl(var, term))
+  return(z)
 }
