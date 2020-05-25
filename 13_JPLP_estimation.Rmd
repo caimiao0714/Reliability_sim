@@ -89,21 +89,10 @@ str(dt)
 Estimating JPLP using Stan
 --------------------------
 
-```{r}
-dt_stan = list(N = nrow(dt$event_time),
-               S = nrow(dt$trip_time),
-               r_trip = dt$trip_time$trip_id,
-               t_trip_start = dt$trip_time$t_trip_start,
-               t_trip_end = dt$trip_time$t_trip_end,
-               event_time = dt$event_time$event_time,
-               group_size = dt$trip_time$N_events)
-```
-
-
 ```{r eval=FALSE}
 fit = stan("stan/jplp_simple.stan",
            chains = 1, iter = 1000, refresh = 0, 
-           data = dt_stan, seed = 123)
+           data = dt$dt_stan, seed = 123)
 broom::tidy(fit)
 ```
 
