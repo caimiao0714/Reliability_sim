@@ -39,9 +39,6 @@ parameters{
   vector[K] R1_K; // fixed parameters
   vector[D] R0; // random intercept
 }
-transformed parameters{
-  //vector[S] r_1_1 = ()
-}
 model{
   int position = 1;
   vector[S] theta_temp;
@@ -63,7 +60,6 @@ model{
   R1_K  ~ normal(0, 10);
   mu0 ~ normal(0, 10);
   sigma0 ~ gamma(1, 1);
-  //theta_temp ~ gamma(1, 0.01);
 }
 generated quantities{
   real mu0_true = mu0 - dot_product(X_means, R1_K);

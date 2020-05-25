@@ -44,7 +44,7 @@ data {
 parameters{
   real<lower=0> beta;
   real<lower=0> theta;
-  real<lower=0> kappa;
+  real<lower=0, upper=1> kappa;
 }
 model{
   int position = 1;
@@ -61,4 +61,5 @@ model{
 //PRIORS
   beta ~ gamma(1, 1);
   theta ~ gamma(1, 0.01);
+  kappa ~ uniform(0, 1)
 }
