@@ -1,0 +1,43 @@
+---
+title: "Untitled"
+author: "Miao Cai"
+date: "`r Sys.Date()`"
+output:
+  bookdown::pdf_document2: 
+    number_sections: true
+    toc: true
+header-includes:
+  - \usepackage{soul}
+  - \usepackage{float}
+  - \usepackage{graphicx}
+  - \usepackage{setspace}\linespread{1.2}
+geometry: "left=2cm,right=2cm,top=2cm,bottom=2cm"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This vignette considers the scenario where the data is generated from a JPLP process, but statistical inference is made assuming a PLP.
+
+Generate data
+=============
+
+```{r}
+pacman::p_load(rstan, dplyr, data.table)
+source("functions/NHPP_functions.R")
+source("functions/JPLP_functions.R")
+
+df = sim_hier_JPLP(D = 10, beta = 1.2)
+str(df$stan_jplp_dt_for_plp)
+```
+
+Estimating using Stan
+=====================
+
+```{r}
+fit0 = stan("stan/nhppnoevent_lp.stan", chains = 1, iter = 1000,
+         data = df$stan_jplp_dt_for_plp, refresh = 0)
+pull_use(var = "beta|kappa|mu0_true|sigma0|R1_K", fit0)
+```
+

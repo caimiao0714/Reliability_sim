@@ -84,7 +84,7 @@ source("functions/JPLP_functions.R")
 
 set.seed(123)
 dt = sim_mul_jplp(kappa = 0.8, beta = 1.5, theta = 2, n_shift = 500)
-str(dt)
+str(dt$stan_dt)
 ```
 
 Estimating JPLP using Stan
@@ -113,7 +113,7 @@ dt1 = sim_hier_JPLP(beta = 1.2,
                     R_K = c(1, 0.3, 0.2),
                     group_size_lambda = 50,
                     D = 10)
-str(dt1)
+str(dt1$stan_dt)
 ```
 
 

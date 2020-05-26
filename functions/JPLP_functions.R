@@ -277,10 +277,23 @@ sim_hier_JPLP = function(
                  X_predictors = as.matrix(X[rep(row.names(X), shift_dt$n_trip), 2:4])
                  )
 
+  stan_jplp_dt_for_plp = list(
+    N = nrow(event_dt),
+    K = K,
+    S = nrow(shift_dt),
+    D = D,
+    id = rep(1:D, N_K), # driver index at shift level
+    tau = shift_dt$end_time,
+    event_time = event_dt$event_time,
+    group_size = shift_dt$n_event, #the number of events in each shift
+    X_predictors = X[,2:4]
+  )
+
   return(list(event_time = event_dt,
               trip_time = trip_dt,
               shift_time = shift_dt,
-              stan_dt = stan_dt))
+              stan_dt = stan_dt,
+              stan_jplp_dt_for_plp = stan_jplp_dt_for_plp))
 }
 
 # ------------------------------------------------------------------
