@@ -136,16 +136,18 @@ sim_hier_plp_tau = function(N, beta = 1.5, theta){
 }
 
 
-sim_hier_nhpp = function(group_size_lambda = 10, D = 10, K = 3, beta = 1.5)
+sim_hier_nhpp = function(
+  beta = 1.5, # Shape parameter for PLP
+  D = 10, # the number of drivers
+  K = 3, # the number of predictor variables
+  group_size_lambda = 10,
+  mu0 = 0.2, # Hyperparameters: mean
+  sigma0 = 0.5, # Hyperparameters: s.e.
+  R_K = c(1, 0.3, 0.2)# 2. Fixed-effects parameters
+)
 {
   # 1. Random-effect intercepts
-  # hyperparameters
-  mu0 = 0.2
-  sigma0 = 0.5
   r_0D = rnorm(D, mean = mu0, sd = sigma0)
-
-  # 2. Fixed-effects parameters
-  R_K = c(1, 0.3, 0.2)
 
   # 3. The number of shifts in the $d$-th driver: $N_{d}$
   N_K = rpois(D, group_size_lambda)
@@ -182,7 +184,7 @@ sim_hier_nhpp = function(group_size_lambda = 10, D = 10, K = 3, beta = 1.5)
     K = K,
     S = nrow(df$start_end_dat),
     D = max(id),
-    id = id, #driver index
+    id = id, # driver index at shift level
     tau = df$start_end_dat$end_time,
     event_time = df$event_dat$event_time,
     group_size = df$shift_length, #the number of events in each shift

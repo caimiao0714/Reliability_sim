@@ -15,7 +15,7 @@ geometry: "left=2cm,right=2cm,top=2cm,bottom=2cm"
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, cache = FALSE)
 ```
 
 Theory
@@ -82,6 +82,7 @@ Simulating data for multiple shifts from one driver
 pacman::p_load(rstan, tidyverse, data.table, broom)
 source("functions/JPLP_functions.R")
 
+set.seed(123)
 dt = sim_mul_jplp(kappa = 0.8, beta = 1.5, theta = 2, n_shift = 500)
 str(dt)
 ```
@@ -89,10 +90,10 @@ str(dt)
 Estimating JPLP using Stan
 --------------------------
 
-```{r eval=FALSE}
+```{r eval=T}
 fit = stan("stan/jplp_simple.stan",
            chains = 1, iter = 1000, refresh = 0, 
-           data = dt$dt_stan, seed = 123)
+           data = dt$stan_dt, seed = 123)
 broom::tidy(fit)
 ```
 
@@ -104,15 +105,25 @@ Simulating data for multiple shifts from multiple drivers
 ---------------------------------------------------------
 
 ```{r}
-
+set.seed(123)
+dt1 = sim_hier_JPLP(beta = 1.2,
+                    kappa = 0.8,
+                    mu0 = 0.2,
+                    sigma0 = 0.5,
+                    R_K = c(1, 0.3, 0.2),
+                    group_size_lambda = 50,
+                    D = 10)
+str(dt1)
 ```
 
 
 
 Estimating JPLP using Stan
 --------------------------
-```{r eval=FALSE}
-fit = stan("stan/jplp_hierarchical.stan",
+```{r eval=T}
+fit1 = stan("stan/jplp_hierarchical.stan",
            chains = 1, iter = 1000, refresh = 0, 
-           data = z$hier_dat, seed = 123)
+           data = dt1$stan_dt, seed = 123)
+
+pull_use(var = "beta|kappa|mu0_true|sigma0|R1_K", fit1)
 ```

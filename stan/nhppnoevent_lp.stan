@@ -33,11 +33,11 @@ transformed data{
   }
 }
 parameters{
-  real mu0; // hyperparameter
-  real<lower=0> sigma0;// hyperparameter
+  real mu0; // hyperparameter: mean
+  real<lower=0> sigma0;// hyperparameter: s.e.
   real<lower=0> beta;
-  vector[K] R1_K; // fixed parameters
-  vector[D] R0; // random intercept
+  vector[K] R1_K; // fixed parameters each of K predictors
+  vector[D] R0; // random intercept for each of D drivers
 }
 model{
   int position = 1;

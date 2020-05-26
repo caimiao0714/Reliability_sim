@@ -1,6 +1,5 @@
-// Stan program to estimate a  JPLP process
-// This is a simple case, assuming multiple shifts come from the same driver
-// Different from NHPP with PLP intensity function, in which the likelihood function was evaluated by shifts, this JPLP likelihood function is evaluated by trips. In this way, the likelihood function can be evaluated using the `segment` function in Stan.
+// Stan program to estimate a hierchical JPLP process
+// Different from NHPP with PLP intensity function, in which the likelihood function was evaluated by shifts, this JPLP likelihood function is evaluated by TRIPS, which are nested within shifts. In this way, the likelihood function can be evaluated using the `segment` function in Stan.
 functions{
   // LogLikelihood function for shifts with events (N_{event} > 0)
   real jplp_log(vector t_event, // time of SCEs
@@ -36,7 +35,7 @@ data {
   int<lower=0> N; //total # of events
   int<lower=1> D; //total # of drivers
   int<lower=1> K; //number of predictors
-  int<lower=0> S; //total # of trips
+  int<lower=0> S; //total # of trips, not shifts!!
   int<lower=1> id[S];//driver index, must be an array
   int r_trip[S];//index of trip $r$
   vector<lower=0>[S] t_trip_start;//trip start time
