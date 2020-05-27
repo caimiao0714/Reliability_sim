@@ -11,7 +11,6 @@ f_result = broom::tidy(pull_use)
 
 
 # --- Start of simulation ---
-
 set.seed(123)
 sim10 = list()
 for (i in 1:N_sim) {
@@ -89,5 +88,4 @@ for (i in 1:N_sim) {
 }
 data.table::fwrite(data.table::rbindlist(sim100),
                    "fit/NHPP_sim/sim100.csv")
-
 

@@ -1,4 +1,5 @@
 library(rstan)
+library(purrr)
 
 stancode = 'data {
   int<lower=0> J;          // number of schools
@@ -26,6 +27,7 @@ schools_data <- list(
 )
 
 for (i in 1:3) {
-  tryCatch({fit1 <- stan(model_code  = stancode, data = schools_data,
-                         chains = 1, iter = 1000, refresh = 0)}, error=function(e){})
+  fit1 <- safely(stan(model_code  = stancode, data = schools_data,
+                         chains = 1, iter = 1000, refresh = 0))
+  print(i)
 }
