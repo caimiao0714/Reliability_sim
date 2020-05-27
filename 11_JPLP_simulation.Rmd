@@ -398,7 +398,6 @@ d_shift = data.frame(start_x = 0,
                      end_x = tauX,
                      start_y = 0,
                      end_y = 0)
-
 ```
 
 ```{r fig.cap='Event times (red cross) and intensity function lambda (curves)'}
