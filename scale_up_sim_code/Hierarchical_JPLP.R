@@ -91,7 +91,7 @@ data.table::fwrite(data.table::rbindlist(sim25),
 #  ------------------D = 50: Part 1----------------------
 set.seed(123)
 sim50 = list()
-for (i in 1:500) {
+for (i in 1:200) {
   print(paste0("D = 50 (p1), progress: ",
                round(i*100/500, 2),
                "% (", i, " out of 500)"))
@@ -112,9 +112,9 @@ data.table::fwrite(data.table::rbindlist(sim50),
                    "fit/JPLP_fit_sim_hierarchical/sim50_p1.csv")
 
 #  ------------------D = 50: Part 2----------------------
-set.seed(123)
+set.seed(124)
 sim50 = list()
-for (i in 1:500) {
+for (i in 1:200) {
   print(paste0("D = 50 (p2), progress: ",
                round(i*100/500, 2),
                "% (", i, " out of 500)"))
@@ -133,6 +133,29 @@ for (i in 1:500) {
 }
 data.table::fwrite(data.table::rbindlist(sim50),
                    "fit/JPLP_fit_sim_hierarchical/sim50_p2.csv")
+
+#  ------------------D = 50: Part 3----------------------
+set.seed(125)
+sim50 = list()
+for (i in 1:200) {
+  print(paste0("D = 50 (p2), progress: ",
+               round(i*100/500, 2),
+               "% (", i, " out of 500)"))
+
+  tryCatch({z = sim_hier_JPLP(beta = 1.2, kappa = 0.8,
+                              mu0 = 0.2, sigma0 = 0.5,
+                              R_K = c(1, 0.3, 0.2), D = 50)},
+           error=function(e){})
+
+  tryCatch({fit0 = stan("stan/jplp_hierarchical.stan",
+                        chains = 1, iter = 4000, refresh = 0,
+                        data = z$stan_dt, seed = 123)},
+           error=function(e){})
+
+  sim50[[i]] = pull_use("beta|kappa|mu0_true|sigma0|R1_K", fit0)
+}
+data.table::fwrite(data.table::rbindlist(sim50),
+                   "fit/JPLP_fit_sim_hierarchical/sim50_p3.csv")
 
 
 
@@ -285,5 +308,23 @@ data.table::fwrite(data.table::rbindlist(sim100),
                    "fit/JPLP_fit_sim_hierarchical/sim100_p4.csv")
 
 
+#  ------------------D = 100: Part 5---------------------
+set.seed(129)
+sim100 = list()
+for (i in 1:300) {
+  print(paste0("D = 100 (p4), progress: ", round(i*100/300, 2), "% (", i, " out of 300)"))
 
+  tryCatch({z = sim_hier_JPLP(beta = 1.2, kappa = 0.8, mu0 = 0.2,
+                              sigma0 = 0.5, R_K = c(1, 0.3, 0.2), D = 100)},
+           error=function(e){})
+
+  tryCatch({fit0 = stan("stan/jplp_hierarchical.stan",
+                        chains = 1, iter = 4000, refresh = 0,
+                        data = z$stan_dt, seed = 123)},
+           error=function(e){})
+
+  sim100[[i]] = pull_use("beta|kappa|mu0_true|sigma0|R1_K", fit0)
+}
+data.table::fwrite(data.table::rbindlist(sim100),
+                   "fit/JPLP_fit_sim_hierarchical/sim100_p5.csv")
 
