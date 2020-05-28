@@ -23,7 +23,7 @@ f_result = pull_use("beta|kappa|mu0_true|sigma0|R1_K", fit)
 set.seed(123)
 sim10 = list()
 for (i in 1:N_sim) {
-  print(paste0("D = 10: ", i, " (out of 1000)"))
+  print(paste0("D = 10: ", i, " out of 1000)"))
 
   tryCatch({z = sim_hier_JPLP(beta = 1.2, D = 10)
   fit0 = stan("stan/jplp_hierarchical.stan",

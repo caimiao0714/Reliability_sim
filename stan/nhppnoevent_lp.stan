@@ -1,3 +1,4 @@
+// Stan code to estimate a hierchical PLP process
 functions{
   real nhpp_log(vector t, real beta, real theta, real tau){
     vector[num_elements(t)] loglik_part;
@@ -14,15 +15,15 @@ functions{
   }
 }
 data {
-  int<lower=1> N; //total # of failures
-  int<lower=1> K; //number of predictors
-  int<lower=1> S; //total # of shifts
-  int<lower=1> D; //total # of drivers
-  int<lower=1> id[S];//driver index, must be an array
-  vector<lower=0>[S] tau;//truncated time
-  vector<lower=0>[N] event_time; //failure time
-  int group_size[S]; //group sizes
-  matrix[S, K] X_predictors;//predictor variable matrix
+  int<lower=1> N;                // total # of failures
+  int<lower=1> K;                // number of predictors
+  int<lower=1> S;                // total # of shifts
+  int<lower=1> D;                // total # of drivers
+  int<lower=1> id[S];            // driver index, must be an array
+  vector<lower=0>[S] tau;        // truncated time
+  vector<lower=0>[N] event_time; // failure time
+  int group_size[S];             // group sizes
+  matrix[S, K] X_predictors;     // predictor variable matrix
 }
 transformed data{
   matrix[S, K] X_centered;
@@ -33,11 +34,11 @@ transformed data{
   }
 }
 parameters{
-  real mu0; // hyperparameter: mean
-  real<lower=0> sigma0;// hyperparameter: s.e.
-  real<lower=0> beta;
-  vector[K] R1_K; // fixed parameters each of K predictors
-  vector[D] R0; // random intercept for each of D drivers
+  real mu0;             // hyperparameter: mean
+  real<lower=0> sigma0; // hyperparameter: s.e.
+  real<lower=0> beta;   // shape parameter
+  vector[K] R1_K;       // fixed parameters each of K predictors
+  vector[D] R0;         // random intercept for each of D drivers
 }
 model{
   int position = 1;

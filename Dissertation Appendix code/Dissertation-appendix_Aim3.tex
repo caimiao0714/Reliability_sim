@@ -1,0 +1,833 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  pdftitle={Untitled},
+  pdfauthor={Miao Cai},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+
+\title{Untitled}
+\author{Miao Cai}
+\date{5/28/2020}
+
+\begin{document}
+\maketitle
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# ------------------------------------------------------------}
+\CommentTok{# simulating PLP - time truncated case}
+\NormalTok{sim_plp_tau =}\StringTok{ }\ControlFlowTok{function}\NormalTok{(}\DataTypeTok{tau =} \DecValTok{30}\NormalTok{,}
+                       \DataTypeTok{beta =} \FloatTok{1.5}\NormalTok{,}
+                       \DataTypeTok{theta =} \DecValTok{10}\NormalTok{)\{}
+  \CommentTok{# initialization}
+\NormalTok{  s =}\StringTok{ }\DecValTok{0}\NormalTok{; t =}\StringTok{ }\DecValTok{0}
+  \ControlFlowTok{while}\NormalTok{ (}\KeywordTok{max}\NormalTok{(t) }\OperatorTok{<=}\StringTok{ }\NormalTok{tau) \{}
+\NormalTok{    u <-}\StringTok{ }\KeywordTok{runif}\NormalTok{(}\DecValTok{1}\NormalTok{)}
+\NormalTok{    s <-}\StringTok{ }\NormalTok{s }\OperatorTok{-}\StringTok{ }\KeywordTok{log}\NormalTok{(u)}
+\NormalTok{    t_new <-}\StringTok{ }\NormalTok{theta}\OperatorTok{*}\NormalTok{s}\OperatorTok{^}\NormalTok{(}\DecValTok{1}\OperatorTok{/}\NormalTok{beta)}
+\NormalTok{    t <-}\StringTok{ }\KeywordTok{c}\NormalTok{(t, t_new)}
+\NormalTok{  \}}
+\NormalTok{  t =}\StringTok{ }\NormalTok{t[}\KeywordTok{c}\NormalTok{(}\OperatorTok{-}\DecValTok{1}\NormalTok{, }\OperatorTok{-}\KeywordTok{length}\NormalTok{(t))]}
+
+  \KeywordTok{return}\NormalTok{(t)}
+\NormalTok{\}}
+
+\CommentTok{# ------------------------------------------------------------}
+\CommentTok{# simulate multiple NHPPs}
+\NormalTok{sim_hier_plp_tau =}\StringTok{ }\ControlFlowTok{function}\NormalTok{(N, }\DataTypeTok{beta =} \FloatTok{1.5}\NormalTok{, theta)\{}
+\NormalTok{  t_list =}\StringTok{ }\KeywordTok{list}\NormalTok{()}
+\NormalTok{  len_list =}\StringTok{ }\KeywordTok{list}\NormalTok{()}
+\NormalTok{  tau_vector =}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N, }\DecValTok{10}\NormalTok{, }\FloatTok{1.3}\NormalTok{)}
+
+  \ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\NormalTok{N) \{}
+\NormalTok{    t_list[[i]] =}\StringTok{ }\KeywordTok{sim_plp_tau}\NormalTok{(tau_vector[i], }\DataTypeTok{beta =}\NormalTok{ beta, }\DataTypeTok{theta =}\NormalTok{ theta[i])}
+\NormalTok{    len_list[[i]] =}\StringTok{ }\KeywordTok{length}\NormalTok{(t_list[[i]])}
+\NormalTok{  \}}
+
+\NormalTok{  event_dat =}\StringTok{ }\KeywordTok{data.frame}\NormalTok{(}
+    \DataTypeTok{shift_id =} \KeywordTok{rep}\NormalTok{(}\DecValTok{1}\OperatorTok{:}\NormalTok{N, }\KeywordTok{unlist}\NormalTok{(len_list)),}
+    \DataTypeTok{event_time =} \KeywordTok{Reduce}\NormalTok{(c, t_list)}
+\NormalTok{  )}
+
+\NormalTok{  start_end_dat =}\StringTok{ }\KeywordTok{data.frame}\NormalTok{(}
+    \DataTypeTok{shift_id =} \DecValTok{1}\OperatorTok{:}\NormalTok{N,}
+    \DataTypeTok{start_time =} \KeywordTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{, N),}
+    \DataTypeTok{end_time =}\NormalTok{ tau_vector }\CommentTok{#difference2}
+\NormalTok{  )}
+
+  \KeywordTok{return}\NormalTok{(}\KeywordTok{list}\NormalTok{(}\DataTypeTok{event_dat =}\NormalTok{ event_dat,}
+              \DataTypeTok{start_end_dat =}\NormalTok{ start_end_dat,}
+              \DataTypeTok{shift_length =} \KeywordTok{unlist}\NormalTok{(len_list)))}
+\NormalTok{\}}
+
+\CommentTok{# ------------------------------------------------------------}
+\CommentTok{# Simulating hierarchical PLP data for D drivers}
+\NormalTok{sim_hier_nhpp =}\StringTok{ }\ControlFlowTok{function}\NormalTok{(}
+  \DataTypeTok{beta =} \FloatTok{1.5}\NormalTok{,             }\CommentTok{# Shape parameter for PLP}
+  \DataTypeTok{D =} \DecValTok{10}\NormalTok{,                 }\CommentTok{# the number of drivers}
+  \DataTypeTok{K =} \DecValTok{3}\NormalTok{,                  }\CommentTok{# the number of predictor variables}
+  \DataTypeTok{group_size_lambda =} \DecValTok{10}\NormalTok{, }\CommentTok{# the mean number of shifts for each driver}
+  \DataTypeTok{mu0 =} \FloatTok{0.2}\NormalTok{,              }\CommentTok{# Hyperparameters: mean}
+  \DataTypeTok{sigma0 =} \FloatTok{0.5}\NormalTok{,           }\CommentTok{# Hyperparameters: s.e.}
+  \DataTypeTok{R_K =} \KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{, }\FloatTok{0.3}\NormalTok{, }\FloatTok{0.2}\NormalTok{)    }\CommentTok{# Fixed-effects parameters}
+\NormalTok{)}
+\NormalTok{\{}
+  \CommentTok{# 1. Random-effect intercepts}
+\NormalTok{  r_0D =}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(D, }\DataTypeTok{mean =}\NormalTok{ mu0, }\DataTypeTok{sd =}\NormalTok{ sigma0)}
+
+  \CommentTok{# 3. The number of shifts in the $d$-th driver: $N_\{d\}$}
+\NormalTok{  N_K =}\StringTok{ }\KeywordTok{rpois}\NormalTok{(D, group_size_lambda)}
+\NormalTok{  N =}\StringTok{ }\KeywordTok{sum}\NormalTok{(N_K) }\CommentTok{# the total number of obs}
+\NormalTok{  id =}\StringTok{ }\KeywordTok{rep}\NormalTok{(}\DecValTok{1}\OperatorTok{:}\NormalTok{D, N_K)}
+
+  \CommentTok{# 4. Generate data: x_1, x_2, .. x_K}
+\NormalTok{  sim1 =}\StringTok{ }\ControlFlowTok{function}\NormalTok{(}\DataTypeTok{group_sizes =}\NormalTok{ N_K)}
+\NormalTok{  \{}
+\NormalTok{    ntot =}\StringTok{ }\KeywordTok{sum}\NormalTok{(group_sizes)}
+
+\NormalTok{    int1 =}\StringTok{ }\KeywordTok{rep}\NormalTok{(}\DecValTok{1}\NormalTok{, ntot)}
+\NormalTok{    x1 =}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(ntot, }\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{)}
+\NormalTok{    x2 =}\StringTok{ }\KeywordTok{rgamma}\NormalTok{(ntot, }\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{)}
+\NormalTok{    x3 =}\StringTok{ }\KeywordTok{rpois}\NormalTok{(ntot, }\DecValTok{2}\NormalTok{)}
+
+    \KeywordTok{return}\NormalTok{(}\KeywordTok{data.frame}\NormalTok{(int1, x1, x2, x3))}
+\NormalTok{  \}}
+\NormalTok{  X =}\StringTok{ }\KeywordTok{sim1}\NormalTok{(N_K)}
+
+  \CommentTok{# 5. Scale parameters of a NHPP}
+  \CommentTok{# 5a. parameter matrix: P}
+\NormalTok{  P =}\StringTok{ }\KeywordTok{cbind}\NormalTok{(}\DataTypeTok{r0 =} \KeywordTok{rep}\NormalTok{(r_0D, N_K),}
+            \KeywordTok{t}\NormalTok{(}\KeywordTok{replicate}\NormalTok{(N, R_K)))}
+\NormalTok{  M_logtheta =}\StringTok{ }\NormalTok{P}\OperatorTok{*}\NormalTok{X}
+
+  \CommentTok{# returned parameter for each observed shift}
+\NormalTok{  theta_vec =}\StringTok{ }\KeywordTok{exp}\NormalTok{(}\KeywordTok{rowSums}\NormalTok{(M_logtheta))}
+
+\NormalTok{  df =}\StringTok{ }\KeywordTok{sim_hier_plp_tau}\NormalTok{(}\DataTypeTok{N =}\NormalTok{ N, }\DataTypeTok{beta =}\NormalTok{ beta, }\DataTypeTok{theta =}\NormalTok{ theta_vec)}
+
+\NormalTok{  hier_dat =}\StringTok{ }\KeywordTok{list}\NormalTok{(}
+    \DataTypeTok{N =} \KeywordTok{nrow}\NormalTok{(df}\OperatorTok{$}\NormalTok{event_dat),}
+    \DataTypeTok{K =}\NormalTok{ K,}
+    \DataTypeTok{S =} \KeywordTok{nrow}\NormalTok{(df}\OperatorTok{$}\NormalTok{start_end_dat),}
+    \DataTypeTok{D =} \KeywordTok{max}\NormalTok{(id),}
+    \DataTypeTok{id =}\NormalTok{ id,    }\CommentTok{# driver index at shift level}
+    \DataTypeTok{tau =}\NormalTok{ df}\OperatorTok{$}\NormalTok{start_end_dat}\OperatorTok{$}\NormalTok{end_time,}
+    \DataTypeTok{event_time =}\NormalTok{ df}\OperatorTok{$}\NormalTok{event_dat}\OperatorTok{$}\NormalTok{event_time,}
+    \DataTypeTok{group_size =}\NormalTok{ df}\OperatorTok{$}\NormalTok{shift_length,  }\CommentTok{# the number of events in each shift}
+    \DataTypeTok{X_predictors =}\NormalTok{ X[,}\DecValTok{2}\OperatorTok{:}\DecValTok{4}\NormalTok{]}
+\NormalTok{  )}
+
+\NormalTok{  true_params =}\StringTok{ }\KeywordTok{list}\NormalTok{(}
+    \DataTypeTok{mu0 =}\NormalTok{ mu0, }\DataTypeTok{sigma0 =}\NormalTok{ sigma0,}
+    \DataTypeTok{r0 =}\NormalTok{ r_0D, }\DataTypeTok{r1_rk =}\NormalTok{ R_K,}
+    \DataTypeTok{beta =}\NormalTok{ beta,}
+    \DataTypeTok{theta =}\NormalTok{ theta_vec}
+\NormalTok{  )}
+
+  \KeywordTok{return}\NormalTok{(}\KeywordTok{list}\NormalTok{(}\DataTypeTok{hier_dat =}\NormalTok{ hier_dat, }\DataTypeTok{true_params =}\NormalTok{ true_params))}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+JPLP
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# sample the number of stops from 1:4}
+\NormalTok{get_n_stop =}\StringTok{ }\ControlFlowTok{function}\NormalTok{() }\KeywordTok{sample}\NormalTok{(}\DecValTok{1}\OperatorTok{:}\DecValTok{4}\NormalTok{, }\DecValTok{1}\NormalTok{, }\OtherTok{TRUE}\NormalTok{)}
+
+\CommentTok{# ------------------------------------------------------------}
+\CommentTok{# Define a inverse function for mean function Lambda}
+\NormalTok{inverse =}\StringTok{ }\ControlFlowTok{function}\NormalTok{ (f, }\DataTypeTok{lower =} \FloatTok{0.0001}\NormalTok{, }\DataTypeTok{upper =} \DecValTok{10000}\NormalTok{) \{}
+  \ControlFlowTok{function}\NormalTok{ (y) }\KeywordTok{uniroot}\NormalTok{((}\ControlFlowTok{function}\NormalTok{ (x) }\KeywordTok{f}\NormalTok{(x) }\OperatorTok{-}\StringTok{ }\NormalTok{y), }\DataTypeTok{lower =}\NormalTok{ lower, }\DataTypeTok{upper =}\NormalTok{ upper)[}\DecValTok{1}\NormalTok{]}
+\NormalTok{\}}
+
+\CommentTok{# ------------------------------------------------------------}
+\CommentTok{# Mean function Lambda for PLP}
+\NormalTok{Lambda_PLP =}\StringTok{ }\ControlFlowTok{function}\NormalTok{(t, }\DataTypeTok{beta =} \FloatTok{1.5}\NormalTok{, }\DataTypeTok{theta =} \DecValTok{4}\NormalTok{) }\KeywordTok{return}\NormalTok{((t}\OperatorTok{/}\NormalTok{theta)}\OperatorTok{^}\NormalTok{beta)}
+
+\CommentTok{# ------------------------------------------------------------}
+\CommentTok{# Mean function Lambda for JPLP}
+\NormalTok{Lambda_JPLP =}\StringTok{ }\ControlFlowTok{function}\NormalTok{(}
+\NormalTok{  t,                        }\CommentTok{# Time of the event}
+  \DataTypeTok{tau =} \DecValTok{12}\NormalTok{,                 }\CommentTok{# Shift end time (right-censor time)}
+  \DataTypeTok{kappa =} \FloatTok{0.8}\NormalTok{,              }\CommentTok{# "Jump" parameter in JPLP}
+  \DataTypeTok{t_trip =} \KeywordTok{c}\NormalTok{(}\FloatTok{3.5}\NormalTok{, }\FloatTok{6.2}\NormalTok{, }\DecValTok{9}\NormalTok{),  }\CommentTok{# trip stop time}
+  \DataTypeTok{beta =} \FloatTok{1.5}\NormalTok{,               }\CommentTok{# Shape parameter}
+  \DataTypeTok{theta =} \DecValTok{4}\NormalTok{)                }\CommentTok{# Rate parameter}
+\NormalTok{\{}
+\NormalTok{  t_trip1 =}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, t_trip)}
+\NormalTok{  n_trip =}\StringTok{ }\KeywordTok{length}\NormalTok{(t_trip1)}
+\NormalTok{  comp =}\StringTok{ }\KeywordTok{Lambda_PLP}\NormalTok{(t_trip, beta, theta)}
+\NormalTok{  kappa_vec0 =}\StringTok{ }\KeywordTok{rep}\NormalTok{(kappa, n_trip }\OperatorTok{-}\StringTok{ }\DecValTok{1}\NormalTok{)}\OperatorTok{^}\NormalTok{(}\DecValTok{0}\OperatorTok{:}\NormalTok{(n_trip }\OperatorTok{-}\StringTok{ }\DecValTok{2}\NormalTok{))}
+\NormalTok{  kappa_vec1 =}\StringTok{ }\KeywordTok{rep}\NormalTok{(kappa, n_trip }\OperatorTok{-}\StringTok{ }\DecValTok{1}\NormalTok{)}\OperatorTok{^}\NormalTok{(}\DecValTok{1}\OperatorTok{:}\NormalTok{(n_trip }\OperatorTok{-}\StringTok{ }\DecValTok{1}\NormalTok{))}
+\NormalTok{  cum_comp0 =}\StringTok{ }\NormalTok{comp}\OperatorTok{*}\NormalTok{kappa_vec0}
+\NormalTok{  cum_comp1 =}\StringTok{ }\NormalTok{comp}\OperatorTok{*}\NormalTok{kappa_vec1}
+\NormalTok{  index_trip =}\StringTok{ }\KeywordTok{max}\NormalTok{(}\KeywordTok{cumsum}\NormalTok{(t }\OperatorTok{>}\StringTok{ }\NormalTok{t_trip1)) }\OperatorTok{-}\StringTok{ }\DecValTok{1}
+
+  \ControlFlowTok{if}\NormalTok{(index_trip }\OperatorTok{==}\StringTok{ }\DecValTok{0}\NormalTok{)\{}
+    \KeywordTok{return}\NormalTok{((t}\OperatorTok{/}\NormalTok{theta)}\OperatorTok{^}\NormalTok{beta)}
+\NormalTok{  \}}\ControlFlowTok{else}\NormalTok{\{}
+    \KeywordTok{return}\NormalTok{(}\KeywordTok{sum}\NormalTok{(cum_comp0[}\DecValTok{1}\OperatorTok{:}\NormalTok{index_trip]) }\OperatorTok{-}\StringTok{ }\KeywordTok{sum}\NormalTok{(cum_comp1[}\DecValTok{1}\OperatorTok{:}\NormalTok{index_trip]) }\OperatorTok{+}
+\StringTok{             }\NormalTok{kappa}\OperatorTok{^}\NormalTok{index_trip}\OperatorTok{*}\NormalTok{(t}\OperatorTok{/}\NormalTok{theta)}\OperatorTok{^}\NormalTok{beta)}
+\NormalTok{  \}}
+\NormalTok{\}}
+
+\CommentTok{# ------------------------------------------------------------}
+\CommentTok{# sim_jplp:  simulate event times generated from a JPLP}
+\NormalTok{sim_jplp =}\StringTok{ }\ControlFlowTok{function}\NormalTok{(}
+  \DataTypeTok{tau0 =} \DecValTok{12}\NormalTok{,                  }\CommentTok{# Shift end time (right-censor time)}
+  \DataTypeTok{kappa0 =} \FloatTok{0.8}\NormalTok{,               }\CommentTok{# "Jump" parameter in JPLP}
+  \DataTypeTok{t_trip0 =} \KeywordTok{c}\NormalTok{(}\FloatTok{3.5}\NormalTok{, }\FloatTok{6.2}\NormalTok{, }\DecValTok{9}\NormalTok{),   }\CommentTok{# trip stop time}
+  \DataTypeTok{beta0 =} \FloatTok{1.2}\NormalTok{,                }\CommentTok{# Shape parameter}
+  \DataTypeTok{theta0 =} \FloatTok{0.5}                \CommentTok{# Rate parameter}
+\NormalTok{)}
+\NormalTok{\{ s =}\StringTok{ }\DecValTok{0}\NormalTok{; t =}\StringTok{ }\DecValTok{0}
+\NormalTok{  Lambda1 =}\StringTok{ }\ControlFlowTok{function}\NormalTok{(t, }\DataTypeTok{tau1 =}\NormalTok{ tau0, }\DataTypeTok{kappa1 =}\NormalTok{ kappa0, }\DataTypeTok{t_trip1 =}\NormalTok{ t_trip0,}
+                     \DataTypeTok{beta1 =}\NormalTok{ beta0, }\DataTypeTok{theta1 =}\NormalTok{ theta0)}
+\NormalTok{    \{}
+    \KeywordTok{return}\NormalTok{(}\KeywordTok{Lambda_JPLP}\NormalTok{(t, }\DataTypeTok{tau =}\NormalTok{ tau1, }\DataTypeTok{kappa =}\NormalTok{ kappa1,}
+                       \DataTypeTok{t_trip =}\NormalTok{ t_trip1, }\DataTypeTok{beta =}\NormalTok{ beta1, }\DataTypeTok{theta =}\NormalTok{ theta1))}
+\NormalTok{    \}}
+\NormalTok{  inv_Lambda =}\StringTok{ }\KeywordTok{inverse}\NormalTok{(Lambda1, }\FloatTok{0.0001}\NormalTok{, }\DecValTok{10000}\NormalTok{)}
+
+  \ControlFlowTok{while}\NormalTok{ (}\KeywordTok{max}\NormalTok{(t) }\OperatorTok{<=}\StringTok{ }\NormalTok{tau0)}
+\NormalTok{    \{}
+\NormalTok{    u <-}\StringTok{ }\KeywordTok{runif}\NormalTok{(}\DecValTok{1}\NormalTok{)}
+\NormalTok{    s <-}\StringTok{ }\NormalTok{s }\OperatorTok{-}\StringTok{ }\KeywordTok{log}\NormalTok{(u)}
+\NormalTok{    t_new <-}\StringTok{ }\KeywordTok{inv_Lambda}\NormalTok{(s)}\OperatorTok{$}\NormalTok{root}
+\NormalTok{    t <-}\StringTok{ }\KeywordTok{c}\NormalTok{(t, t_new)}
+\NormalTok{    \}}
+
+\NormalTok{  t =}\StringTok{ }\NormalTok{t[}\KeywordTok{c}\NormalTok{(}\OperatorTok{-}\DecValTok{1}\NormalTok{, }\OperatorTok{-}\KeywordTok{length}\NormalTok{(t))]}
+
+  \KeywordTok{return}\NormalTok{(t)}
+\NormalTok{\}}
+
+
+\CommentTok{# ------------------------------------------------------------}
+\CommentTok{# sim_mul_jplp: simulate event times for multiple shifts}
+\NormalTok{sim_mul_jplp =}\StringTok{ }\ControlFlowTok{function}\NormalTok{(}
+  \DataTypeTok{kappa =} \FloatTok{0.8}\NormalTok{,      }\CommentTok{# "Jump" parameter in JPLP}
+  \DataTypeTok{beta =} \FloatTok{1.2}\NormalTok{,       }\CommentTok{# Shape parameter}
+  \DataTypeTok{theta =} \DecValTok{2}\NormalTok{,        }\CommentTok{# Rate parameter}
+  \DataTypeTok{n_shift =} \DecValTok{10}      \CommentTok{# Number of shifts}
+\NormalTok{)}
+\NormalTok{\{}
+\NormalTok{  t_shift_vec =}\StringTok{ }\KeywordTok{list}\NormalTok{()}
+\NormalTok{  n_trip_vec =}\StringTok{ }\KeywordTok{list}\NormalTok{()}
+\NormalTok{  id_trip_vec =}\StringTok{ }\KeywordTok{list}\NormalTok{()}
+\NormalTok{  t_start_vec =}\StringTok{ }\KeywordTok{list}\NormalTok{()}
+\NormalTok{  t_stop_vec =}\StringTok{ }\KeywordTok{list}\NormalTok{()}
+\NormalTok{  n_event_shift_vec =}\StringTok{ }\KeywordTok{list}\NormalTok{()}
+\NormalTok{  t_event_vec =}\StringTok{ }\KeywordTok{list}\NormalTok{()}
+\NormalTok{  n_event_trip_vec =}\StringTok{ }\KeywordTok{list}\NormalTok{()}
+
+  \ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\NormalTok{n_shift) \{}
+\NormalTok{    sim_tau =}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{10}\NormalTok{, }\FloatTok{1.3}\NormalTok{)}
+\NormalTok{    n_stop =}\StringTok{ }\KeywordTok{get_n_stop}\NormalTok{()}
+\NormalTok{    sim_t_trip =}\StringTok{ }\KeywordTok{round}\NormalTok{((}\DecValTok{1}\OperatorTok{:}\NormalTok{n_stop)}\OperatorTok{*}\NormalTok{sim_tau}\OperatorTok{/}\NormalTok{(n_stop }\OperatorTok{+}\StringTok{ }\DecValTok{1}\NormalTok{) }\OperatorTok{+}
+\StringTok{                         }\KeywordTok{rnorm}\NormalTok{(n_stop, }\DecValTok{0}\NormalTok{, sim_tau}\OperatorTok{*}\FloatTok{0.15}\OperatorTok{/}\NormalTok{n_stop), }\DecValTok{2}\NormalTok{)}
+\NormalTok{    t_events =}\StringTok{ }\KeywordTok{sim_jplp}\NormalTok{(}\DataTypeTok{tau0 =}\NormalTok{ sim_tau,}
+                        \DataTypeTok{kappa0 =}\NormalTok{ kappa,}
+                        \DataTypeTok{t_trip0 =}\NormalTok{ sim_t_trip,}
+                        \DataTypeTok{beta0 =}\NormalTok{ beta,}
+                        \DataTypeTok{theta0 =}\NormalTok{ theta)}
+\NormalTok{    t_shift_vec[[i]] =}\StringTok{ }\NormalTok{sim_tau}
+\NormalTok{    n_trip_vec[[i]] =}\StringTok{ }\NormalTok{n_stop }\OperatorTok{+}\StringTok{ }\DecValTok{1}
+\NormalTok{    id_trip_vec[[i]] =}\StringTok{ }\DecValTok{1}\OperatorTok{:}\NormalTok{(n_stop }\OperatorTok{+}\StringTok{ }\DecValTok{1}\NormalTok{)}
+\NormalTok{    t_start_vec[[i]] =}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, sim_t_trip)}
+\NormalTok{    t_stop_vec[[i]]  =}\StringTok{ }\KeywordTok{c}\NormalTok{(sim_t_trip, sim_tau)}
+\NormalTok{    n_event_shift_vec[[i]] =}\StringTok{ }\KeywordTok{length}\NormalTok{(t_events)}
+\NormalTok{    t_event_vec[[i]] =}\StringTok{ }\NormalTok{t_events}
+
+\NormalTok{    tmp_n_event_trip =}\StringTok{ }\KeywordTok{rep}\NormalTok{(}\OtherTok{NA_integer_}\NormalTok{, (n_stop }\OperatorTok{+}\StringTok{ }\DecValTok{1}\NormalTok{))}
+    \ControlFlowTok{for}\NormalTok{ (j }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\NormalTok{(n_stop }\OperatorTok{+}\StringTok{ }\DecValTok{1}\NormalTok{)) \{}
+\NormalTok{       tmp_n_event_trip[j] =}\StringTok{ }\KeywordTok{sum}\NormalTok{(t_events }\OperatorTok{>}\StringTok{ }\NormalTok{t_start_vec[[i]][j] }\OperatorTok{&}
+\StringTok{                                   }\NormalTok{t_events }\OperatorTok{<=}\StringTok{ }\NormalTok{t_stop_vec[[i]][j])}
+\NormalTok{    \}}
+\NormalTok{    n_event_trip_vec[[i]] =}\StringTok{ }\NormalTok{tmp_n_event_trip}
+\NormalTok{  \}}
+
+\NormalTok{  event_dt =}\StringTok{ }\KeywordTok{data.frame}\NormalTok{(}
+    \DataTypeTok{shift_id =} \KeywordTok{rep}\NormalTok{(}\DecValTok{1}\OperatorTok{:}\NormalTok{n_shift, }\KeywordTok{unlist}\NormalTok{(n_event_shift_vec)),}
+    \DataTypeTok{trip_id =} \KeywordTok{rep}\NormalTok{(}\KeywordTok{Reduce}\NormalTok{(c, id_trip_vec), }\KeywordTok{Reduce}\NormalTok{(c, n_event_trip_vec)),}
+    \DataTypeTok{event_time =} \KeywordTok{Reduce}\NormalTok{(c, t_event_vec)}
+\NormalTok{  )}
+
+\NormalTok{  trip_dt =}\StringTok{ }\KeywordTok{data.frame}\NormalTok{(}
+    \DataTypeTok{shift_id =} \KeywordTok{rep}\NormalTok{(}\DecValTok{1}\OperatorTok{:}\NormalTok{n_shift, }\KeywordTok{Reduce}\NormalTok{(c, n_trip_vec)),}
+    \DataTypeTok{trip_id =} \KeywordTok{Reduce}\NormalTok{(c, id_trip_vec),}
+    \DataTypeTok{t_trip_start =} \KeywordTok{Reduce}\NormalTok{(c, t_start_vec),}
+    \DataTypeTok{t_trip_end =} \KeywordTok{Reduce}\NormalTok{(c, t_stop_vec),}
+    \DataTypeTok{N_events =} \KeywordTok{Reduce}\NormalTok{(c, n_event_trip_vec)}
+\NormalTok{  )}
+
+\NormalTok{  shift_dt =}\StringTok{ }\KeywordTok{data.frame}\NormalTok{(}
+    \DataTypeTok{shift_id =} \DecValTok{1}\OperatorTok{:}\NormalTok{n_shift,}
+    \DataTypeTok{start_time =} \KeywordTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{, n_shift),}
+    \DataTypeTok{end_time =} \KeywordTok{Reduce}\NormalTok{(c, t_shift_vec)}
+\NormalTok{  )}
+
+\NormalTok{  stan_dt =}\StringTok{ }\KeywordTok{list}\NormalTok{(}\DataTypeTok{N =} \KeywordTok{nrow}\NormalTok{(event_dt),}
+                 \DataTypeTok{S =} \KeywordTok{nrow}\NormalTok{(trip_dt),}
+                 \DataTypeTok{r_trip =}\NormalTok{ trip_dt}\OperatorTok{$}\NormalTok{trip_id,}
+                 \DataTypeTok{t_trip_start =}\NormalTok{ trip_dt}\OperatorTok{$}\NormalTok{t_trip_start,}
+                 \DataTypeTok{t_trip_end =}\NormalTok{ trip_dt}\OperatorTok{$}\NormalTok{t_trip_end,}
+                 \DataTypeTok{event_time =}\NormalTok{ event_dt}\OperatorTok{$}\NormalTok{event_time,}
+                 \DataTypeTok{group_size =}\NormalTok{ trip_dt}\OperatorTok{$}\NormalTok{N_events)}
+
+  \KeywordTok{return}\NormalTok{(}\KeywordTok{list}\NormalTok{(}\DataTypeTok{event_dt =}\NormalTok{ event_dt,}
+              \DataTypeTok{trip_dt =}\NormalTok{ trip_dt,}
+              \DataTypeTok{shift_dt =}\NormalTok{ shift_dt,}
+              \DataTypeTok{stan_dt =}\NormalTok{ stan_dt))}
+
+\NormalTok{\}}
+
+\CommentTok{# ------------------------------------------------------------}
+\CommentTok{# sim_hier_JPLP:  hierarchical JPLP for D different drivers}
+\NormalTok{sim_hier_JPLP =}\StringTok{ }\ControlFlowTok{function}\NormalTok{(}
+  \DataTypeTok{beta =} \FloatTok{1.2}\NormalTok{,              }\CommentTok{# Shape parameter for JPLP}
+  \DataTypeTok{kappa =} \FloatTok{0.8}\NormalTok{,             }\CommentTok{# "jump" parameter in JPLP}
+  \DataTypeTok{D =} \DecValTok{10}\NormalTok{,                  }\CommentTok{# the number of drivers}
+  \DataTypeTok{K =} \DecValTok{3}\NormalTok{,                   }\CommentTok{# the number of predictor variables}
+  \DataTypeTok{group_size_lambda =} \DecValTok{10}\NormalTok{,  }\CommentTok{# the mean number of shifts for each driver}
+  \DataTypeTok{mu0 =} \FloatTok{0.2}\NormalTok{,               }\CommentTok{# hyperparameter 1}
+  \DataTypeTok{sigma0 =} \FloatTok{0.5}\NormalTok{,            }\CommentTok{# hyperparameter 2}
+  \DataTypeTok{R_K =} \KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{, }\FloatTok{0.3}\NormalTok{, }\FloatTok{0.2}\NormalTok{)     }\CommentTok{# Fixed-effects parameters}
+\NormalTok{)}
+\NormalTok{\{}
+  \CommentTok{# 1. Random-effect intercepts}
+\NormalTok{  r_0D =}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(D, }\DataTypeTok{mean =}\NormalTok{ mu0, }\DataTypeTok{sd =}\NormalTok{ sigma0)}
+
+  \CommentTok{# 3. The number of observations (shifts) in the $d$-th driver: $N_\{d\}$}
+\NormalTok{  N_K =}\StringTok{ }\KeywordTok{rpois}\NormalTok{(D, group_size_lambda)}
+\NormalTok{  N =}\StringTok{ }\KeywordTok{sum}\NormalTok{(N_K) }\CommentTok{# the total number of shifts for all D drivers}
+  \CommentTok{# id = rep(1:D, N_K)}
+
+  \CommentTok{# 4. Generate data: x_1, x_2, .. x_K}
+\NormalTok{  simX =}\StringTok{ }\ControlFlowTok{function}\NormalTok{(}\DataTypeTok{group_sizes =}\NormalTok{ N_K)}
+\NormalTok{  \{}
+\NormalTok{    ntot =}\StringTok{ }\KeywordTok{sum}\NormalTok{(group_sizes)}
+
+\NormalTok{    int1 =}\StringTok{ }\KeywordTok{rep}\NormalTok{(}\DecValTok{1}\NormalTok{, ntot)}
+\NormalTok{    x1 =}\StringTok{  }\KeywordTok{rnorm}\NormalTok{(ntot, }\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{)}
+\NormalTok{    x2 =}\StringTok{ }\KeywordTok{rgamma}\NormalTok{(ntot, }\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{)}
+\NormalTok{    x3 =}\StringTok{  }\KeywordTok{rpois}\NormalTok{(ntot, }\DecValTok{2}\NormalTok{)}
+
+    \KeywordTok{return}\NormalTok{(}\KeywordTok{data.frame}\NormalTok{(int1, x1, x2, x3))}
+\NormalTok{  \}}
+\NormalTok{  X =}\StringTok{ }\KeywordTok{simX}\NormalTok{(N_K)}
+
+  \CommentTok{# 5. Scale parameters of a JPLP}
+  \CommentTok{# 5a. parameter matrix: P}
+\NormalTok{  P =}\StringTok{ }\KeywordTok{cbind}\NormalTok{(}\DataTypeTok{r0 =} \KeywordTok{rep}\NormalTok{(r_0D, N_K), }\KeywordTok{t}\NormalTok{(}\KeywordTok{replicate}\NormalTok{(N, R_K)))}
+\NormalTok{  M_logtheta =}\StringTok{ }\NormalTok{P}\OperatorTok{*}\NormalTok{X}
+\NormalTok{  theta =}\StringTok{ }\KeywordTok{exp}\NormalTok{(}\KeywordTok{rowSums}\NormalTok{(M_logtheta))}
+
+  \CommentTok{# Initialization of lists}
+\NormalTok{  t_shift_vec =}\StringTok{ }\KeywordTok{list}\NormalTok{()}
+\NormalTok{  n_trip_vec =}\StringTok{ }\KeywordTok{list}\NormalTok{()}
+\NormalTok{  id_trip_vec =}\StringTok{ }\KeywordTok{list}\NormalTok{()}
+\NormalTok{  t_start_vec =}\StringTok{ }\KeywordTok{list}\NormalTok{()}
+\NormalTok{  t_stop_vec =}\StringTok{ }\KeywordTok{list}\NormalTok{()}
+\NormalTok{  n_event_shift_vec =}\StringTok{ }\KeywordTok{list}\NormalTok{()}
+\NormalTok{  t_event_vec =}\StringTok{ }\KeywordTok{list}\NormalTok{()}
+\NormalTok{  n_event_trip_vec =}\StringTok{ }\KeywordTok{list}\NormalTok{()}
+
+  \ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\NormalTok{N)}
+\NormalTok{  \{}
+\NormalTok{    sim_tau =}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{10}\NormalTok{, }\FloatTok{1.3}\NormalTok{)}
+\NormalTok{    n_stop =}\StringTok{ }\KeywordTok{get_n_stop}\NormalTok{()}
+\NormalTok{    sim_t_trip =}\StringTok{ }\KeywordTok{round}\NormalTok{((}\DecValTok{1}\OperatorTok{:}\NormalTok{n_stop)}\OperatorTok{*}\NormalTok{sim_tau}\OperatorTok{/}\NormalTok{(n_stop }\OperatorTok{+}\StringTok{ }\DecValTok{1}\NormalTok{) }\OperatorTok{+}
+\StringTok{                         }\KeywordTok{rnorm}\NormalTok{(n_stop, }\DecValTok{0}\NormalTok{, sim_tau}\OperatorTok{*}\FloatTok{0.15}\OperatorTok{/}\NormalTok{n_stop), }\DecValTok{2}\NormalTok{)}
+\NormalTok{    t_events =}\StringTok{ }\KeywordTok{sim_jplp}\NormalTok{(}\DataTypeTok{tau0 =}\NormalTok{ sim_tau,}
+                        \DataTypeTok{kappa0 =}\NormalTok{ kappa,}
+                        \DataTypeTok{t_trip0 =}\NormalTok{ sim_t_trip,}
+                        \DataTypeTok{beta0 =}\NormalTok{ beta,}
+                        \DataTypeTok{theta0 =}\NormalTok{ theta[i])}
+\NormalTok{    t_shift_vec[[i]] =}\StringTok{ }\NormalTok{sim_tau                }\CommentTok{# end time for each shift}
+\NormalTok{    n_trip_vec[[i]] =}\StringTok{ }\NormalTok{n_stop }\OperatorTok{+}\StringTok{ }\DecValTok{1}              \CommentTok{# number of trips}
+\NormalTok{    id_trip_vec[[i]] =}\StringTok{ }\DecValTok{1}\OperatorTok{:}\NormalTok{(n_stop }\OperatorTok{+}\StringTok{ }\DecValTok{1}\NormalTok{)         }\CommentTok{# index for trips}
+\NormalTok{    t_start_vec[[i]] =}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, sim_t_trip)       }\CommentTok{# start time for each trip}
+\NormalTok{    t_stop_vec[[i]]  =}\StringTok{ }\KeywordTok{c}\NormalTok{(sim_t_trip, sim_tau) }\CommentTok{# end time for each trip}
+\NormalTok{    n_event_shift_vec[[i]] =}\StringTok{ }\KeywordTok{length}\NormalTok{(t_events) }\CommentTok{# number of events for each shift}
+\NormalTok{    t_event_vec[[i]] =}\StringTok{ }\NormalTok{t_events               }\CommentTok{# time of SCEs}
+
+    \CommentTok{# Create a vector of number of SCEs for each trip}
+\NormalTok{    tmp_n_event_trip =}\StringTok{ }\KeywordTok{rep}\NormalTok{(}\OtherTok{NA_integer_}\NormalTok{, (n_stop }\OperatorTok{+}\StringTok{ }\DecValTok{1}\NormalTok{))}
+    \ControlFlowTok{for}\NormalTok{ (j }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\NormalTok{(n_stop }\OperatorTok{+}\StringTok{ }\DecValTok{1}\NormalTok{)) \{}
+\NormalTok{      tmp_n_event_trip[j] =}\StringTok{ }\KeywordTok{sum}\NormalTok{(t_events }\OperatorTok{>}\StringTok{ }\NormalTok{t_start_vec[[i]][j] }\OperatorTok{&}
+\StringTok{                                  }\NormalTok{t_events }\OperatorTok{<=}\StringTok{ }\NormalTok{t_stop_vec[[i]][j])}
+\NormalTok{    \}}
+\NormalTok{    n_event_trip_vec[[i]] =}\StringTok{ }\NormalTok{tmp_n_event_trip}
+\NormalTok{  \}}
+
+  \CommentTok{# shifts data}
+\NormalTok{  shift_dt =}\StringTok{ }\KeywordTok{data.frame}\NormalTok{(}
+    \DataTypeTok{driver_id =} \KeywordTok{rep}\NormalTok{(}\DecValTok{1}\OperatorTok{:}\NormalTok{D, N_K),}
+    \DataTypeTok{shift_id =} \DecValTok{1}\OperatorTok{:}\NormalTok{N,}
+    \DataTypeTok{start_time =} \KeywordTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{, N),}
+    \DataTypeTok{end_time =} \KeywordTok{Reduce}\NormalTok{(c, t_shift_vec),}
+    \DataTypeTok{n_trip =} \KeywordTok{Reduce}\NormalTok{(c, n_trip_vec),}
+    \DataTypeTok{n_event =} \KeywordTok{Reduce}\NormalTok{(c, n_event_shift_vec)}
+\NormalTok{  )}
+
+  \CommentTok{# trips data set}
+\NormalTok{  trip_dt =}\StringTok{ }\KeywordTok{data.frame}\NormalTok{(}
+    \DataTypeTok{driver_id =} \KeywordTok{rep}\NormalTok{(shift_dt}\OperatorTok{$}\NormalTok{driver_id, shift_dt}\OperatorTok{$}\NormalTok{n_trip),}
+    \DataTypeTok{shift_id =} \KeywordTok{rep}\NormalTok{(}\DecValTok{1}\OperatorTok{:}\NormalTok{N, }\KeywordTok{Reduce}\NormalTok{(c, n_trip_vec)),}
+    \DataTypeTok{trip_id =} \KeywordTok{Reduce}\NormalTok{(c, id_trip_vec),}
+    \DataTypeTok{t_trip_start =} \KeywordTok{Reduce}\NormalTok{(c, t_start_vec),}
+    \DataTypeTok{t_trip_end =} \KeywordTok{Reduce}\NormalTok{(c, t_stop_vec),}
+    \DataTypeTok{N_events =} \KeywordTok{Reduce}\NormalTok{(c, n_event_trip_vec)}
+\NormalTok{  )}
+
+  \CommentTok{# TEMPORARY vector: a temporary vector for events per driver}
+\NormalTok{  n_event_driver =}\StringTok{ }\NormalTok{shift_dt }\OperatorTok{%>%}
+\StringTok{    }\KeywordTok{group_by}\NormalTok{(driver_id) }\OperatorTok{%>%}
+\StringTok{    }\KeywordTok{summarise}\NormalTok{(}\DataTypeTok{n_event =} \KeywordTok{sum}\NormalTok{(n_event)) }\OperatorTok{%>%}
+\StringTok{    }\KeywordTok{pull}\NormalTok{(n_event)}
+  \CommentTok{# TEMPORARY vector: a temporary vector for # of trips per driver}
+\NormalTok{  n_trip_driver =}\StringTok{ }\NormalTok{trip_dt }\OperatorTok{%>%}
+\StringTok{    }\KeywordTok{group_by}\NormalTok{(driver_id) }\OperatorTok{%>%}
+\StringTok{    }\KeywordTok{summarise}\NormalTok{(}\DataTypeTok{n_trip =} \KeywordTok{length}\NormalTok{(shift_id)) }\OperatorTok{%>%}
+\StringTok{    }\KeywordTok{pull}\NormalTok{(n_trip)}
+
+  \CommentTok{# events data set}
+\NormalTok{  event_dt =}\StringTok{ }\KeywordTok{data.frame}\NormalTok{(}
+    \DataTypeTok{driver_id =} \KeywordTok{rep}\NormalTok{(}\DecValTok{1}\OperatorTok{:}\NormalTok{D, n_event_driver),}
+    \DataTypeTok{shift_id =} \KeywordTok{rep}\NormalTok{(}\DecValTok{1}\OperatorTok{:}\NormalTok{N, }\KeywordTok{Reduce}\NormalTok{(c, n_event_shift_vec)),}
+    \DataTypeTok{event_time =} \KeywordTok{Reduce}\NormalTok{(c, t_event_vec)}
+\NormalTok{  )}
+
+\NormalTok{  stan_dt =}\StringTok{ }\KeywordTok{list}\NormalTok{(}
+    \DataTypeTok{N =} \KeywordTok{nrow}\NormalTok{(event_dt),}
+    \DataTypeTok{K =}\NormalTok{ K,}
+    \DataTypeTok{S =} \KeywordTok{nrow}\NormalTok{(trip_dt),}
+    \DataTypeTok{D =}\NormalTok{ D,}
+    \DataTypeTok{id =} \KeywordTok{rep}\NormalTok{(}\DecValTok{1}\OperatorTok{:}\NormalTok{D, n_trip_driver),}
+    \CommentTok{#driver index, must be an array}
+    \DataTypeTok{r_trip =}\NormalTok{ trip_dt}\OperatorTok{$}\NormalTok{trip_id,}
+    \DataTypeTok{t_trip_start =}\NormalTok{ trip_dt}\OperatorTok{$}\NormalTok{t_trip_start,}
+    \DataTypeTok{t_trip_end =}\NormalTok{ trip_dt}\OperatorTok{$}\NormalTok{t_trip_end,}
+    \DataTypeTok{event_time =}\NormalTok{ event_dt}\OperatorTok{$}\NormalTok{event_time,}
+    \DataTypeTok{group_size =}\NormalTok{ trip_dt}\OperatorTok{$}\NormalTok{N_events,}
+    \DataTypeTok{X_predictors =} \KeywordTok{as.matrix}\NormalTok{(X[}\KeywordTok{rep}\NormalTok{(}\KeywordTok{row.names}\NormalTok{(X), shift_dt}\OperatorTok{$}\NormalTok{n_trip), }\DecValTok{2}\OperatorTok{:}\DecValTok{4}\NormalTok{])}
+\NormalTok{  )}
+
+\NormalTok{  stan_jplp_dt_for_plp =}\StringTok{ }\KeywordTok{list}\NormalTok{(}
+    \DataTypeTok{N =} \KeywordTok{nrow}\NormalTok{(event_dt),}
+    \DataTypeTok{K =}\NormalTok{ K,}
+    \DataTypeTok{S =} \KeywordTok{nrow}\NormalTok{(shift_dt),}
+    \DataTypeTok{D =}\NormalTok{ D,}
+    \DataTypeTok{id =} \KeywordTok{rep}\NormalTok{(}\DecValTok{1}\OperatorTok{:}\NormalTok{D, N_K), }\CommentTok{# driver index at shift level}
+    \DataTypeTok{tau =}\NormalTok{ shift_dt}\OperatorTok{$}\NormalTok{end_time,}
+    \DataTypeTok{event_time =}\NormalTok{ event_dt}\OperatorTok{$}\NormalTok{event_time,}
+    \DataTypeTok{group_size =}\NormalTok{ shift_dt}\OperatorTok{$}\NormalTok{n_event, }\CommentTok{# the number of events in each shift}
+    \DataTypeTok{X_predictors =}\NormalTok{ X[,}\DecValTok{2}\OperatorTok{:}\DecValTok{4}\NormalTok{]}
+\NormalTok{  )}
+
+  \KeywordTok{return}\NormalTok{(}\KeywordTok{list}\NormalTok{(}\DataTypeTok{event_time =}\NormalTok{ event_dt,}
+              \DataTypeTok{trip_time =}\NormalTok{ trip_dt,}
+              \DataTypeTok{shift_time =}\NormalTok{ shift_dt,}
+              \DataTypeTok{stan_dt =}\NormalTok{ stan_dt,}
+              \DataTypeTok{stan_jplp_dt_for_plp =}\NormalTok{ stan_jplp_dt_for_plp))}
+\NormalTok{\}}
+
+\CommentTok{# ------------------------------------------------------------------}
+\CommentTok{# pull_use: pull wanted estimates from the posterior distributions}
+\NormalTok{pull_use =}\StringTok{ }\ControlFlowTok{function}\NormalTok{(}\DataTypeTok{var =} \StringTok{"theta"}\NormalTok{, }\DataTypeTok{est_obj =}\NormalTok{ f)\{}
+\NormalTok{  z =}\StringTok{ }\NormalTok{est_obj }\OperatorTok{%>%}
+\StringTok{    }\NormalTok{broom}\OperatorTok{::}\KeywordTok{tidy}\NormalTok{() }\OperatorTok{%>%}
+\StringTok{    }\KeywordTok{filter}\NormalTok{(}\KeywordTok{grepl}\NormalTok{(var, term))}
+  \KeywordTok{return}\NormalTok{(z)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{stan-code}{%
+\section{Stan code}\label{stan-code}}
+
+\begin{verbatim}
+functions{
+  real nhpp_log(vector t, real beta, real theta, real tau){
+    vector[num_elements(t)] loglik_part;
+    real loglikelihood;
+    for (i in 1:num_elements(t)){
+      loglik_part[i] = log(beta) - beta*log(theta) + (beta - 1)*log(t[i]);
+    }
+    loglikelihood = sum(loglik_part) - (tau/theta)^beta;
+    return loglikelihood;
+  }
+  real nhppnoevent_lp(real tau, real beta, real theta){
+    real loglikelihood = - (tau/theta)^beta;
+    return(loglikelihood);
+  }
+}
+data {
+  int<lower=1> N;                // total # of failures
+  int<lower=1> K;                // number of predictors
+  int<lower=1> S;                // total # of shifts
+  int<lower=1> D;                // total # of drivers
+  int<lower=1> id[S];            // driver index, must be an array
+  vector<lower=0>[S] tau;        // truncated time
+  vector<lower=0>[N] event_time; // failure time
+  int group_size[S];             // group sizes
+  matrix[S, K] X_predictors;     // predictor variable matrix
+}
+transformed data{
+  matrix[S, K] X_centered;
+  vector[K] X_means;
+  for(k0 in 1:K){
+    X_means[k0] = mean(X_predictors[, k0]);
+    X_centered[,k0] = X_predictors[, k0] - X_means[k0];
+  }
+}
+parameters{
+  real mu0;             // hyperparameter: mean
+  real<lower=0> sigma0; // hyperparameter: s.e.
+  real<lower=0> beta;   // shape parameter
+  vector[K] R1_K;       // fixed parameters each of K predictors
+  vector[D] R0;         // random intercept for each of D drivers
+}
+model{
+  int position = 1;
+  vector[S] theta_temp;
+
+  for (s0 in 1:S){
+    theta_temp[s0] = exp(R0[id[s0]] + X_centered[s0,]*R1_K);
+  }
+
+  for (s1 in 1:S){
+    if(group_size[s1] == 0) {
+      target += nhppnoevent_lp(tau[s1], beta, theta_temp[s1]);
+    }else{
+      segment(event_time, position, group_size[s1]) ~ nhpp(beta, theta_temp[s1], tau[s1]);
+      position += group_size[s1];
+    }
+  }
+  beta ~ gamma(1, 1);
+  R0 ~ normal(mu0, sigma0);
+  R1_K  ~ normal(0, 10);
+  mu0 ~ normal(0, 10);
+  sigma0 ~ gamma(1, 1);
+}
+generated quantities{
+  real mu0_true = mu0 - dot_product(X_means, R1_K);
+  vector[D] R0_true = R0 - dot_product(X_means, R1_K);
+  //real theta_correct = theta_temp - dot_product(X_centered, R1_K);
+}
+\end{verbatim}
+
+Different from NHPP with PLP intensity function, in which the likelihood
+function was evaluated by shifts, this JPLP likelihood function is
+evaluated by TRIPS, which are nested within shifts. In this way, the
+likelihood function can be evaluated using the \texttt{segment} function
+in Stan.
+
+\begin{verbatim}
+// Stan code to estimate a hierchical JPLP process
+functions{
+  // LogLikelihood function for shifts with events (N_{event} > 0)
+  real jplp_log(vector t_event, // time of SCEs
+                real trip_start,
+                real trip_end,
+                int r,     // trip index
+                real beta,
+                real theta,
+                real kappa)
+  {
+    vector[num_elements(t_event)] loglik;
+    real loglikelihood;
+    for (i in 1:num_elements(t_event))
+    {
+      loglik[i] = (r - 1)*log(kappa) + log(beta) - beta*log(theta) + 
+            (beta - 1)*log(t_event[i]);
+    }
+    loglikelihood = sum(loglik) - 
+          kappa^(r - 1)*theta^(-beta)*(trip_end^beta - trip_start^beta);
+    return loglikelihood;
+  }
+  // LogLikelihood function for shifts with no event (N_{event} = 0)
+  real jplpoevent_lp(real trip_start,
+                     real trip_end,
+                     int r,
+                     real beta,
+                     real theta,
+                     real kappa)
+  {
+    real loglikelihood = - kappa^(r - 1)*theta^(-beta)*(trip_end^beta - 
+                    trip_start^beta);
+    return(loglikelihood);
+  }
+}
+data {
+  int<lower=0> N;                   // total # of events
+  int<lower=1> D;                   // total # of drivers
+  int<lower=1> K;                   // number of predictors
+  int<lower=0> S;                   // total # of trips, not shifts!!
+  int<lower=1> id[S];               // driver index, must be an array
+  int r_trip[S];                    // index of trip $r$
+  vector<lower=0>[S] t_trip_start;  // trip start time
+  vector<lower=0>[S] t_trip_end;    // trip end time
+  vector<lower=0>[N] event_time;    // failure time
+  int group_size[S];                // group sizes
+  matrix[S, K] X_predictors;        // predictor variable matrix
+}
+transformed data{
+  matrix[S, K] X_centered;
+  vector[K] X_means;
+  for(k0 in 1:K){
+    X_means[k0] = mean(X_predictors[, k0]);
+    X_centered[,k0] = X_predictors[, k0] - X_means[k0];
+  }
+}
+parameters{
+  real mu0;                     // hyperparameter
+  real<lower=0> sigma0;         // hyperparameter
+  real<lower=0> beta;           // Shape parameter
+  real<lower=0, upper=1> kappa; // Jump parameter
+  vector[K] R1_K;               // fixed parameters for K predictors
+  vector[D] R0;                 // random intercept for D drivers
+}
+model{
+  int position = 1;
+  vector[S] theta_temp;
+
+  for (s0 in 1:S){
+    theta_temp[s0] = exp(R0[id[s0]] + X_centered[s0,]*R1_K);
+  }
+
+  for (s1 in 1:S){ // Likelihood estimation for JPLP based on trips, not shifts
+    if(group_size[s1] == 0){
+      target += jplpoevent_lp(t_trip_start[s1], t_trip_end[s1], 
+            r_trip[s1], beta, theta_temp[s1], kappa);
+      }else{
+      segment(event_time, position, group_size[s1]) ~ jplp_log(t_trip_start[s1], 
+            t_trip_end[s1], r_trip[s1], beta, theta_temp[s1], kappa);
+      position += group_size[s1];
+    }
+  }
+//PRIORS
+  beta ~ gamma(1, 1);
+  kappa ~ uniform(0, 1);
+  R0 ~ normal(mu0, sigma0);
+  R1_K  ~ normal(0, 10);
+  mu0 ~ normal(0, 10);
+  sigma0 ~ gamma(1, 1);
+}
+generated quantities{
+  real mu0_true = mu0 - dot_product(X_means, R1_K);
+  vector[D] R0_true = R0 - dot_product(X_means, R1_K);
+  //real theta_correct = theta_temp - dot_product(X_centered, R1_K);
+}
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{N_sim =}\StringTok{ }\DecValTok{1000}
+
+\KeywordTok{set.seed}\NormalTok{(}\DecValTok{123}\NormalTok{)}
+\CommentTok{#------------------------  D = 10  ------------------------ }
+\NormalTok{sim10 =}\StringTok{ }\KeywordTok{list}\NormalTok{()}
+\ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\NormalTok{N_sim) \{}
+  \KeywordTok{print}\NormalTok{(}\KeywordTok{paste0}\NormalTok{(}\StringTok{"D = 10, progress: "}\NormalTok{,}
+               \KeywordTok{round}\NormalTok{(i}\OperatorTok{*}\DecValTok{100}\OperatorTok{/}\NormalTok{N_sim, }\DecValTok{2}\NormalTok{),}
+               \StringTok{"% ("}\NormalTok{, i, }\StringTok{" out of 1000)"}\NormalTok{))}
+
+  \KeywordTok{tryCatch}\NormalTok{(\{z =}\StringTok{ }\KeywordTok{sim_hier_JPLP}\NormalTok{(}\DataTypeTok{beta =} \FloatTok{1.2}\NormalTok{, }\DataTypeTok{D =} \DecValTok{10}\NormalTok{)}
+\NormalTok{  fit0 =}\StringTok{ }\KeywordTok{stan}\NormalTok{(}\StringTok{"stan/jplp_hierarchical.stan"}\NormalTok{,}
+              \DataTypeTok{chains =} \DecValTok{1}\NormalTok{, }\DataTypeTok{iter =} \DecValTok{3000}\NormalTok{, }\DataTypeTok{refresh =} \DecValTok{0}\NormalTok{,}
+              \DataTypeTok{data =}\NormalTok{ z}\OperatorTok{$}\NormalTok{stan_dt, }\DataTypeTok{seed =} \DecValTok{123}
+\NormalTok{  )\}, }\DataTypeTok{error=}\ControlFlowTok{function}\NormalTok{(e)\{\})}
+
+\NormalTok{  sim10[[i]] =}\StringTok{ }\KeywordTok{pull_use}\NormalTok{(}\StringTok{"beta|kappa|mu0_true|sigma0|R1_K"}\NormalTok{, fit0)}
+\NormalTok{\}}
+\NormalTok{data.table}\OperatorTok{::}\KeywordTok{fwrite}\NormalTok{(data.table}\OperatorTok{::}\KeywordTok{rbindlist}\NormalTok{(sim10),}
+                   \StringTok{"fit/JPLP_fit_sim_hierarchical/sim10.csv"}\NormalTok{)}
+
+\CommentTok{#------------------------  D = 25  ------------------------ }
+\NormalTok{sim25 =}\StringTok{ }\KeywordTok{list}\NormalTok{()}
+\ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\NormalTok{N_sim) \{}
+  \KeywordTok{print}\NormalTok{(}\KeywordTok{paste0}\NormalTok{(}\StringTok{"D = 25, progress: "}\NormalTok{,}
+               \KeywordTok{round}\NormalTok{(i}\OperatorTok{*}\DecValTok{100}\OperatorTok{/}\NormalTok{N_sim, }\DecValTok{2}\NormalTok{),}
+               \StringTok{"% ("}\NormalTok{, i, }\StringTok{" out of 1000)"}\NormalTok{))}
+
+  \KeywordTok{tryCatch}\NormalTok{(\{z =}\StringTok{ }\KeywordTok{sim_hier_JPLP}\NormalTok{(}\DataTypeTok{beta =} \FloatTok{1.2}\NormalTok{, }\DataTypeTok{kappa =} \FloatTok{0.8}\NormalTok{,}
+                              \DataTypeTok{mu0 =} \FloatTok{0.2}\NormalTok{, }\DataTypeTok{sigma0 =} \FloatTok{0.5}\NormalTok{,}
+                              \DataTypeTok{R_K =} \KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{, }\FloatTok{0.3}\NormalTok{, }\FloatTok{0.2}\NormalTok{), }\DataTypeTok{D =} \DecValTok{25}\NormalTok{)\},}
+           \DataTypeTok{error=}\ControlFlowTok{function}\NormalTok{(e)\{\})}
+
+  \KeywordTok{tryCatch}\NormalTok{(\{fit0 =}\StringTok{ }\KeywordTok{stan}\NormalTok{(}\StringTok{"stan/jplp_hierarchical.stan"}\NormalTok{,}
+                        \DataTypeTok{chains =} \DecValTok{1}\NormalTok{, }\DataTypeTok{iter =} \DecValTok{4000}\NormalTok{, }\DataTypeTok{refresh =} \DecValTok{0}\NormalTok{,}
+                        \DataTypeTok{data =}\NormalTok{ z}\OperatorTok{$}\NormalTok{stan_dt, }\DataTypeTok{seed =} \DecValTok{123}\NormalTok{)\},}
+           \DataTypeTok{error=}\ControlFlowTok{function}\NormalTok{(e)\{\})}
+
+\NormalTok{  sim25[[i]] =}\StringTok{ }\KeywordTok{pull_use}\NormalTok{(}\StringTok{"beta|kappa|mu0_true|sigma0|R1_K"}\NormalTok{, fit0)}
+\NormalTok{\}}
+\NormalTok{data.table}\OperatorTok{::}\KeywordTok{fwrite}\NormalTok{(data.table}\OperatorTok{::}\KeywordTok{rbindlist}\NormalTok{(sim25),}
+                   \StringTok{"fit/JPLP_fit_sim_hierarchical/sim25.csv"}\NormalTok{)}
+
+\CommentTok{#------------------------  D = 50  ------------------------ }
+\NormalTok{sim50 =}\StringTok{ }\KeywordTok{list}\NormalTok{()}
+\ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\NormalTok{N_sim) \{}
+  \KeywordTok{print}\NormalTok{(}\KeywordTok{paste0}\NormalTok{(}\StringTok{"D = 50, progress: "}\NormalTok{,}
+               \KeywordTok{round}\NormalTok{(i}\OperatorTok{*}\DecValTok{100}\OperatorTok{/}\DecValTok{500}\NormalTok{, }\DecValTok{2}\NormalTok{),}
+               \StringTok{"% ("}\NormalTok{, i, }\StringTok{" out of 500)"}\NormalTok{))}
+
+  \KeywordTok{tryCatch}\NormalTok{(\{z =}\StringTok{ }\KeywordTok{sim_hier_JPLP}\NormalTok{(}\DataTypeTok{beta =} \FloatTok{1.2}\NormalTok{, }\DataTypeTok{kappa =} \FloatTok{0.8}\NormalTok{,}
+                              \DataTypeTok{mu0 =} \FloatTok{0.2}\NormalTok{, }\DataTypeTok{sigma0 =} \FloatTok{0.5}\NormalTok{,}
+                              \DataTypeTok{R_K =} \KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{, }\FloatTok{0.3}\NormalTok{, }\FloatTok{0.2}\NormalTok{), }\DataTypeTok{D =} \DecValTok{50}\NormalTok{)\},}
+           \DataTypeTok{error=}\ControlFlowTok{function}\NormalTok{(e)\{\})}
+
+  \KeywordTok{tryCatch}\NormalTok{(\{fit0 =}\StringTok{ }\KeywordTok{stan}\NormalTok{(}\StringTok{"stan/jplp_hierarchical.stan"}\NormalTok{,}
+                        \DataTypeTok{chains =} \DecValTok{1}\NormalTok{, }\DataTypeTok{iter =} \DecValTok{4000}\NormalTok{, }\DataTypeTok{refresh =} \DecValTok{0}\NormalTok{,}
+                        \DataTypeTok{data =}\NormalTok{ z}\OperatorTok{$}\NormalTok{stan_dt, }\DataTypeTok{seed =} \DecValTok{123}\NormalTok{)\},}
+           \DataTypeTok{error=}\ControlFlowTok{function}\NormalTok{(e)\{\})}
+
+\NormalTok{  sim50[[i]] =}\StringTok{ }\KeywordTok{pull_use}\NormalTok{(}\StringTok{"beta|kappa|mu0_true|sigma0|R1_K"}\NormalTok{, fit0)}
+\NormalTok{\}}
+\NormalTok{data.table}\OperatorTok{::}\KeywordTok{fwrite}\NormalTok{(data.table}\OperatorTok{::}\KeywordTok{rbindlist}\NormalTok{(sim50),}
+                   \StringTok{"fit/JPLP_fit_sim_hierarchical/sim50.csv"}\NormalTok{)}
+
+\CommentTok{#------------------------  D = 75  ------------------------ }
+\NormalTok{sim75 =}\StringTok{ }\KeywordTok{list}\NormalTok{()}
+\ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\NormalTok{N_sim) \{}
+  \KeywordTok{print}\NormalTok{(}\KeywordTok{paste0}\NormalTok{(}\StringTok{"D = 75, progress: "}\NormalTok{,}
+               \KeywordTok{round}\NormalTok{(i}\OperatorTok{*}\DecValTok{100}\OperatorTok{/}\NormalTok{N_sim, }\DecValTok{2}\NormalTok{),}
+               \StringTok{"% ("}\NormalTok{, i, }\StringTok{" out of 1000)"}\NormalTok{))}
+
+  \KeywordTok{tryCatch}\NormalTok{(\{z =}\StringTok{ }\KeywordTok{sim_hier_JPLP}\NormalTok{(}\DataTypeTok{beta =} \FloatTok{1.2}\NormalTok{, }\DataTypeTok{kappa =} \FloatTok{0.8}\NormalTok{,}
+                              \DataTypeTok{mu0 =} \FloatTok{0.2}\NormalTok{, }\DataTypeTok{sigma0 =} \FloatTok{0.5}\NormalTok{,}
+                              \DataTypeTok{R_K =} \KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{, }\FloatTok{0.3}\NormalTok{, }\FloatTok{0.2}\NormalTok{), }\DataTypeTok{D =} \DecValTok{75}\NormalTok{)\},}
+           \DataTypeTok{error=}\ControlFlowTok{function}\NormalTok{(e)\{\})}
+
+  \KeywordTok{tryCatch}\NormalTok{(\{fit0 =}\StringTok{ }\KeywordTok{stan}\NormalTok{(}\StringTok{"stan/jplp_hierarchical.stan"}\NormalTok{,}
+                        \DataTypeTok{chains =} \DecValTok{1}\NormalTok{, }\DataTypeTok{iter =} \DecValTok{4000}\NormalTok{, }\DataTypeTok{refresh =} \DecValTok{0}\NormalTok{,}
+                        \DataTypeTok{data =}\NormalTok{ z}\OperatorTok{$}\NormalTok{stan_dt, }\DataTypeTok{seed =} \DecValTok{123}\NormalTok{)\},}
+           \DataTypeTok{error=}\ControlFlowTok{function}\NormalTok{(e)\{\})}
+
+\NormalTok{  sim75[[i]] =}\StringTok{ }\KeywordTok{pull_use}\NormalTok{(}\StringTok{"beta|kappa|mu0_true|sigma0|R1_K"}\NormalTok{, fit0)}
+\NormalTok{\}}
+\NormalTok{data.table}\OperatorTok{::}\KeywordTok{fwrite}\NormalTok{(data.table}\OperatorTok{::}\KeywordTok{rbindlist}\NormalTok{(sim75),}
+                   \StringTok{"fit/JPLP_fit_sim_hierarchical/sim75.csv"}\NormalTok{)}
+
+\CommentTok{#------------------------  D = 100  ------------------------ }
+\NormalTok{sim100 =}\StringTok{ }\KeywordTok{list}\NormalTok{()}
+\ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\NormalTok{N_sim) \{}
+  \KeywordTok{print}\NormalTok{(}\KeywordTok{paste0}\NormalTok{(}\StringTok{"D = 100, progress: "}\NormalTok{, }\KeywordTok{round}\NormalTok{(i}\OperatorTok{*}\DecValTok{100}\OperatorTok{/}\NormalTok{N_sim, }\DecValTok{2}\NormalTok{), }
+               \StringTok{"% ("}\NormalTok{, i, }\StringTok{" out of 1000)"}\NormalTok{))}
+
+  \KeywordTok{tryCatch}\NormalTok{(\{z =}\StringTok{ }\KeywordTok{sim_hier_JPLP}\NormalTok{(}\DataTypeTok{beta =} \FloatTok{1.2}\NormalTok{, }\DataTypeTok{kappa =} \FloatTok{0.8}\NormalTok{, }\DataTypeTok{mu0 =} \FloatTok{0.2}\NormalTok{,}
+                              \DataTypeTok{sigma0 =} \FloatTok{0.5}\NormalTok{, }\DataTypeTok{R_K =} \KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{, }\FloatTok{0.3}\NormalTok{, }\FloatTok{0.2}\NormalTok{), }\DataTypeTok{D =} \DecValTok{100}\NormalTok{)\},}
+           \DataTypeTok{error=}\ControlFlowTok{function}\NormalTok{(e)\{\})}
+
+  \KeywordTok{tryCatch}\NormalTok{(\{fit0 =}\StringTok{ }\KeywordTok{stan}\NormalTok{(}\StringTok{"stan/jplp_hierarchical.stan"}\NormalTok{,}
+                        \DataTypeTok{chains =} \DecValTok{1}\NormalTok{, }\DataTypeTok{iter =} \DecValTok{4000}\NormalTok{, }\DataTypeTok{refresh =} \DecValTok{0}\NormalTok{,}
+                        \DataTypeTok{data =}\NormalTok{ z}\OperatorTok{$}\NormalTok{stan_dt, }\DataTypeTok{seed =} \DecValTok{123}\NormalTok{)\},}
+           \DataTypeTok{error=}\ControlFlowTok{function}\NormalTok{(e)\{\})}
+
+\NormalTok{  sim100[[i]] =}\StringTok{ }\KeywordTok{pull_use}\NormalTok{(}\StringTok{"beta|kappa|mu0_true|sigma0|R1_K"}\NormalTok{, fit0)}
+\NormalTok{\}}
+\NormalTok{data.table}\OperatorTok{::}\KeywordTok{fwrite}\NormalTok{(data.table}\OperatorTok{::}\KeywordTok{rbindlist}\NormalTok{(sim100),}
+                   \StringTok{"fit/JPLP_fit_sim_hierarchical/sim100.csv"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\end{document}
